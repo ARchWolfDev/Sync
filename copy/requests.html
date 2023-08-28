@@ -1,0 +1,655 @@
+{% extends "base.html" %}
+{% block title %}Admin: Your Team{% endblock %}
+{% block content %}
+    <div class="row">
+      <div class="col-lg-9">
+        <ul class="nav nav-pills mb-3 control-button" id="pills-tab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" href="{{url_for('admin', id='dashboard')}}">Dashboard</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" href="{{url_for('admin', id='my-team')}}">My Teams</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" href="{{url_for('admin', id='projects')}}">Projects</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link active" href="{{url_for('admin', id='requests')}}">Requests</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" href="{{url_for('admin', id='tasks')}}">Tasks</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" href="{{url_for('admin', id='profiles')}}">Profiles</a>
+          </li>
+          <li class="nav-item dropdown create-btn">
+            <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-plus"></i>
+              Create
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#departmentModal">Department</a></li>
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#roleModal">Role</a></li>
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectModal">Project</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <!-- New Department MODAL -->
+      <div class="modal fade" id="departmentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <form action="{{ url_for('create_department') }}" method="post">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">New Department</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row g-3">
+                  <div class="col-3">
+                    <input type="text" class="form-control" placeholder="ID" aria-label="ID" name="id">
+                  </div>
+                  <div class="col-9">
+                    <input type="text" class="form-control" placeholder="Department Name" aria-label="Department" name="name">
+                  </div>
+                  <div class="row g-3">
+                    <div class="col" style="padding: 0;">
+                      <select class="form-select" aria-label="Default select example" name="responsible">
+                        <option selected disabled value="">Responsible...</option>
+                        {% for employee in db.select_all("EMPLOYEE") %}
+                        <option value="{{employee[0]}}">{{ employee[1] + ' ' + employee[2] }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Create</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- New Role MODAL -->
+      <div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <form action="{{ url_for('create_role') }}" method="post">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">New Role</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row g-3">
+                  <div class="col-3">
+                    <input type="text" class="form-control" placeholder="ID" aria-label="First name" name="id" required>
+                  </div>
+                  <div class="col-9">
+                    <input type="text" class="form-control" placeholder="Role Name" aria-label="Last name" name="role" required>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col" style="padding: 0;">
+                      <select class="form-select" aria-label="Default select example" name="department" required>
+                        <option selected disabled value="">Part of...</option>
+                        {% for department in db.select_all("DEPARTMENTS") %}
+                        <option value="{{department[0]}}">{{department[1]}}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Create</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- New Project MODAL -->
+      <div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <form action="{{ url_for('create_project') }}" method="post">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">New Project</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row g-3">
+                  <div class="col-3">
+                    <input type="text" class="form-control" placeholder="ID" aria-label="First name" name="id">
+                  </div>
+                  <div class="col-9">
+                    <input type="text" class="form-control" placeholder="Project Name" aria-label="Last name" name="project">
+                  </div>
+                  <div class="row g-3">
+                    <div class="col" style="padding: 0;">
+                      <input type="text" class="form-control" placeholder="Client Name" aria-label="Last name" name="client">
+                    </div>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col" style="padding: 0;">
+                      <select class="form-select" aria-label="Default select example" required name="responsible">
+                        <option selected disabled value="">Responsable...</option>
+                        {% for employee in db.select_all("EMPLOYEE") %}
+                          <option value="{{employee[0]}}">{{ employee[1] + ' ' + employee[2] }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Create</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- Search -->
+      <div class="col-lg-3">
+        <form class="d-flex search" role="search" action="" method="post">
+          <input class="form-control me-2" id="browser" type="search" name="browser" placeholder="Search" list="browserdata" aria-label="Search" autocomplete="off">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+          <datalist id="browserdata">
+            {% for emp in db.select_all("EMPLOYEE") %}
+              <option value="{{emp[0]}}">{{ emp[1] + ' ' + emp[2] }}</option>
+            {% endfor %}
+          </datalist>
+        </form>
+      </div>
+      <!-- Information -->
+      <div class="col-lg-9">
+        <div class="col" style="margin:20px;">
+          <div class="accordion" id="accordionRequests">
+                <!-- PENDING REQUEST -->
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingPendingRequest">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePendingRequest" aria-expanded="true" aria-controls="collapsePendingRequest">
+                      Pending requests
+                    </button>
+                  </h2>
+                  <div id="collapsePendingRequest" class="accordion-collapse collapse show" aria-labelledby="headingPendingRequest" data-bs-parent="#accordionRequests">
+                    <div class="accordion-body">
+                      <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link active btn-sm" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-pending-time" type="button" role="tab" aria-controls="pills-time" aria-selected="true"><i class="fa-solid fa-calendar-days"></i> Time entry</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-pending-annual" type="button" role="tab" aria-controls="pills-annual" aria-selected="false"><i class="fa-sharp fa-solid fa-sun"></i> Annual Leave</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-pending-medical" type="button" role="tab" aria-controls="pills-medical" aria-selected="false"><i class="fa-solid fa-kit-medical"></i> Medical Leave</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-pending-other" type="button" role="tab" aria-controls="pills-other" aria-selected="false"><i class="fa-solid fa-ellipsis"></i> Other Leave</button>
+                        </li>
+                      </ul>
+                      <div class="tab-content" id="pills-tabContent" style="padding:0;">
+                        <div class="tab-pane fade show active" id="pills-pending-time" name="1" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+                          <form  action="{{ url_for('requests') }}" method="post">
+                            <table class="table table-hover" style="margin-top: 20px;">
+                              <thead>
+                                <tr>
+                                  <th scope="col">ID</th>
+                                  <th scope="col">Employee</th>
+                                  <th scope="col">Date</th>
+                                  <th scope="col">Create date</th>
+                                  <th scope="col">Project</th>
+                                  <th scope="col">
+                                    <div class="btn-group">
+                                      <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        Action
+                                      </button>
+                                      <ul class="dropdown-menu">
+                                        <li><button  type="submit" class="dropdown-item" href="#">Send form</button></li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="#">Approve all</a></li>
+                                        <li><a class="dropdown-item" href="#">Reject all</a></li>
+                                      </ul>
+                                    </div>
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody class="tbody">
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timesheet in db.select_all("REQ_TIMESHEET") %}
+                                  {% if emp[0] == timesheet[5] and emp[7] == user['id'] and timesheet[3] == 1%}
+                                    <tr>
+                                      <td scope="col">{{timesheet[0]}}</td>
+                                      <td scope="col">{{timesheet[5]}}</td>
+                                      <td scope="col">{{timesheet[1]}}</td>
+                                      <td scope="col">{{timesheet[2]}}</td>
+                                      <td scope="col">{{timesheet[4]}}</td>
+                                      <td scope="col">
+                                        <div class="form-check">
+                                          <input class="form-check-input" type="radio" name="{{timesheet[0]}}" id="flexRadio{{timesheet[0]}}approve" value="2">
+                                          <label class="form-check-label" for="flexRadio{{timesheet[0]}}approve">
+                                            Approve
+                                          </label>
+                                        </div>
+                                        <div class="form-check">
+                                          <input class="form-check-input" type="radio" name="{{timesheet[0]}}" id="flexRadio{{timesheet[0]}}reject" value="3">
+                                          <label class="form-check-label" for="flexRadio{{timesheet[0]}}reject">
+                                            Reject
+                                          </label>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                              </tbody>
+                            </table>
+                          </form>
+                        </div>
+                        <div class="tab-pane fade" id="pills-pending-annual" name="2"  role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 1 and timeoff[1] == 'ANL'%}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-pending-medical" name="3"  role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 1 and timeoff[1] == 'SKL'%}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-pending-other" name="4"  role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Type</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 1 and timeoff[1] not in 'ANL' and timeoff[1] not in 'SKL' %}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{db.select("TIMEOFF_CLASS", "ID", timeoff[1])[0][1]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- APPROVED REQUEST -->
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingApprovedRequest">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseApprovedRequest" aria-expanded="false" aria-controls="collapseApprovedRequest">
+                      Approved Requests
+                    </button>
+                  </h2>
+                  <div id="collapseApprovedRequest" class="accordion-collapse collapse" aria-labelledby="headingApprovedRequest" data-bs-parent="#accordionRequests">
+                    <div class="accordion-body">
+                      <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link active btn-sm" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-approved-time" type="button" role="tab" aria-controls="pills-time" aria-selected="true"><i class="fa-solid fa-calendar-days"></i> Time entry</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-approved-annual" type="button" role="tab" aria-controls="pills-annual" aria-selected="false"><i class="fa-sharp fa-solid fa-sun"></i> Annual Leave</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-approved-medical" type="button" role="tab" aria-controls="pills-medical" aria-selected="false"><i class="fa-solid fa-kit-medical"></i> Medical Leave</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-approved-other" type="button" role="tab" aria-controls="pills-other" aria-selected="false"><i class="fa-solid fa-ellipsis"></i> Other Leave</button>
+                        </li>
+                      </ul>
+                      <div class="tab-content" id="pills-tabContent" style="padding:0;">
+                        <div class="tab-pane fade show active" id="pills-approved-time" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Create date</th>
+                                <th scope="col">Project</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            {% for emp in db.select_all("EMPLOYEE") %}
+                              {% for timesheet in db.select_all("REQ_TIMESHEET") %}
+                                {% if emp[0] == timesheet[5] and emp[7] == user['id'] and timesheet[3] == 2%}
+                                  <tr>
+                                    <td scope="col">{{timesheet[0]}}</td>
+                                    <td scope="col">{{timesheet[5]}}</td>
+                                    <td scope="col">{{timesheet[1]}}</td>
+                                    <td scope="col">{{timesheet[2]}}</td>
+                                    <td scope="col">{{timesheet[4]}}</td>
+                                    <td scope="col">Action</td>
+                                  </tr>
+                                {% endif %}
+                              {% endfor %}
+                            {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-approved-annual" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 2 and timeoff[1] == 'ANL'%}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-approved-medical" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 2 and timeoff[1] == 'SKL'%}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-approved-other" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 2 and timeoff[1] not in 'ANL' and timeoff[1] not in 'SKL' %}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- REJECTED REQUEST -->
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingRejectedRequest">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRejectedRequest" aria-expanded="false" aria-controls="collapseRejectedRequest">
+                      Rejected Requests
+                    </button>
+                  </h2>
+                  <div id="collapseRejectedRequest" class="accordion-collapse collapse" aria-labelledby="headingRejectedRequest" data-bs-parent="#accordionRequests">
+                    <div class="accordion-body">
+                      <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link active btn-sm" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-rejected-time" type="button" role="tab" aria-controls="pills-time" aria-selected="true"><i class="fa-solid fa-calendar-days"></i> Time entry</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-rejected-annual" type="button" role="tab" aria-controls="pills-annual" aria-selected="false"><i class="fa-sharp fa-solid fa-sun"></i> Annual Leave</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-rejected-medical" type="button" role="tab" aria-controls="pills-medical" aria-selected="false"><i class="fa-solid fa-kit-medical"></i> Medical Leave</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-rejected-other" type="button" role="tab" aria-controls="pills-other" aria-selected="false"><i class="fa-solid fa-ellipsis"></i> Other Leave</button>
+                        </li>
+                      </ul>
+                      <div class="tab-content" id="pills-tabContent" style="padding:0;">
+                        <div class="tab-pane fade show active" id="pills-rejected-time" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Create date</th>
+                                <th scope="col">Project</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            {% for emp in db.select_all("EMPLOYEE") %}
+                              {% for timesheet in db.select_all("REQ_TIMESHEET") %}
+                                {% if emp[0] == timesheet[5] and emp[7] == user['id'] and timesheet[3] == 3%}
+                                  <tr>
+                                    <td scope="col">{{timesheet[0]}}</td>
+                                    <td scope="col">{{timesheet[5]}}</td>
+                                    <td scope="col">{{timesheet[1]}}</td>
+                                    <td scope="col">{{timesheet[2]}}</td>
+                                    <td scope="col">{{timesheet[4]}}</td>
+                                    <td scope="col">Action</td>
+                                  </tr>
+                                {% endif %}
+                              {% endfor %}
+                            {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-rejected-annual" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 3 and timeoff[1] == 'ANL'%}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-rejected-medical" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 3 and timeoff[1] == 'SKL'%}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-rejected-other" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 3 and timeoff[1] not in 'ANL' and timeoff[1] not in 'SKL' %}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+        </div>
+        <!-- Charts -->
+        <div class="col char" style="margin: 20px;">
+          <div class="row">
+            <div class="col" style="text-align:center;">
+              <h5 style="margin-top: 10px;">Charts</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% include "side-admin.html" %}
+    </div>
+{% endblock %}

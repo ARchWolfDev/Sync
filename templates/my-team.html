@@ -1,0 +1,636 @@
+{% extends "base.html" %}
+{% block title %}Admin: Your Team{% endblock %}
+{% block content %}
+    <div class="row">
+      <div class="col-lg-9">
+        <ul class="nav nav-pills mb-3 control-button" id="pills-tab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" href="{{url_for('admin', id='dashboard')}}">Dashboard</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link active" href="{{url_for('admin', id='my-team')}}">My Teams</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" href="{{url_for('admin', id='projects')}}">Projects</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" href="{{url_for('admin', id='requests')}}">Requests</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" href="{{url_for('admin', id='tasks')}}">Tasks</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" href="{{url_for('admin', id='profiles')}}">Profiles</a>
+          </li>
+          <li class="nav-item dropdown create-btn">
+            <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-plus"></i>
+              Create
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#departmentModal">Department</a></li>
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#roleModal">Role</a></li>
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectModal">Project</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      {% include "create_button.html" %}
+      <!-- Search -->
+      <div class="col-lg-3">
+        <form class="d-flex search" role="search" action="" method="post">
+          <input class="form-control me-2" id="browser" type="search" name="browser" placeholder="Search" list="browserdata" aria-label="Search" autocomplete="off">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+          <datalist id="browserdata">
+            {% for emp in db.select_all("v_employees") %}
+              <option value="{{emp[0]}}">{{ emp[3] }}</option>
+            {% endfor %}
+          </datalist>
+        </form>
+      </div>
+      <!-- Information -->
+      <div class="col-lg-9">
+        <div class="col" style="margin:20px;">
+          <div class="accordion" id="accordionExample">
+            {%if user['admin'] == 2%}
+            {% for department in db.select("t_departments", "responsible_id", user['id']) %}
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingYour{{department[0]}}">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#your{{department[0]}}Team" aria-expanded="true" aria-controls="collapseOne">
+                  {{department[1]}} Team
+                </button>
+              </h2>
+              <div id="your{{department[0]}}Team" class="accordion-collapse collapse show" aria-labelledby="headingYour{{department[0]}}" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                  <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#your{{department[0]}}Modal">Add new</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#edityour{{department[0]}}DepartmentModal">Edit</button>
+                  <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteyour{{department[0]}}DepartmentModal" style="float: right;">Delete</button>
+                  <!-- Add New MODAL -->
+                  <div class="modal fade" id="your{{department[0]}}Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <form  action="{{ url_for('create', item_type='employee') }}" method="post">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Add new to {{department[1]}} Team</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            <div class="row g-3">
+                              <div class="col-2">
+                                <input type="text" class="form-control" placeholder="ID" aria-label="First name" name="id" value="{{db.select('cv_table_id', 'id', 'EMP-')[0][3]}}">
+                              </div>
+                              <div class="col-5">
+                                <input type="text" class="form-control" placeholder="First name" aria-label="First name" id="firstName" oninput="email()" name="first_name">
+                              </div>
+                              <div class="col-5">
+                                <input type="text" class="form-control" placeholder="Last name" aria-label="Last name" id="lastName" oninput="email()" name="last_name">
+                              </div>
+                              <div class="col-12">
+                                <p id="demo" ></p>
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="" placeholder="first.last@arch-dev.com" name="email">
+                              </div>
+                              <div class="col-6">
+                                <label for="inputAddress" class="form-label">Role</label>
+                                <select class="form-select" aria-label="Default select example" name="role" required>
+                                  <option selected disabled value="">Role..</option>
+                                  {% for role in db.select("t_roles", "department_id", department[0]) %}
+                                  <option value="{{role[0]}}">{{role[1]}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-6">
+                                <label for="inputAddress" class="form-label">Manager</label>
+                                <select class="form-select" aria-label="Default select example" name="manager_id">
+                                  <option selected>Manager..</option>
+                                  {% for manager in db.select_all("v_employees") %}
+                                  <option value="{{manager[0]}}">{{ manager[3] }}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-6">
+                                <label for="hireDate" class="form-label">Hire Date</label>
+                                <input type="date" class="form-control" id="hireDate" name="hire_date">
+                              </div>
+                              <div class="col-12">
+                                <label for="inputAddress" class="form-label">Address</label>
+                                <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St" name="address">
+                              </div>
+                              <div class="col-12">
+                                <label for="inputNumber" class="form-label">Phone Number</label>
+                                <input type="text" class="form-control" id="inputNumber" placeholder="123456789" name="phone_number">
+                              </div>
+                              <div class="col-6">
+                                <label for="applicationRole" class="form-label"><strong style="color:#5E17EB;">Sync</strong> role</label>
+                                <select class="form-select" id="applicationRole" name="app_role">
+                                  <option selected disabled></option>
+                                  <option value="1">Admin</option>
+                                  <option value="2">Department Coordinator</option>
+                                  <option value="3">Employee</option>
+                                </select>
+                              </div>
+                              <script>
+                                function email() {
+                                  let first = document.getElementById("first").value;
+                                  let last = document.getElementById("last").value;
+                                  document.getElementById("demo").innerHTML = first.toLowerCase() + "." + last.toLowerCase()  + "@arch-dev.com";
+                                }
+                              </script>
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                  <!-- Edit Department Modal -->
+                  <div class="modal fade" id="edityour{{department[0]}}DepartmentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <form action="{{ url_for('edit', item_type='department') }}" method="post">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Department</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            <div class="row g-3">
+                              <div class="col-3">
+                                <input type="text" class="form-control" placeholder="ID" name="id" value="{{department[0]}}" readonly>
+                              </div>
+                              <div class="col-9">
+                                <input type="text" class="form-control" placeholder="Department Name" value="{{department[1]}}" name="name">
+                              </div>
+                              <div class="row g-3">
+                                <div class="col" style="padding: 0;">
+                                  <select class="form-select" aria-label="Default select example" name="responsible_id">
+                                    {% for employee in db.select_all("v_employees") %}
+                                      {% if employee[0] == department[2] %}
+                                        <option selected disabled value="">{{ employee[3] }}</option>
+                                      {% else %}
+                                        <option value="{{employee[0]}}">{{ employee[3] }}</option>
+                                      {% endif %}
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                  <!-- Delete Department MODAL -->
+                  <div class="modal fade" id="deleteyour{{department[0]}}DepartmentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Department</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <h6 >Are you sure that you want to delete it?</h6>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <a type="button" href="{{ url_for('delete', id=department[0], item_type='department') }}" class="btn btn-primary">Submit</a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                  <table class="table table-hover" style="margin-top: 20px;">
+                    <thead>
+                    <tr>
+                      <th scope="col">ID</th>
+                      <th scope="col">First</th>
+                      <th scope="col">Last</th>
+                      <th scope="col">Role</th>
+                      <th scope="col">Email</th>
+                      <th scope="col">Phone</th>
+                      <th scope="col">Manager</th>
+                      <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for employee in db.select("v_employees", "department_id", department[0]) %}
+                    <tr>
+                      <th scope="row">{{employee[0]}}</th>
+                      <td>{{employee[1]}}</td>
+                      <td>{{employee[2]}}</td>
+                      <td>{{employee[9]}}</td>
+                      <td>{{employee[4]}}</td>
+                      <td>{{employee[5]}}</td>
+                      <td>{{employee[13]}}</td>
+                      <td>
+                        <div class="btn-group">
+                          <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Action
+                          </button>
+                          <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{url_for('profile', id=employee[0])}}">View</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edityour{{employee[0]}}Modal">Edit</a></li>
+                            <li>
+                              <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{ url_for('delete', id=employee[0], item_type='employee') }}" style="color: red;">Delete</a></li>
+                          </ul>
+                          <!-- Edit your Employee Modal-->
+                          <div class="modal fade" id="edityour{{employee[0]}}Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                              <form  action="{{ url_for('edit', item_type='employee') }}" method="post">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Edit - {{employee[3]}}</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <input hidden name="id" value="{{employee[0]}}">
+                                    <div class="row g-3 mb-3">
+                                      <div class="col-6">
+                                        <label for="department{{employee[0]}}" class="form-label">Department</label>
+                                        <select class="form-select" id="department{{employee[0]}}">
+                                          {% for dep in db2.Select("t_departments").all() %}
+                                          <option {% if dep[0] == employee[10] %} selected {%endif%} value="{{dep[0]}}">{{dep[1]}}</option>
+                                          {% endfor %}
+                                        </select>
+                                      </div>
+                                      <div class="col-6">
+                                        <label for="inputAddress" class="form-label">Role</label>
+                                        <select class="form-select" id="role{{employee[0]}}" name="role">
+                                          <option selected value="{{employee[8]}}">{{employee[9]}}</option>
+                                        </select>
+                                      </div>
+                                      <div class="col-6">
+                                        <label for="inputAddress" class="form-label">Manager</label>
+                                        <select class="form-select" aria-label="Default select example" name="manager_id">
+                                          {% for manager in db.select_all("v_employees") %}
+                                              <option {% if manager[0] == employee[12] %} selected {%endif%} value="{{manager[0]}}">{{ manager[3] }}</option>
+                                          {% endfor %}
+                                        </select>
+                                      </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row g-3">
+                                      <div class="col-6">
+                                        <label for="applicationRole" class="form-label"><strong style="color:#5E17EB;">Sync</strong> role</label>
+                                        <select class="form-select" id="applicationRole" name="app_role">
+                                          <option selected disabled>Select..</option>
+                                          <option value="1">Admin</option>
+                                          <option value="2">Department Coordinator</option>
+                                          <option value="3">Employee</option>
+                                        </select>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                  </div>
+                                </div>
+                                <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+                                <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+                                <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
+                                <script>
+                                  $(document).ready(function () {
+
+                                      function load_data(type, category_id) {
+                                        $.ajax({
+                                            url: "/select_role",
+                                            method: "POST",
+                                            data: { type: type, category_id: category_id },
+                                            dataType: "json",
+                                            success: function (data) { //alert(category_id)
+                                                var html = "";
+                                                for (var count = 0; count < data.length; count++) {
+                                                    html += '<option value="' + data[count].id + '">' + data[count].name + "</option>";
+                                                }
+                                                if (type == "empData") {
+                                                    $("#department{{employee[0]}}").html(html);
+                                                    $("#department{{employee[0]}}").selectmenu("refresh");
+                                                } else {
+                                                    $("#role{{employee[0]}}").html(html);
+                                                    $("#role{{employee[0]}}").selectmenu("refresh");
+                                                }
+                                            },
+                                        });
+                                      }
+
+                                      $(document).on("change", "#department{{employee[0]}}", function() {
+                                        var category_id = $("#department{{employee[0]}}").val();
+                                        load_data("empRoledata", category_id);
+                                      });
+                                  });
+                                </script>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            {% for department in db.select_all("t_departments") %}
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingYour{{department[0]}}">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#your{{department[0]}}Team" aria-expanded="true" aria-controls="collapseOne">
+                  {{department[1]}} Team
+                </button>
+              </h2>
+              <div id="your{{department[0]}}Team" class="accordion-collapse collapse show" aria-labelledby="headingYour{{department[0]}}" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                  <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#your{{department[0]}}Modal">Add new</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#edityour{{department[0]}}DepartmentModal">Edit</button>
+                  <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteyour{{department[0]}}DepartmentModal" style="float: right;">Delete</button>
+                  <!-- Add New MODAL -->
+                  <div class="modal fade" id="your{{department[0]}}Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <form  action="{{ url_for('create', item_type='employee') }}" method="post">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Add new to {{department[1]}} Team</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            <div class="row g-3">
+                              <div class="col-2">
+                                <input type="text" class="form-control" placeholder="ID" aria-label="First name" name="id" value="{{db.select('cv_table_id', 'id', 'EMP-')[0][3]}}">
+                              </div>
+                              <div class="col-5">
+                                <input type="text" class="form-control" placeholder="First name" aria-label="First name" id="firstName" oninput="email()" name="first_name">
+                              </div>
+                              <div class="col-5">
+                                <input type="text" class="form-control" placeholder="Last name" aria-label="Last name" id="lastName" oninput="email()" name="last_name">
+                              </div>
+                              <div class="col-12">
+                                <p id="demo" ></p>
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="" placeholder="first.last@arch-dev.com" name="email">
+                              </div>
+                              <div class="col-6">
+                                <label for="inputAddress" class="form-label">Role</label>
+                                <select class="form-select" aria-label="Default select example" name="role" required>
+                                  <option selected disabled value="">Role..</option>
+                                  {% for role in db.select("t_roles", "department_id", department[0]) %}
+                                  <option value="{{role[0]}}">{{role[1]}}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-6">
+                                <label for="inputAddress" class="form-label">Manager</label>
+                                <select class="form-select" aria-label="Default select example" name="manager_id">
+                                  <option selected>Manager..</option>
+                                  {% for manager in db.select_all("v_employees") %}
+                                  <option value="{{manager[0]}}">{{ manager[3] }}</option>
+                                  {% endfor %}
+                                </select>
+                              </div>
+                              <div class="col-6">
+                                <label for="hireDate" class="form-label">Hire Date</label>
+                                <input type="date" class="form-control" id="hireDate" name="hire_date">
+                              </div>
+                              <div class="col-12">
+                                <label for="inputAddress" class="form-label">Address</label>
+                                <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St" name="address">
+                              </div>
+                              <div class="col-12">
+                                <label for="inputNumber" class="form-label">Phone Number</label>
+                                <input type="text" class="form-control" id="inputNumber" placeholder="123456789" name="phone_number">
+                              </div>
+                              <div class="col-6">
+                                <label for="applicationRole" class="form-label"><strong style="color:#5E17EB;">Sync</strong> role</label>
+                                <select class="form-select" id="applicationRole" name="app_role">
+                                  <option selected disabled></option>
+                                  <option value="1">Admin</option>
+                                  <option value="2">Department Coordinator</option>
+                                  <option value="3">Employee</option>
+                                </select>
+                              </div>
+                              <script>
+                                function email() {
+                                  let first = document.getElementById("first").value;
+                                  let last = document.getElementById("last").value;
+                                  document.getElementById("demo").innerHTML = first.toLowerCase() + "." + last.toLowerCase()  + "@arch-dev.com";
+                                }
+                              </script>
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                  <!-- Edit Department Modal -->
+                  <div class="modal fade" id="edityour{{department[0]}}DepartmentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <form action="{{ url_for('edit', item_type='department') }}" method="post">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Department</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            <div class="row g-3">
+                              <div class="col-3">
+                                <input type="text" class="form-control" placeholder="ID" name="id" value="{{department[0]}}" readonly>
+                              </div>
+                              <div class="col-9">
+                                <input type="text" class="form-control" placeholder="Department Name" value="{{department[1]}}" name="name">
+                              </div>
+                              <div class="row g-3">
+                                <div class="col" style="padding: 0;">
+                                  <select class="form-select" aria-label="Default select example" name="responsible_id">
+                                    {% for employee in db.select_all("v_employees") %}
+                                      {% if employee[0] == department[2] %}
+                                        <option selected disabled value="">{{ employee[3] }}</option>
+                                      {% else %}
+                                        <option value="{{employee[0]}}">{{ employee[3] }}</option>
+                                      {% endif %}
+                                    {% endfor %}
+                                  </select>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                          </div>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                  <!-- Delete Department MODAL -->
+                  <div class="modal fade" id="deleteyour{{department[0]}}DepartmentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Department</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <h6 >Are you sure that you want to delete it?</h6>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <a type="button" href="{{ url_for('delete', id=department[0], item_type='department') }}" class="btn btn-primary">Submit</a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                  <table class="table table-hover" style="margin-top: 20px;">
+                    <thead>
+                    <tr>
+                      <th scope="col">ID</th>
+                      <th scope="col">First</th>
+                      <th scope="col">Last</th>
+                      <th scope="col">Role</th>
+                      <th scope="col">Email</th>
+                      <th scope="col">Phone</th>
+                      <th scope="col">Manager</th>
+                      <th scope="col">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for employee in db.select("v_employees", "department_id", department[0]) %}
+                    <tr>
+                      <th scope="row">{{employee[0]}}</th>
+                      <td>{{employee[1]}}</td>
+                      <td>{{employee[2]}}</td>
+                      <td>{{employee[9]}}</td>
+                      <td>{{employee[4]}}</td>
+                      <td>{{employee[5]}}</td>
+                      <td>{{employee[13]}}</td>
+                      <td>
+                        <div class="btn-group">
+                          <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Action
+                          </button>
+                          <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{url_for('profile', id=employee[0])}}">View</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edityour{{employee[0]}}Modal">Edit</a></li>
+                            <li>
+                              <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{{ url_for('delete', id=employee[0], item_type='employee') }}" style="color: red;">Delete</a></li>
+                          </ul>
+                          <!-- Edit your Employee Modal-->
+                          <div class="modal fade" id="edityour{{employee[0]}}Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                              <form  action="{{ url_for('edit', item_type='employee') }}" method="post">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Edit - {{employee[3]}}</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <input hidden name="id" value="{{employee[0]}}">
+                                    <div class="row g-3 mb-3">
+                                      <div class="col-6">
+                                        <label for="department{{employee[0]}}" class="form-label">Department</label>
+                                        <select class="form-select" id="department{{employee[0]}}">
+                                          {% for dep in db2.Select("t_departments").all() %}
+                                          <option {% if dep[0] == employee[10] %} selected {%endif%} value="{{dep[0]}}">{{dep[1]}}</option>
+                                          {% endfor %}
+                                        </select>
+                                      </div>
+                                      <div class="col-6">
+                                        <label for="inputAddress" class="form-label">Role</label>
+                                        <select class="form-select" id="role{{employee[0]}}" name="role">
+                                          <option selected value="{{employee[8]}}">{{employee[9]}}</option>
+                                        </select>
+                                      </div>
+                                      <div class="col-6">
+                                        <label for="inputAddress" class="form-label">Manager</label>
+                                        <select class="form-select" aria-label="Default select example" name="manager_id">
+                                          {% for manager in db.select_all("v_employees") %}
+                                              <option {% if manager[0] == employee[12] %} selected {%endif%} value="{{manager[0]}}">{{ manager[3] }}</option>
+                                          {% endfor %}
+                                        </select>
+                                      </div>
+                                    </div>
+                                    <hr>
+                                    <div class="row g-3">
+                                      <div class="col-6">
+                                        <label for="applicationRole" class="form-label"><strong style="color:#5E17EB;">Sync</strong> role</label>
+                                        <select class="form-select" id="applicationRole" name="app_role">
+                                          <option selected disabled>Select..</option>
+                                          <option value="1">Admin</option>
+                                          <option value="2">Department Coordinator</option>
+                                          <option value="3">Employee</option>
+                                        </select>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                  </div>
+                                </div>
+                                <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+                                <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+                                <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
+                                <script>
+                                  $(document).ready(function () {
+
+                                      function load_data(type, category_id) {
+                                        $.ajax({
+                                            url: "/select_role",
+                                            method: "POST",
+                                            data: { type: type, category_id: category_id },
+                                            dataType: "json",
+                                            success: function (data) { //alert(category_id)
+                                                var html = "";
+                                                for (var count = 0; count < data.length; count++) {
+                                                    html += '<option value="' + data[count].id + '">' + data[count].name + "</option>";
+                                                }
+                                                if (type == "empData") {
+                                                    $("#department{{employee[0]}}").html(html);
+                                                    $("#department{{employee[0]}}").selectmenu("refresh");
+                                                } else {
+                                                    $("#role{{employee[0]}}").html(html);
+                                                    $("#role{{employee[0]}}").selectmenu("refresh");
+                                                }
+                                            },
+                                        });
+                                      }
+
+                                      $(document).on("change", "#department{{employee[0]}}", function() {
+                                        var category_id = $("#department{{employee[0]}}").val();
+                                        load_data("empRoledata", category_id);
+                                      });
+                                  });
+                                </script>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      {% include "side-admin.html" %}
+    </div>
+{% endblock %}

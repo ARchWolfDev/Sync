@@ -1,0 +1,75 @@
+.logo-login {
+    padding: 30px;
+    color:#5E17EB;
+    background-color:Black;
+    font-family: 'Open Sans', sans-serif;
+  }
+
+.navbar {
+    width: 100%;
+    z-index: 1;
+}
+.navbar:hover {
+    opacity: 100%;
+}
+.nav-link {
+    color: #5E17EB!important;
+}
+.nav-link:hover {
+    color: #3f0ea0!important;
+}
+.nav-link:active {
+  color: #4200c7!important;
+}
+
+Body {
+    background:radial-gradient(ellipse at 100% 100%, rgba(94, 23, 235, 1) 0%, rgba(0, 0, 0, 1) 53%)!important;
+    background-size: cover!important;
+    background-repeat: no-repeat!important;
+    background-position: center center!important;
+    background-attachment: fixed!important;
+    min-height: 100%!important;
+  }
+
+.container {
+    min-width: 100%;
+    background-color: white;
+    padding: 5%;
+    position: static;
+}
+
+.no-bg {
+    background: none;
+    color: white;
+}
+
+.col-card {
+    padding: 0 10%;
+}
+.title {
+    font-size: 150px;
+    margin-bottom: 50px;
+}
+.sub-title {
+    margin-bottom: 50px;
+}
+.home-image {
+    width: 100%!important;
+}
+.card {
+    margin: auto;
+    
+}
+.basic {
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.custome {
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset, 0px 0px 3px 3px rgba(94, 23, 235, 0.4);
+}
+
+.brand {
+	text-transform: uppercase;
+	background: linear-gradient(to right top, #eb1f93, #d322a0, #b62bab, #9535b3, #6d3cb8, #5650c5, #3960ce, #006ed4, #008bdf, #00a2d5, #00b5be, #0ec4a4);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+}

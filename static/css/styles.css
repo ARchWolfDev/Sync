@@ -1,0 +1,576 @@
+@media only screen and (min-width: 1000px) {
+      html {
+        font-size: 90%;
+      }
+    }
+
+@media only screen and (min-width: 1600px) {
+      html {
+          font-size: 100%;
+      }
+    }
+
+:root {
+    --bs-blue: #5E17EB;
+    --bs-primary: #5E17EB;
+}
+.progress-bar {
+  background-color: #5E17EB;
+}
+.form-control:focus {
+  border-color: #5E17EB;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset, 0px 0px 3px 3px rgba(94, 23, 235, 0.4);
+}
+.form-select:focus {
+  border-color: #5E17EB;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset, 0px 0px 3px 3px rgba(94, 23, 235, 0.4);
+}
+.form-check-input:checked {
+    background-color: #5e17eb;
+    border-color: #5e17eb;
+}
+.page-link {
+    color: #5E17EB;
+}
+.page-link.active {
+    border-color: #5E17EB;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset, 0px 0px 3px 3px rgba(94, 23, 235, 0.4);
+    background-color: #5E17EB;
+}
+
+/* The side navigation menu */
+.sidebar {
+  margin: 0 ;
+  width: 250px;
+  background-color: #2e2e2e;
+  position: fixed;
+  height: 100%;
+  overflow: auto;
+  border-right: 1px solid;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+/* Sidebar links */
+.sidebar a {
+  display: block;
+  color: white;
+  padding: 16px;
+  text-decoration: none;
+}
+/* flash */
+.message {
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+    background-color: #339900;
+    border-radius: 0.375rem;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    padding: 20px;
+    margin: 0;
+    animation: hideAnimation 0s ease-in 5s;
+    animation-fill-mode: forwards;
+}
+@keyframes hideAnimation {
+  to {
+    visibility: hidden;
+  }
+}
+.mesg {
+    margin: 0;
+    color: white;
+}
+/* logo */
+.logo {
+  padding: 30px;
+  color:#5E17EB;
+  background-color:#2e2e2e;
+  font-family: 'Open Sans', sans-serif;
+}
+
+/* Active/current link */
+.sidebar a.active {
+  background-color: #5E17EB;
+  color: white;
+  border-radius: 0.375rem;
+}
+
+/* Links on mouse-over */
+.sidebar a:hover:not(.active) {
+  background-color: black;
+  color: white;
+  border-radius: 0.375rem;
+}
+.dropdown {
+  margin: auto;
+}
+
+.menu {
+  display: none;
+  position: absolute;
+  top: 65px;
+  right: 20px;
+  margin: 0;
+  background-color: #2e2e2e;
+  list-style-type: none;
+  border-radius: 0.375rem;
+  z-index: 1;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  padding: 10px;
+  width: 200px;
+}
+.btn-primary {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: #5e17eb;
+    --bs-btn-border-color: #5e17eb;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #5e17eb;
+    --bs-btn-hover-border-color: #4200c7;
+    --bs-btn-focus-shadow-rgb: 49,132,253;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #4200c7;
+    --bs-btn-active-border-color: #4200c7;
+    --bs-btn-active-shadow: inset 0 3px 5pxrgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #fff;
+    --bs-btn-disabled-bg: #4200c7;
+    --bs-btn-disabled-border-color: #4200c7;
+}
+.item {
+  margin:10px 0;
+
+  border-radius: 0.375rem;
+  padding:0 10px;
+}
+.dropdown:hover .menu {
+  display: block;
+}
+.menu .item:hover {
+  background-color: #5E17EB;
+}
+hr {
+  margin: 10px;
+}
+.sub-links {
+  background-color: #1a1a1a;
+  border-color: black;
+  margin-left: 15px;
+}
+.sub-link {
+  color: white;
+  margin: 7px 0;
+  padding: 2px 10px;
+  margin-left: 10px;
+}
+
+.sub-links .sub-link:hover {
+  background-color: #5E17EB;
+}
+
+.option {
+  margin-bottom: 1rem;
+}
+.progress {
+  margin-top: 10px;
+}
+
+/* Page content. The value of the margin-left property should match the value of the sidebar's width property */
+.tablebody{
+    max-height: 100px;
+    overflow: auto;
+}
+div.content {
+  margin-left: 250px;
+  height: 500px;
+
+}
+.top {
+  background-color: #2e2e2e;
+  padding: 30px;
+  color: white;
+}
+.footer {
+  padding: 30px;
+  background-color: #f0f0f0;
+  text-align: center;
+  color: gray;
+  margin-top: 20px;
+}
+.avatar {
+  width: 70%;
+  border-radius: 100%;
+  padding: 0;
+}
+.workspace {
+  margin: 12px;
+}
+.week {
+  text-align: center;
+  margin: 0;
+}
+.days {
+  margin: 0;
+}
+.off {
+    color: grey;
+    position: relative;
+    text-align: center;
+    top: 10%;
+}
+
+h2 {
+  text-align: center;
+  margin: 20px 0;
+}
+h6 {
+  text-align: center;
+  color: grey;
+}
+.day {
+  background-color: #f0f0f0;
+  height: 96px;
+  border: 1px solid;
+  border-color: #ddd
+}
+.day:hover {
+  background-color: #e6e6e6;
+}
+.modal-btn {
+  background-color: #5E17EB;
+  border-color: #4200c7;
+}
+.modal-btn:hover {
+  background-color: #4200c7;
+}
+.info-container {
+  background-color: #f0f0f0;
+  border-radius: 0.375rem;
+  margin-top: 20px;
+}
+
+/* On screens that are less than 700px wide, make the sidebar into a topbar */
+@media screen and (max-width: 770px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+  }
+  .sidebar a {float: left;}
+  div.content {margin-left: 0;}
+  .logo {float: left; padding: 0 16px;}
+  h1 {margin-top: 8px; margin-bottom: 0}
+  .avatar {
+    float: right;
+  }
+  .set {
+    margin-top: 1rem;
+  }
+}
+
+
+/* On screens that are less than 400px, display the bar vertically, instead of horizontally */
+@media screen and (max-width: 581px) {
+  .sidebar a {
+    text-align: center;
+    float: none;
+  }
+  .logo {
+    text-align: center;
+    float: none;
+  }
+  h1 {margin-top: 0; margin-bottom: 8px; text-align: center;}
+  .avatar {
+    text-align: center;
+  }
+}
+
+@property --p{
+  syntax: '<number>';
+  inherits: true;
+  initial-value: 0;
+}
+
+.pie {
+  --p:20;
+  --b:22px;
+  --c:darkred;
+  --w:150px;
+
+  width:var(--w);
+  aspect-ratio:1;
+  position:relative;
+  display:inline-grid;
+  margin:5px;
+  place-content:center;
+  font-size:25px;
+  font-weight:bold;
+  font-family:sans-serif;
+}
+.pie:before,
+.pie:after {
+  content:"";
+  position:absolute;
+  border-radius:50%;
+}
+.pie:before {
+  inset:0;
+  background:
+    radial-gradient(farthest-side,var(--c) 98%,#0000) top/var(--b) var(--b) no-repeat,
+    conic-gradient(var(--c) calc(var(--p)*1%),#0000 0);
+  -webkit-mask:radial-gradient(farthest-side,#0000 calc(99% - var(--b)),#000 calc(100% - var(--b)));
+          mask:radial-gradient(farthest-side,#0000 calc(99% - var(--b)),#000 calc(100% - var(--b)));
+}
+.pie:after {
+  inset:calc(50% - var(--b)/2);
+  background:var(--c);
+  transform:rotate(calc(var(--p)*3.6deg)) translateY(calc(50% - var(--w)/2));
+}
+.animate {
+  animation:p 1s .5s both;
+}
+.no-round:before {
+  background-size:0 0,auto;
+}
+.no-round:after {
+  content:none;
+}
+@keyframes p {
+  from{--p:0}
+}
+
+body {
+  background:#ddd;
+}
+.row-chart {
+  margin: 0;
+  padding: 0;
+
+}
+.chart {
+  background-color: #f0f0f0;
+  padding: 12px;
+  margin: 20px 12px;
+  border-radius: 0.375rem;
+  text-align: center;
+}
+.graph-chart {
+  margin: 0;
+}
+.h2-accordion {
+  margin: 0;
+}
+.sidebar-col {
+  padding: 0;
+}
+.sidebar-list {
+  margin-top: 0px;
+}
+.sidebar-col a {
+  background-color: #2e2e2e;
+}
+.request-items {
+  padding-left: 20px;
+  font-size: small;
+  font-weight: 100;
+}
+.sidebar-items {
+  padding: 0 10px;
+}
+#list-request-item-list {
+  padding: 10px;
+  border-color: #2e2e2e;
+}
+.list-group-item-action:focus, .list-group-item-action:hover {
+    z-index: 1;
+    color: white;
+    text-decoration: none;
+    background-color: #5e17eb;
+    border-radius: 0.5rem;
+}
+.nav {
+  --bs-nav-link-hover-color: #5e17eb;
+}
+.accordion {
+   --bs-accordion-btn-focus-box-shadow: 0 0 0 0.25rem#5e17eb3b;
+   --bs-accordion-btn-focus-border-color: #5e17eb;
+   --bs-accordion-active-color: #5e17eb;
+   --bs-accordion-active-bg: #e9ecef;
+}
+.badge {
+    margin: 3px 0 0 10px;
+}
+.profile-icon {
+    float: right;
+    margin-top: 5px;
+}
+/* Admin connect style */
+
+.dropdown-menu {
+  --bs-dropdown-link-active-bg: #e9ecef;
+}
+.control-button {
+  margin: 20px;
+}
+.list-group {
+  --bs-list-group-border-color: none;
+}
+.list-group-item.active {
+    border-color: #4200c7;
+}
+.list-group-item:hover {
+  background-color: rgba(0, 0, 0, 0.075);
+  color: black
+}
+
+.tab-content {
+  padding: 20px;
+}
+.notification-content {
+  background-color:white;
+  margin-left: 1px;
+  padding: 5px;
+  border-top-right-radius: 0.5rem;
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+}
+.create-btn {
+  margin-left: 10px;
+}
+.accordion-header {
+  margin: 0px;
+}
+.control-list {
+  margin-top: 20px;
+}
+.search {
+  padding: 20px;
+}
+.row {
+  margin: 0;
+}
+.col-lg-9 {
+  padding: 0;
+}
+.table-list{
+  padding-left: 40px;
+}
+.table-list:hover {
+  background-color: #4200c7;
+  color: white;
+}
+.nav-link{
+  color: black;
+}
+.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+    color: var(--bs-nav-pills-link-active-color);
+    background-color: #5E17EB;
+}
+
+.head.active {
+  background-color: #5E17EB;
+  border-color: #5E17EB;
+}
+/* Char Section */
+.char {
+  background-color: white;
+  border-radius: 0.375rem;
+  padding: 20px;
+  margin: 0 10px;
+}
+/* Profile section */
+.container {
+  position: relative;
+  width: 100%;
+  padding:: 0;
+}
+
+.image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius:100%
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 100%;
+  width: 100%;
+  opacity: 0;
+  transition: .5s ease;
+  background-color: Black;
+  border-radius:100%
+}
+
+.container:hover .overlay {
+  opacity: 0.5;
+}
+
+.profile-name {
+  position: relative;
+  top: 50%;
+  text-align: center;
+  color: white;
+  opacity: 1;
+}
+.profile-button {
+  position: relative;
+  top: 60%;
+}
+
+datalist {
+  position: absolute;
+  max-height: 20em;
+  border: 0 none;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+datalist option {
+  font-size: 0.8em;
+  padding: 0.3em 1em;
+  background-color: #ccc;
+  cursor: pointer;
+}
+
+/* option active styles */
+datalist option:hover, datalist option:focus {
+  color: #fff;
+  background-color: #036;
+  outline: 0 none;
+}
+
+/* Dashboard */
+
+.dash-p {
+    margin: 10px 0;
+}
+
+.dashboard-chars {
+  width: 100%;
+  min-height: 300px;
+}
+.dashboard-row {
+  margin:0 !important;
+}
+
+#chart_wrap {
+    position: relative;
+    padding-bottom: 100%;
+    height: 0;
+    overflow:hidden;
+}
+
+#piechart {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width:100%;
+    height: 100%;
+}
+.admin-chart {
+  width: 100%;
+  min-height: 300px;
+  background-color: white;
+}

@@ -1,0 +1,1390 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+    <div class="row">
+      <div class="col-lg-9">
+        <ul class="nav nav-pills mb-3 control-button" id="pills-tab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-all-teams" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Dashboard</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-your-team" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Your Teams</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-projects" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Projects</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-requests" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Requests</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-tasks" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Tasks</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-profiles" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Profiles</a>
+          </li>
+          <li class="nav-item dropdown create-btn">
+            <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-plus"></i>
+              Create
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#departmentModal">Department</a></li>
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#roleModal">Role</a></li>
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectModal">Project</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      <!-- New Department MODAL -->
+      <div class="modal fade" id="departmentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <form action="{{ url_for('create_department') }}" method="post">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">New Department</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row g-3">
+                  <div class="col-3">
+                    <input type="text" class="form-control" placeholder="ID" aria-label="ID" name="id">
+                  </div>
+                  <div class="col-9">
+                    <input type="text" class="form-control" placeholder="Department Name" aria-label="Department" name="name">
+                  </div>
+                  <div class="row g-3">
+                    <div class="col" style="padding: 0;">
+                      <select class="form-select" aria-label="Default select example" name="responsible">
+                        <option selected disabled value="">Responsible...</option>
+                        {% for employee in db.select_all("EMPLOYEE") %}
+                        <option value="{{employee[0]}}">{{ employee[1] + ' ' + employee[2] }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Create</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- New Role MODAL -->
+      <div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <form action="{{ url_for('create_role') }}" method="post">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">New Role</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row g-3">
+                  <div class="col-3">
+                    <input type="text" class="form-control" placeholder="ID" aria-label="First name" name="id" required>
+                  </div>
+                  <div class="col-9">
+                    <input type="text" class="form-control" placeholder="Role Name" aria-label="Last name" name="role" required>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col" style="padding: 0;">
+                      <select class="form-select" aria-label="Default select example" name="department" required>
+                        <option selected disabled value="">Part of...</option>
+                        {% for department in db.select_all("DEPARTMENTS") %}
+                        <option value="{{department[0]}}">{{department[1]}}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Create</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- New Project MODAL -->
+      <div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <form action="{{ url_for('create_project') }}" method="post">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">New Project</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row g-3">
+                  <div class="col-3">
+                    <input type="text" class="form-control" placeholder="ID" aria-label="First name" name="id">
+                  </div>
+                  <div class="col-9">
+                    <input type="text" class="form-control" placeholder="Project Name" aria-label="Last name" name="project">
+                  </div>
+                  <div class="row g-3">
+                    <div class="col" style="padding: 0;">
+                      <input type="text" class="form-control" placeholder="Client Name" aria-label="Last name" name="client">
+                    </div>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col" style="padding: 0;">
+                      <select class="form-select" aria-label="Default select example" required name="responsible">
+                        <option selected disabled value="">Responsable...</option>
+                        {% for employee in db.select_all("EMPLOYEE") %}
+                          <option value="{{employee[0]}}">{{ employee[1] + ' ' + employee[2] }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Create</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- Search -->
+      <div class="col-lg-3">
+        <form class="d-flex search" role="search" action="" method="post">
+          <input class="form-control me-2" id="browser" type="search" name="browser" placeholder="Search" list="browserdata" aria-label="Search" autocomplete="off">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+          <datalist id="browserdata">
+            {% for emp in db.select_all("EMPLOYEE") %}
+              <option value="{{emp[0]}}">{{ emp[1] + ' ' + emp[2] }}</option>
+            {% endfor %}
+          </datalist>
+        </form>
+      </div>
+      <!-- Information -->
+      <div class="col-lg-9">
+        <div class="col">
+          <div class="tab-content" id="pills-tabContent">
+            <!-- DASHBOARD -->
+            <div class="tab-pane fade show active" id="pills-all-teams" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+              <div class="accordion" id="accordionExample">
+                {% for department in db.select_all("DEPARTMENTS")%}
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="{{department[1]}}">
+                      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{department[0]}}" aria-expanded="false" aria-controls="{{department[1]}}">
+                        {{department[1]}}
+                      </button>
+                    </h2>
+                    <div id="{{department[0]}}" class="accordion-collapse collapse" aria-labelledby="{{department[1]}}" data-bs-parent="#accordionExample">
+                      <div class="accordion-body">
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#all{{department[0]}}Modal">Add new</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#edit{{department[0]}}DepartmentModal">Edit</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#delete{{department[0]}}DepartmentModal" style="float: right;">Delete</button>
+                        <!-- Add New MODAL -->
+                        <div class="modal fade" id="all{{department[0]}}Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered">
+                            <form  action="{{ url_for('add_employee', id=add) }}" method="post">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h1 class="modal-title fs-5" id="exampleModalLabel">Add New</h1>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                      <div class="col-2">
+                                        <input type="text" class="form-control" placeholder="ID" aria-label="First name" name="id" value="{{db.select_all('EMPLOYEE')[-1][0] + 1}}">
+                                      </div>
+                                      <div class="col-5">
+                                        <input type="text" class="form-control" placeholder="First name" aria-label="First name" id="first" oninput="email()" name="first">
+                                      </div>
+                                      <div class="col-5">
+                                        <input type="text" class="form-control" placeholder="Last name" aria-label="Last name" id="last" oninput="email()" name="last">
+                                      </div>
+                                      <div class="col-12">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" placeholder="first.last@arch-dev.com" name="email">
+                                      </div>
+<!--                                      <div class="col-4">-->
+<!--                                        <label for="inputAppRole" class="form-label">Access</label>-->
+<!--                                        <select class="form-select" id="inputAppRole" aria-label="Default select example" required>-->
+<!--                                          <option selected disabled value="">Choice...</option>-->
+<!--                                          <option value="1">View</option>-->
+<!--                                          <option value="2">Edit</option>-->
+<!--                                          <option value="3">Edit all</option>-->
+<!--                                        </select>-->
+<!--                                      </div>-->
+                                      <div class="col-8">
+                                        <label for="inputPassword2" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="inputPassword2" placeholder="Password" name="password">
+                                      </div>
+                                      <div class="col-4">
+                                        <label class="form-label" style="visibility: hidden;">Temporary Pass</label>
+                                        <button type="button" class="btn btn-primary">Generate Pass</button>
+                                      </div>
+                                      <div class="col-6">
+                                        <label for="inputAddress" class="form-label">Department</label>
+                                        <select class="form-select" aria-label="Default select example" name="department">
+                                          <option selected>{{department[1]}}</option>
+  <!--                                        <option value="1">One</option>-->
+  <!--                                        <option value="2">Two</option>-->
+  <!--                                        <option value="3">Three</option>-->
+                                        </select>
+                                      </div>
+                                      <div class="col-6">
+                                        <label for="inputAddress" class="form-label">Role</label>
+                                        <select class="form-select" aria-label="Default select example" name="role" required>
+                                          <option selected disabled value="">Role..</option>
+                                          {% for role in db.select("ROLES", "DEPARTMENT_ID", department[0]) %}
+                                          <option value="{{role[0]}}">{{role[1]}}</option>
+                                          {% endfor %}
+                                        </select>
+                                      </div>
+                                      <div class="col-6">
+                                        <label for="inputAddress" class="form-label">Manager</label>
+                                        <select class="form-select" aria-label="Default select example" name="manager">
+                                          <option selected>Manager..</option>
+                                          {% for manager in db.select_all("EMPLOYEE") %}
+                                          <option value="{{manager[0]}}">{{manager[1] + ' ' + manager[2]}}</option>
+                                          {% endfor %}
+                                        </select>
+                                      </div>
+                                      <div class="col-6">
+                                        <label for="hireDate" class="form-label">Hire Date</label>
+                                        <input type="date" class="form-control" id="hireDate" name="hire-date">
+                                      </div>
+                                      <div class="col-12">
+                                        <label for="inputAddress" class="form-label">Address</label>
+                                        <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St" name="address">
+                                      </div>
+                                      <div class="col-12">
+                                        <label for="inputAddress" class="form-label">Phone Number</label>
+                                        <input type="text" class="form-control" id="inputAddress" placeholder="123456789" name="phone">
+                                      </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                  <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                        <!-- Delete Department MODAL -->
+                        <div class="modal fade" id="delete{{department[0]}}DepartmentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Department</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <h6 style="float:left; color: black;">Also will be deleted the following roles:</h6>
+                                {% for role in db.select("ROLES", "DEPARTMENT_ID", department[0]) %}
+                                <h6> - {{role[1]}}</h6>
+                                {% endfor %}
+                                <h6 style="float:left; color: red;">Are you sure you want to delete the whole department?</h6>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <a type="button" href="{{ url_for('delete', id=department[0], table='DEPARTMENTS') }}" class="btn btn-primary">Submit</a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- Edit Department Modal -->
+                        <div class="modal fade" id="edit{{department[0]}}DepartmentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered">
+                            <form action="{{ url_for('create_department', id='edit') }}" method="post">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Department</h1>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                  <div class="row g-3">
+                                    <div class="col-3">
+                                      <input type="text" class="form-control" placeholder="ID" value="{{department[0]}}" name="id" disabled>
+                                    </div>
+                                    <div class="col-9">
+                                      <input type="text" class="form-control" placeholder="Department Name" value="{{department[1]}}" name="name">
+                                    </div>
+                                    <div class="row g-3">
+                                      <div class="col" style="padding: 0;">
+                                        <select class="form-select" aria-label="Default select example" name="responsible">
+                                          {% for employee in db.select_all("EMPLOYEE") %}
+                                            {% if employee[0] == department[2] %}
+                                            <option selected disabled value="">{{ employee[1] + ' ' + employee[2] }}</option>
+                                            {% else %}
+                                            <option value="{{employee[0]}}">{{ employee[1] + ' ' + employee[2] }}</option>
+                                            {% endif %}
+                                          {% endfor %}
+                                        </select>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                  <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                        <table class="table table-hover" style="margin-top: 20px;">
+                          <thead>
+                            <tr>
+                              <th scope="col">ID</th>
+                              <th scope="col">First</th>
+                              <th scope="col">Last</th>
+                              <th scope="col">Role</th>
+                              <th scope="col">Email</th>
+                              <th scope="col">Phone</th>
+                              <th scope="col">Manager</th>
+                              <th scope="col">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for employee in db.select_all("EMPLOYEE") %}
+                              {% for role in db.select_all("ROLES") %}
+                                {% if department[0] == role[2] and role[0] == employee[8] %}
+                                  <tr>
+                                    <th scope="row">{{employee[0]}}</th>
+                                    <td>{{employee[1]}}</td>
+                                    <td>{{employee[2]}}</td>
+                                    <td>{{db.select("ROLES", "ID", employee[8])[0][1]}}</td>
+                                    <td>{{employee[3]}}</td>
+                                    <td>{{employee[4]}}</td>
+                                    <td>{{employee[7]}}</td>
+                                    <td>
+                                      <div class="btn-group">
+                                        <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                          Action
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                          <li><a class="dropdown-item" href="{{url_for('profile', id=employee[0])}}">View</a></li>
+                                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit{{employee[0]}}Modal">Edit</a></li>
+                                          <li>
+                                            <hr class="dropdown-divider">
+                                          </li>
+                                          <li><a class="dropdown-item" href="{{ url_for('delete', id=employee[0], table='EMPLOYEE' ) }}" style="color: red;">Delete</a></li>
+                                        </ul>
+                                        <!--EDIT Employee MODAL-->
+                                          <div class="modal fade" id="edit{{employee[0]}}Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                              <form  action="{{ url_for('add_employee', id='edit') }}" method="post">
+                                                <div class="modal-content">
+                                                  <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Edit</h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                  </div>
+                                                  <div class="modal-body">
+                                                      <div class="row g-3">
+                                                        <div class="col-2">
+                                                          <input type="text" class="form-control" placeholder="ID" aria-label="First name" name="id" value="{{employee[0]}}" disabled>
+                                                        </div>
+                                                        <div class="col-5">
+                                                          <input type="text" class="form-control" placeholder="First name" aria-label="First name" id="first" oninput="email()" name="first" value="{{employee[1]}}">
+                                                        </div>
+                                                        <div class="col-5">
+                                                          <input type="text" class="form-control" placeholder="Last name" aria-label="Last name" id="last" oninput="email()" name="last" value="{{employee[2]}}">
+                                                        </div>
+                                                        <div class="col-12">
+                                                          <label for="email" class="form-label">Email</label>
+                                                          <input type="email" class="form-control" id="email" placeholder="first.last@arch-dev.com" name="email" value="{{employee[3]}}">
+                                                        </div>
+                                                        <div class="col-8">
+                                                          <label for="inputPassword2" class="form-label">Password</label>
+                                                          <input type="password" class="form-control" id="inputPassword2" placeholder="Password" name="password">
+                                                        </div>
+                                                        <div class="col-4">
+                                                          <label class="form-label" style="visibility: hidden;">Temporary Pass</label>
+                                                          <button type="button" class="btn btn-primary">Generate Pass</button>
+                                                        </div>
+                                                        <div class="col-6">
+                                                          <label for="inputAddress" class="form-label">Department</label>
+                                                          <select class="form-select" aria-label="Default select example" name="department">
+                                                            <option selected>{{department[1]}}</option>
+                    <!--                                        <option value="1">One</option>-->
+                    <!--                                        <option value="2">Two</option>-->
+                    <!--                                        <option value="3">Three</option>-->
+                                                          </select>
+                                                        </div>
+                                                        <div class="col-6">
+                                                          <label for="inputAddress" class="form-label">Role</label>
+                                                          <select class="form-select" aria-label="Default select example" name="role" required>
+                                                            <option selected disabled value="">{{db.select("ROLES", "ID", employee[8])[0][1]}}</option>
+                                                            {% for role in db.select("ROLES", "DEPARTMENT_ID", department[0]) %}
+                                                            <option value="{{role[0]}}">{{role[1]}}</option>
+                                                            {% endfor %}
+                                                          </select>
+                                                        </div>
+                                                        <div class="col-6">
+                                                          <label for="inputAddress" class="form-label">Manager</label>
+                                                          <select class="form-select" aria-label="Default select example" name="manager">
+                                                            <option selected>{{employee[7]}}</option>
+                                                            {% for manager in db.select_all("EMPLOYEE") %}
+                                                            <option value="{{manager[0]}}">{{manager[1] + ' ' + manager[2]}}</option>
+                                                            {% endfor %}
+                                                          </select>
+                                                        </div>
+                                                        <div class="col-6">
+                                                          <label for="hireDate" class="form-label">Hire Date</label>
+                                                          <input type="date" class="form-control" id="hireDate" name="hire-date" value="{{employee[5]}}">
+                                                        </div>
+                                                        <div class="col-12">
+                                                          <label for="inputAddress" class="form-label">Address</label>
+                                                          <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St" name="address" value="{{employee[6]}}">
+                                                        </div>
+                                                        <div class="col-12">
+                                                          <label for="inputAddress" class="form-label">Phone Number</label>
+                                                          <input type="text" class="form-control" id="inputAddress" placeholder="123456789" name="phone" value="{{employee[4]}}">
+                                                        </div>
+                                                      </div>
+                                                  </div>
+                                                  <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                                  </div>
+                                                </div>
+                                              </form>
+                                            </div>
+                                          </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                {% endif %}
+                              {% endfor%}
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+            <!-- Your TEAMS -->
+            <div class="tab-pane fade" id="pills-your-team" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
+              <div class="accordion" id="accordionExample">
+                {% for department in db.select("DEPARTMENTS", "RESPONSABLE", user['id']) %}
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingYour{{department[0]}}">
+                      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#your{{department[0]}}Team" aria-expanded="true" aria-controls="collapseOne">
+                        {{department[1]}} Team
+                      </button>
+                    </h2>
+                    <div id="your{{department[0]}}Team" class="accordion-collapse collapse show" aria-labelledby="headingYour{{department[0]}}" data-bs-parent="#accordionExample">
+                      <div class="accordion-body">
+                        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#your{{department[0]}}Modal">Add new</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#edityour{{department[0]}}DepartmentModal">Edit</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteyour{{department[0]}}DepartmentModal" style="float: right;">Delete</button>
+                        <!-- Add New MODAL -->
+                        <div class="modal fade" id="your{{department[0]}}Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered">
+                            <form  action="{{ url_for('add_employee') }}" method="post">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h1 class="modal-title fs-5" id="exampleModalLabel">Add New</h1>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                      <div class="col-2">
+                                        <input type="text" class="form-control" placeholder="ID" aria-label="First name" name="id" value="{{db.select_all('EMPLOYEE')[-1][0] + 1}}">
+                                      </div>
+                                      <div class="col-5">
+                                        <input type="text" class="form-control" placeholder="First name" aria-label="First name" id="first" oninput="email()" name="first">
+                                      </div>
+                                      <div class="col-5">
+                                        <input type="text" class="form-control" placeholder="Last name" aria-label="Last name" id="last" oninput="email()" name="last">
+                                      </div>
+                                      <div class="col-12">
+                                        <label for="email" class="form-label">Email</label>
+                                        <input type="email" class="form-control" id="email" placeholder="first.last@arch-dev.com" name="email">
+                                      </div>
+                                      <div class="col-8">
+                                        <label for="inputPassword2" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="inputPassword2" placeholder="Password" name="password">
+                                      </div>
+                                      <div class="col-4">
+                                        <label class="form-label" style="visibility: hidden;">Temporary Pass</label>
+                                        <button type="button" class="btn btn-primary">Generate Pass</button>
+                                      </div>
+                                      <div class="col-6">
+                                        <label for="inputAddress" class="form-label">Department</label>
+                                        <select class="form-select" aria-label="Default select example" name="department">
+                                          <option selected>{{department[1]}}</option>
+  <!--                                        <option value="1">One</option>-->
+  <!--                                        <option value="2">Two</option>-->
+  <!--                                        <option value="3">Three</option>-->
+                                        </select>
+                                      </div>
+                                      <div class="col-6">
+                                        <label for="inputAddress" class="form-label">Role</label>
+                                        <select class="form-select" aria-label="Default select example" name="role" required>
+                                          <option selected disabled value="">Role..</option>
+                                          {% for role in db.select("ROLES", "DEPARTMENT_ID", department[0]) %}
+                                          <option value="{{role[0]}}">{{role[1]}}</option>
+                                          {% endfor %}
+                                        </select>
+                                      </div>
+                                      <div class="col-6">
+                                        <label for="inputAddress" class="form-label">Manager</label>
+                                        <select class="form-select" aria-label="Default select example" name="manager">
+                                          <option selected>Manager..</option>
+                                          {% for manager in db.select_all("EMPLOYEE") %}
+                                          <option value="{{manager[0]}}">{{manager[1] + ' ' + manager[2]}}</option>
+                                          {% endfor %}
+                                        </select>
+                                      </div>
+                                      <div class="col-6">
+                                        <label for="hireDate" class="form-label">Hire Date</label>
+                                        <input type="date" class="form-control" id="hireDate" name="hire-date">
+                                      </div>
+                                      <div class="col-12">
+                                        <label for="inputAddress" class="form-label">Address</label>
+                                        <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St" name="address">
+                                      </div>
+                                      <div class="col-12">
+                                        <label for="inputAddress" class="form-label">Phone Number</label>
+                                        <input type="text" class="form-control" id="inputAddress" placeholder="123456789" name="phone">
+                                      </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                  <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                        <!-- Edit Department Modal -->
+                        <div class="modal fade" id="edityour{{department[0]}}DepartmentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered">
+                            <form action="{{ url_for('create_department', id='edit') }}" method="post">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Department</h1>
+                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                  <div class="row g-3">
+                                    <div class="col-3">
+                                      <input type="text" class="form-control" placeholder="ID" value="{{department[0]}}" name="id" disabled>
+                                    </div>
+                                    <div class="col-9">
+                                      <input type="text" class="form-control" placeholder="Department Name" value="{{department[1]}}" name="name">
+                                    </div>
+                                    <div class="row g-3">
+                                      <div class="col" style="padding: 0;">
+                                        <select class="form-select" aria-label="Default select example" name="responsible">
+                                          {% for employee in db.select_all("EMPLOYEE") %}
+                                            {% if employee[0] == department[2] %}
+                                            <option selected disabled value="">{{ employee[1] + ' ' + employee[2] }}</option>
+                                            {% else %}
+                                            <option value="{{employee[0]}}">{{ employee[1] + ' ' + employee[2] }}</option>
+                                            {% endif %}
+                                          {% endfor %}
+                                        </select>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                  <button type="submit" class="btn btn-primary">Save changes</button>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                        <!-- Delete Department MODAL -->
+                        <div class="modal fade" id="deleteyour{{department[0]}}DepartmentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                          <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Department</h1>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <h6 style="float:left; color: black;">Also will be deleted the following roles:</h6>
+                                {% for role in db.select("ROLES", "DEPARTMENT_ID", department[0]) %}
+                                <h6> - {{role[1]}}</h6>
+                                {% endfor %}
+                                <h6 style="float:left; color: red;">Are you sure you want to delete the whole department?</h6>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <a type="button" href="{{ url_for('delete', id=department[0], table='DEPARTMENTS') }}" class="btn btn-primary">Submit</a>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <table class="table table-hover" style="margin-top: 20px;">
+                          <thead>
+                            <tr>
+                              <th scope="col">ID</th>
+                              <th scope="col">First</th>
+                              <th scope="col">Last</th>
+                              <th scope="col">Role</th>
+                              <th scope="col">Email</th>
+                              <th scope="col">Phone</th>
+                              <th scope="col">Manager</th>
+                              <th scope="col">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                              {% for employee in db.select("EMPLOYEE", "MANAGER_ID", user['id']) %}
+                                  <tr>
+                                    <th scope="row">{{employee[0]}}</th>
+                                    <td>{{employee[1]}}</td>
+                                    <td>{{employee[2]}}</td>
+                                    <td>{{db.select("ROLES", "ID", employee[8])[0][1]}}</td>
+                                    <td>{{employee[3]}}</td>
+                                    <td>{{employee[4]}}</td>
+                                    <td>{{employee[7]}}</td>
+                                    <td>
+                                      <div class="btn-group">
+                                        <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                          Action
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                          <li><a class="dropdown-item" href="{{url_for('profile', id=employee[0])}}">View</a></li>
+                                          <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edityour{{employee[0]}}Modal">Edit</a></li>
+                                          <li>
+                                            <hr class="dropdown-divider">
+                                          </li>
+                                          <li><a class="dropdown-item" href="{{ url_for('delete', id=employee[0], table='EMPLOYEE' ) }}" style="color: red;">Delete</a></li>
+                                        </ul>
+                                        <!-- Edit your Employee Modal-->
+                                        <div class="modal fade" id="edityour{{employee[0]}}Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                          <div class="modal-dialog modal-dialog-centered">
+                                            <form  action="{{ url_for('add_employee', id='edit') }}" method="post">
+                                                <div class="modal-content">
+                                                  <div class="modal-header">
+                                                    <h1 class="modal-title fs-5" id="exampleModalLabel">Edit</h1>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                  </div>
+                                                  <div class="modal-body">
+                                                      <div class="row g-3">
+                                                        <div class="col-2">
+                                                          <input type="text" class="form-control" placeholder="ID" aria-label="First name" name="id" value="{{employee[0]}}" disabled>
+                                                        </div>
+                                                        <div class="col-5">
+                                                          <input type="text" class="form-control" placeholder="First name" aria-label="First name" id="first" oninput="email()" name="first" value="{{employee[1]}}">
+                                                        </div>
+                                                        <div class="col-5">
+                                                          <input type="text" class="form-control" placeholder="Last name" aria-label="Last name" id="last" oninput="email()" name="last" value="{{employee[2]}}">
+                                                        </div>
+                                                        <div class="col-12">
+                                                          <label for="email" class="form-label">Email</label>
+                                                          <input type="email" class="form-control" id="email" placeholder="first.last@arch-dev.com" name="email" value="{{employee[3]}}">
+                                                        </div>
+                                                        <div class="col-8">
+                                                          <label for="inputPassword2" class="form-label">Password</label>
+                                                          <input type="password" class="form-control" id="inputPassword2" placeholder="Password" name="password">
+                                                        </div>
+                                                        <div class="col-4">
+                                                          <label class="form-label" style="visibility: hidden;">Temporary Pass</label>
+                                                          <button type="button" class="btn btn-primary">Generate Pass</button>
+                                                        </div>
+                                                        <div class="col-6">
+                                                          <label for="inputAddress" class="form-label">Department</label>
+                                                          <select class="form-select" aria-label="Default select example" name="department">
+                                                            <option selected>{{department[1]}}</option>
+                    <!--                                        <option value="1">One</option>-->
+                    <!--                                        <option value="2">Two</option>-->
+                    <!--                                        <option value="3">Three</option>-->
+                                                          </select>
+                                                        </div>
+                                                        <div class="col-6">
+                                                          <label for="inputAddress" class="form-label">Role</label>
+                                                          <select class="form-select" aria-label="Default select example" name="role" required>
+                                                            <option selected disabled value="">{{db.select("ROLES", "ID", employee[8])[0][1]}}</option>
+                                                            {% for role in db.select("ROLES", "DEPARTMENT_ID", department[0]) %}
+                                                            <option value="{{role[0]}}">{{role[1]}}</option>
+                                                            {% endfor %}
+                                                          </select>
+                                                        </div>
+                                                        <div class="col-6">
+                                                          <label for="inputAddress" class="form-label">Manager</label>
+                                                          <select class="form-select" aria-label="Default select example" name="manager">
+                                                            <option selected>{{employee[7]}}</option>
+                                                            {% for manager in db.select_all("EMPLOYEE") %}
+                                                            <option value="{{manager[0]}}">{{manager[1] + ' ' + manager[2]}}</option>
+                                                            {% endfor %}
+                                                          </select>
+                                                        </div>
+                                                        <div class="col-6">
+                                                          <label for="hireDate" class="form-label">Hire Date</label>
+                                                          <input type="date" class="form-control" id="hireDate" name="hire-date" value="{{employee[5]}}">
+                                                        </div>
+                                                        <div class="col-12">
+                                                          <label for="inputAddress" class="form-label">Address</label>
+                                                          <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St" name="address" value="{{employee[6]}}">
+                                                        </div>
+                                                        <div class="col-12">
+                                                          <label for="inputAddress" class="form-label">Phone Number</label>
+                                                          <input type="text" class="form-control" id="inputAddress" placeholder="123456789" name="phone" value="{{employee[4]}}">
+                                                        </div>
+                                                      </div>
+                                                  </div>
+                                                  <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                                  </div>
+                                                </div>
+                                              </form>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </td>
+                                  </tr>
+                              {% endfor %}
+                            </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+            <!-- PROJECTS -->
+            <div class="tab-pane fade" id="pills-projects" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+              <div class="accordion" id="accordionExample">
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                      Projects
+                    </button>
+                  </h2>
+                  <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                      <table class="table table-hover" style="margin-top: 20px;">
+                        <thead>
+                          <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Client Name</th>
+                            <th scope="col">Project Name</th>
+                            <th scope="col">Responsable</th>
+                            <th scope="col">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for project in db.select_all("PROJECTS") %}
+                            <tr>
+                              <th scope="row">{{project[0]}}</th>
+                              <td>{{project[1]}}</td>
+                              <td>{{project[2]}}</td>
+                              <td>{{project[3]}}</td>
+                              <td>
+                                <div class="btn-group">
+                                  <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                          Action
+                                  </button>
+                                  <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit{{project[0]}}Modal">Edit</a></li>
+                                    <li>
+                                      <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item" href="{{ url_for('delete', id=project[0], table='PROJECTS' ) }}" style="color: red;">Delete</a></li>
+                                  </ul>
+                                  <!-- EDIT PROJECT -->
+                                  <div class="modal fade" id="edit{{project[0]}}Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                      <form action="{{ url_for('create_project', id='edit') }}" method="post">
+                                        <div class="modal-content">
+                                          <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">New Project</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                          </div>
+                                          <div class="modal-body">
+                                            <div class="row g-3">
+                                              <div class="col-3">
+                                                <input type="text" class="form-control" placeholder="ID" value="{{project[0]}}" name="id" disabled>
+                                              </div>
+                                              <div class="col-9">
+                                                <input type="text" class="form-control" placeholder="Project Name" value="{{project[2]}}" name="project">
+                                              </div>
+                                              <div class="row g-3">
+                                                <div class="col" style="padding: 0;">
+                                                  <input type="text" class="form-control" placeholder="Client Name" value="{{project[1]}}" name="client">
+                                                </div>
+                                              </div>
+                                              <div class="row g-3">
+                                                <div class="col" style="padding: 0;">
+                                                  <select class="form-select" aria-label="Default select example" required name="responsible">
+                                                    {% for employee in db.select_all("EMPLOYEE") %}
+                                                      {% if employee[0] == project[3] %}
+                                                      <option selected disabled value="">{{ employee[1] + ' ' + employee[2] }}</option>
+                                                      {% else %}
+                                                      <option value="{{employee[0]}}">{{ employee[1] + ' ' + employee[2] }}</option>
+                                                      {% endif %}
+                                                    {% endfor %}}
+                                                  </select>
+                                                </div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                          <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-primary">Save</button>
+                                          </div>
+                                        </div>
+                                      </form>
+                                    </div>
+                                  </div>
+                                </div>
+                              </td>
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- REQUESTS -->
+            <div class="tab-pane fade" id="pills-requests" role="tabpanel" aria-labelledby="pills-disabled-tab" tabindex="0">
+              <div class="accordion" id="accordionRequests">
+                <!-- PENDING REQUEST -->
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingPendingRequest">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePendingRequest" aria-expanded="true" aria-controls="collapsePendingRequest">
+                      Pending requests
+                    </button>
+                  </h2>
+                  <div id="collapsePendingRequest" class="accordion-collapse collapse show" aria-labelledby="headingPendingRequest" data-bs-parent="#accordionRequests">
+                    <div class="accordion-body">
+                      <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link active btn-sm" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-pending-time" type="button" role="tab" aria-controls="pills-time" aria-selected="true"><i class="fa-solid fa-calendar-days"></i> Time entry</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-pending-annual" type="button" role="tab" aria-controls="pills-annual" aria-selected="false"><i class="fa-sharp fa-solid fa-sun"></i> Annual Leave</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-pending-medical" type="button" role="tab" aria-controls="pills-medical" aria-selected="false"><i class="fa-solid fa-kit-medical"></i> Medical Leave</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-pending-other" type="button" role="tab" aria-controls="pills-other" aria-selected="false"><i class="fa-solid fa-ellipsis"></i> Other Leave</button>
+                        </li>
+                      </ul>
+                      <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-pending-time" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Create date</th>
+                                <th scope="col">Project</th>
+                                <th scope="col"></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            {% for emp in db.select_all("EMPLOYEE") %}
+                              {% for timesheet in db.select_all("REQ_TIMESHEET") %}
+                                {% if emp[0] == timesheet[5] and emp[7] == user['id'] and timesheet[3] == 1%}
+                                  <tr>
+                                    <td scope="col">{{timesheet[0]}}</td>
+                                    <td scope="col">{{timesheet[5]}}</td>
+                                    <td scope="col">{{timesheet[1]}}</td>
+                                    <td scope="col">{{timesheet[2]}}</td>
+                                    <td scope="col">{{timesheet[4]}}</td>
+                                    <td scope="col">
+                                      <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                                        <input type="radio" class="btn-check" name="btnradio" id="btnradio{{timesheet[0]}}approve" autocomplete="off">
+                                        <label class="btn btn-outline-success" for="btnradio{{timesheet[0]}}approve">Approve</label>
+                                        <input type="radio" class="btn-check" name="btnradio" id="btnradio{{timesheet[0]}}reject" autocomplete="off">
+                                        <label class="btn btn-outline-danger" for="btnradio{{timesheet[0]}}reject">Reject</label>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                {% endif %}
+                              {% endfor %}
+                            {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-pending-annual" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 1 and timeoff[1] == 'ANL'%}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-pending-medical" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 1 and timeoff[1] == 'SKL'%}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-pending-other" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 1 and timeoff[1] not in 'ANL' and timeoff[1] not in 'SKL' %}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- APPROVED REQUEST -->
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingApprovedRequest">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseApprovedRequest" aria-expanded="false" aria-controls="collapseApprovedRequest">
+                      Approved Requests
+                    </button>
+                  </h2>
+                  <div id="collapseApprovedRequest" class="accordion-collapse collapse" aria-labelledby="headingApprovedRequest" data-bs-parent="#accordionRequests">
+                    <div class="accordion-body">
+                      <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link active btn-sm" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-approved-time" type="button" role="tab" aria-controls="pills-time" aria-selected="true"><i class="fa-solid fa-calendar-days"></i> Time entry</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-approved-annual" type="button" role="tab" aria-controls="pills-annual" aria-selected="false"><i class="fa-sharp fa-solid fa-sun"></i> Annual Leave</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-approved-medical" type="button" role="tab" aria-controls="pills-medical" aria-selected="false"><i class="fa-solid fa-kit-medical"></i> Medical Leave</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-approved-other" type="button" role="tab" aria-controls="pills-other" aria-selected="false"><i class="fa-solid fa-ellipsis"></i> Other Leave</button>
+                        </li>
+                      </ul>
+                      <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-approved-time" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Create date</th>
+                                <th scope="col">Project</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            {% for emp in db.select_all("EMPLOYEE") %}
+                              {% for timesheet in db.select_all("REQ_TIMESHEET") %}
+                                {% if emp[0] == timesheet[5] and emp[7] == user['id'] and timesheet[3] == 2%}
+                                  <tr>
+                                    <td scope="col">{{timesheet[0]}}</td>
+                                    <td scope="col">{{timesheet[5]}}</td>
+                                    <td scope="col">{{timesheet[1]}}</td>
+                                    <td scope="col">{{timesheet[2]}}</td>
+                                    <td scope="col">{{timesheet[4]}}</td>
+                                    <td scope="col">Action</td>
+                                  </tr>
+                                {% endif %}
+                              {% endfor %}
+                            {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-approved-annual" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 2 and timeoff[1] == 'ANL'%}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-approved-medical" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 2 and timeoff[1] == 'SKL'%}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-approved-other" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 2 and timeoff[1] not in 'ANL' and timeoff[1] not in 'SKL' %}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- REJECTED REQUEST -->
+                <div class="accordion-item">
+                  <h2 class="accordion-header" id="headingRejectedRequest">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRejectedRequest" aria-expanded="false" aria-controls="collapseRejectedRequest">
+                      Rejected Requests
+                    </button>
+                  </h2>
+                  <div id="collapseRejectedRequest" class="accordion-collapse collapse" aria-labelledby="headingRejectedRequest" data-bs-parent="#accordionRequests">
+                    <div class="accordion-body">
+                      <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link active btn-sm" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-rejected-time" type="button" role="tab" aria-controls="pills-time" aria-selected="true"><i class="fa-solid fa-calendar-days"></i> Time entry</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-rejected-annual" type="button" role="tab" aria-controls="pills-annual" aria-selected="false"><i class="fa-sharp fa-solid fa-sun"></i> Annual Leave</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-rejected-medical" type="button" role="tab" aria-controls="pills-medical" aria-selected="false"><i class="fa-solid fa-kit-medical"></i> Medical Leave</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link btn-sm" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-rejected-other" type="button" role="tab" aria-controls="pills-other" aria-selected="false"><i class="fa-solid fa-ellipsis"></i> Other Leave</button>
+                        </li>
+                      </ul>
+                      <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-rejected-time" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Create date</th>
+                                <th scope="col">Project</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            {% for emp in db.select_all("EMPLOYEE") %}
+                              {% for timesheet in db.select_all("REQ_TIMESHEET") %}
+                                {% if emp[0] == timesheet[5] and emp[7] == user['id'] and timesheet[3] == 3%}
+                                  <tr>
+                                    <td scope="col">{{timesheet[0]}}</td>
+                                    <td scope="col">{{timesheet[5]}}</td>
+                                    <td scope="col">{{timesheet[1]}}</td>
+                                    <td scope="col">{{timesheet[2]}}</td>
+                                    <td scope="col">{{timesheet[4]}}</td>
+                                    <td scope="col">Action</td>
+                                  </tr>
+                                {% endif %}
+                              {% endfor %}
+                            {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-rejected-annual" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 3 and timeoff[1] == 'ANL'%}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-rejected-medical" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 3 and timeoff[1] == 'SKL'%}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="tab-pane fade" id="pills-rejected-other" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+                          <table class="table table-hover" style="margin-top: 20px;">
+                            <thead>
+                              <tr>
+                                <th scope="col">ID</th>
+                                <th scope="col">Employee</th>
+                                <th scope="col">From</th>
+                                <th scope="col">To</th>
+                                <th scope="col">Note</th>
+                                <th scope="col">Action</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for emp in db.select_all("EMPLOYEE") %}
+                                {% for timeoff in db.select_all("REQ_TIMEOFF") %}
+                                  {% if emp[0] == timeoff[2] and emp[7] == user['id'] and timeoff[5] == 3 and timeoff[1] not in 'ANL' and timeoff[1] not in 'SKL' %}
+                                    <tr>
+                                      <td scope="col">{{timeoff[0]}}</td>
+                                      <td scope="col">{{timeoff[2]}}</td>
+                                      <td scope="col">{{timeoff[3]}}</td>
+                                      <td scope="col">{{timeoff[4]}}</td>
+                                      <td scope="col">{{timeoff[6]}}</td>
+                                      <td scope="col">Action</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- TASKS -->
+            <div class="tab-pane fade" id="pills-tasks" role="tabpanel" aria-labelledby="pills-disabled-tab" tabindex="0">
+              <div class="accordion" id="accordionTasks">
+                {% for department in db.select_all("DEPARTMENTS") %}
+                  <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingPendingRequest">
+                      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePendingRequest" aria-expanded="true" aria-controls="collapsePendingRequest">
+                        {{department[1]}} Task
+                      </button>
+                    </h2>
+                    <div id="collapsePendingRequest" class="accordion-collapse collapse show" aria-labelledby="headingPendingRequest" data-bs-parent="#accordionTasks">
+                      <div class="accordion-body">
+                        <button type="button" class="btn btn-primary btn-sm">Add new task</button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm">Edit</button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" style="float: right;">Delete</button>
+                        <table class="table table-hover" style="margin-top: 20px;">
+                          <thead>
+                            <tr>
+                              <th scope="col">ID</th>
+                              <th scope="col">Task name</th>
+                              <th scope="col">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {% for task in  db.select("TASKS", "DEPARTMENT_ID", department[0])%}
+                              <tr>
+                                <th scope="row">{{task[0]}}</th>
+                                <td>{{task[1]}}</td>
+                                <td>
+                                  <div class="btn-group">
+                                        <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                          Action
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                          <li><a class="dropdown-item" href="#">View</a></li>
+                                          <li><a class="dropdown-item" href="#">Edit</a></li>
+                                          <li>
+                                            <hr class="dropdown-divider">
+                                          </li>
+                                          <li><a class="dropdown-item" href="#" style="color: red;">Delete</a></li>
+                                        </ul>
+                                      </div>
+                                </td>
+                              </tr>
+                            {% endfor %}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+            <!-- PROFILES -->
+            <div class="tab-pane fade" id="pills-profiles" role="tabpanel" aria-labelledby="pills-disabled-tab" tabindex="0">
+              <div class="row row-cols-1 row-cols-md-5 g-4">
+                {% for employee in db.select_all("EMPLOYEE") %}
+                  <div class="col">
+                    <div class="container text-center" style="padding: 0;">
+                      <img class="image" src="{{url_for('static', filename='images/avatar.png')}}" alt="avatar-img" style="width: 100%;">
+                      <div class="overlay">
+                        <h5 class="profile-name">{{employee[1]}} {{employee[2]}}</h5>
+                        <a role="button" href="{{url_for('profile', id=employee[0])}}" class="btn btn-outline-secondary btn-sm profile-button">View</a>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Charts -->
+        <div class="col char" style="margin: 20px;">
+          <div class="row">
+            <div class="col" style="text-align:center;">
+              <h5 style="margin-top: 10px;">Charts</h5>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% include "side-admin.html" %}
+    </div>
+{% endblock %}

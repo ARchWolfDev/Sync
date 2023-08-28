@@ -1,0 +1,107 @@
+{
+    "No notification": {
+        "name": "",
+        "request": "For this moment there is no other notification available",
+        "timestamp": ""
+    },
+    "EMP-1001:timesheet": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new timesheet request",
+        "timestamp": "03-08-2023"
+    },
+    "EMP-1001:timeOff": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new timeOff request",
+        "timestamp": "07-08-2023"
+    },
+    "EMP-1001:tickets": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new tickets request",
+        "timestamp": "03-08-2023"
+    },
+    "EMP-1002:timesheet": {
+        "name": "Elena Marian",
+        "request": "Created a new timesheet request",
+        "timestamp": "04-08-2023"
+    },
+    "EMP-1001:tickets:07-08-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new tickets request",
+        "timestamp": "07-08-2023"
+    },
+    "EMP-1002:timeOff:07-08-2023": {
+        "name": "Elena Marian",
+        "request": "Created a new timeOff request",
+        "timestamp": "07-08-2023"
+    },
+    "EMP-1001:timesheet:09-08-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new timesheet request",
+        "timestamp": "09-08-2023"
+    },
+    "EMP-1001:timesheet:10-08-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new timesheet request",
+        "timestamp": "10-08-2023"
+    },
+    "EMP-1001:timesheet:12-08-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new timesheet request",
+        "timestamp": "12-08-2023"
+    },
+    "EMP-1001:timeOff:12-08-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new timeOff request",
+        "timestamp": "12-08-2023"
+    },
+    "EMP-1006:timesheet:14-08-2023": {
+        "name": "Diana Miles",
+        "request": "Created a new timesheet request",
+        "timestamp": "14-08-2023"
+    },
+    "EMP-1001:timesheet:14-08-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new timesheet request",
+        "timestamp": "14-08-2023"
+    },
+    "EMP-1005:timesheet:14-08-2023": {
+        "name": "Marius Pascal",
+        "request": "Created a new timesheet request",
+        "timestamp": "14-08-2023"
+    },
+    "EMP-1001:timeOff:14-08-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new timeOff request",
+        "timestamp": "14-08-2023"
+    },
+    "EMP-1006:timeOff:14-08-2023": {
+        "name": "Diana Miles",
+        "request": "Created a new timeOff request",
+        "timestamp": "14-08-2023"
+    },
+    "EMP-1002:timesheet:14-08-2023": {
+        "name": "Elena Marian",
+        "request": "Created a new timesheet request",
+        "timestamp": "14-08-2023"
+    },
+    "EMP-1002:timeOff:14-08-2023": {
+        "name": "Elena Marian",
+        "request": "Created a new timeOff request",
+        "timestamp": "14-08-2023"
+    },
+    "EMP-1004:timesheet:14-08-2023": {
+        "name": "Ioana Luna",
+        "request": "Created a new timesheet request",
+        "timestamp": "14-08-2023"
+    },
+    "EMP-1007:timesheet:24-08-2023": {
+        "name": "Ionut Lucian",
+        "request": "Created a new timesheet request",
+        "timestamp": "24-08-2023"
+    },
+    "EMP-1001:timesheet:28-08-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new timesheet request",
+        "timestamp": "28-08-2023"
+    }
+}

@@ -1,0 +1,411 @@
+{% block content %}
+  {% for mesg in get_flashed_messages() %}
+    <div class="message">
+      <p class="mesg"><i class="fa-solid fa-circle-check"></i> {{ mesg }}</p>
+    </div>
+  {% endfor %}
+  <!-- The sidebar -->
+  <div class="sidebar ">
+    <div class="logo">
+      <h1>Sync.</h1>
+    </div>
+    <div class="row sidebar-items">
+      <div class="col sidebar-col">
+        <div class="list-group sidebar-list" id="list-tab" role="tablist">
+          <a class="list-group-item list-group-item-action active" id="list-home-list" href="{{url_for('index')}}" role="tab"><i class="fa-solid fa-house"></i> Home</a>
+          <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#otherRequest"><i class="fa-solid fa-business-time"></i>
+            Time Off</a>
+          <div class="request-items">
+            <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#leaveRequest"><i class="fa-sharp fa-solid fa-sun"></i>
+              Annual leave</a>
+            <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#sickRequest"><i class="fa-solid fa-kit-medical"></i> Medical
+              Leave</a>
+            <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#otherRequest"><i class="fa-solid fa-ellipsis"></i>
+              Other Leave types</a>
+          </div>
+          <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#hrRequest"><i class="fa-sharp fa-solid fa-person"></i> Request</a>
+          <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#documentModal"><i class="fa-solid fa-folder"></i> Documents</a>
+          <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#newsModal"><i class="fa-solid fa-newspaper"></i> News <span
+              class="badge text-bg-danger" style="float: right;">0</span></a>
+          <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#contactModal"><i class="fa-solid fa-address-book"></i> Contact</a>
+          <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#settingsModal"><i class="fa-sharp fa-solid fa-gear"></i> Settings</a>
+          {% if user['admin'] == 1 or user['admin'] == 2 %}
+            <a href="{{url_for('admin', id='dashboard')}}" class="admin"><i class="fa-solid fa-star"></i> Admin</a>
+          {% endif %}
+          <a class="list-group-item list-group-item-action" href="{{ url_for('logout') }}" role="tab"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- leave request MODAL -->
+  <form action="{{ url_for('request_type', req_type='timeOff') }}" method="post" enctype="multipart/form-data">
+    <div class="modal fade" id="leaveRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Annual leave</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="user" class="form-label">Employee</label>
+              <select class="form-select" aria-label="Default select example" name="user_id">
+                <option selected value="{{user['id']}}">{{user['complete_name']}}</option>
+              </select>
+            </div>
+            <div class="row mb-3">
+              <div class="col" style="padding-left: 0;">
+                <label for="fromAN" class="form-label">From:</label>
+                <input id="fromAN" type="date" class="form-control" name="start_date">
+              </div>
+              <div class="col" style="padding-right: 0;">
+                <label for="toAN" class="form-label">To:</label>
+                <input id="toAN" type="date" class="form-control" name="end_date">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="type" class="form-label">Type</label>
+              <select class="form-select" aria-label="Default select example" name="type_id">
+                {% for timeoff in db.select_all("t_time_off_types") %}
+                <option value="{{timeoff[0]}}">{{timeoff[1]}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="noteFormControlTextarea1" class="form-label">Note:</label>
+              <textarea class="form-control" id="noteFormControlTextarea1" rows="3" name="notes"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary modal-btn">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- Medical request MODAL -->
+  <form action="{{ url_for('request_type', req_type='timeOff') }}" method="post" enctype="multipart/form-data">
+    <div class="modal fade" id="sickRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Medical Request</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="user" class="form-label">Employee</label>
+              <select class="form-select" aria-label="Default select example" name="user_id">
+                <option selected value="{{user['id']}}">{{user['complete_name']}}</option>
+              </select>
+            </div>
+            <div class="row mb-3">
+              <div class="col" style="padding-left: 0;">
+                <label for="fromMD" class="form-label">From:</label>
+                <input id="fromMD" type="date" class="form-control" placeholder="dd/mm/yyyy" aria-label="First name" name="start_date">
+              </div>
+              <div class="col" style="padding-right: 0;">
+                <label for="toMD" class="form-label">To:</label>
+                <input id="toMD" type="date" class="form-control" placeholder="dd/mm/yyyy" aria-label="Last name" name="end_date">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="type" class="form-label">Type</label>
+              <select class="form-select" aria-label="Default select example" name="type_id">
+                <option selected>Sick leave</option>
+                {% for timeoff in db.select_all("t_time_off_types") %}
+                <option value="{{timeoff[0]}}">{{timeoff[1]}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="exampleFormControlTextarea1" class="form-label">Note:</label>
+              <textarea class="form-control" rows="3" name="notes"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary modal-btn">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- Other Types Request MODAL -->
+  <form action="{{ url_for('request_type', req_type='timeOff') }}" method="post" enctype="multipart/form-data">
+    <div class="modal fade" id="otherRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Leave</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="user" class="form-label">Employee</label>
+              <select class="form-select" id=user aria-label="Default select example" name="user_id">
+                <option selected value="{{user['id']}}">{{user['complete_name']}}</option>
+              </select>
+            </div>
+            <div class="row mb-3">
+              <div class="col" style="padding-left: 0;">
+                <label for="from" class="form-label">From:</label>
+                <input id="from" type="date" class="form-control" placeholder="dd/mm/yyyy" aria-label="First name" name="start_date">
+              </div>
+              <div class="col" style="padding-right: 0;">
+                <label for="to" class="form-label">To:</label>
+                <input id="to" type="date" class="form-control" placeholder="dd/mm/yyyy" aria-label="Last name" name="end_date">
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="type" class="form-label">Type</label>
+              <select class="form-select" aria-label="Default select example" name="type_id">
+                <option selected>Choose..</option>
+                {% for timeoff in db.select_all("t_time_off_types") %}
+                <option value="{{timeoff[0]}}">{{timeoff[1]}}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="exampleFormControlTextarea1" class="form-label">Note:</label>
+              <textarea class="form-control" rows="3" name="notes"></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary modal-btn">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- Request MODAL -->
+  <form action="{{ url_for('request_type', req_type='tickets') }}" method="post" enctype="multipart/form-data">
+    <div class="modal fade" id="hrRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Request</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label for="type" class="form-label">Employee</label>
+              <select class="form-select" id=type aria-label="Default select example" name="user_id">
+                <option selected value="{{user['id']}}">{{user['complete_name']}}</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="exampleFormControlInput1" class="form-label">Title</label>
+              <input type="text" class="form-control" id="exampleFormControlInput1" placeholder="Title" name="title">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Note</label>
+              <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="note"></textarea>
+            </div>
+            <label class="form-label">Assignee</label>
+            <select class="form-select mb-3" aria-label="Default select example" name="assigned" required>
+              {% for adm in db.select_all('t_users') %}
+                {% if adm[3] == 1 %}
+                  <option value="{{adm[0]}}">{{adm[1]}}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary modal-btn">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- Document MODAL -->
+  <form action="{{ url_for('upload_file', type='doc') }}" method="post" enctype="multipart/form-data">
+    <div class="modal fade" id="documentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Documents</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row mb-3">
+              {%for fi in db2.Select("t_emp_doc").where(user_id=user['id'])%}
+              <div class="col-3 chart" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                <i class="fa-regular fa-file-lines" style="font-size: 100px;"></i>
+                <div class="col" style="margin-top: 10px;"><a href="{{ url_for('download', name=fi[3]) }}" style="font-size: 90%; text-decoration: none;">{{fi[3]}}</a></div>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="mb-3">
+              <input class="form-control" type="file" id="formFile" name="file">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- News MODAL -->
+  <form>
+    <div class="modal fade" id="newsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">News</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            No news available
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- Contact MODAL -->
+  <form>
+    <div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Contact</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            ...
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- Settings MODAL -->
+  <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Settings</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="container">
+            <form action="{{ url_for('upload_file', type='avatar') }}" method="post" enctype="multipart/form-data">
+              <div class="row mb-3">
+                <div class="col-lg-2" style="padding: inherit">
+                  <div class="container text-center" style="padding: 0;">
+                      <img class="image" src="{{url_for('static', filename=avatar[2])}}" alt="avatar-img" style="width: 100%;">
+                      <div class="overlay">
+                        <label for="file" class="btn btn-outline-secondary btn-sm profile-button">Upload</label>
+                        <input role="button" type="file" id="file" class="btn btn-outline-secondary btn-sm profile-button" name="file" hidden>
+                      </div>
+                  </div>
+                </div>
+                <div class="col-lg-9">
+                  <h2 style="text-align:left; margin-left: 20px;">{{user['first'] + ' ' + user['last']}}</h2>
+                  <hr>
+                  <h4 style="margin-left: 20px;">{{user['role']}}</h4>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-lg-6">
+                  <label class="form-label">Phone Number</label>
+                  <input type="text" class="form-control" placeholder="Phone number" value="{{user['phone']}}">
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col-lg-12">
+                  <label class="form-label">Addresses</label>
+                  <input type="text" class="form-control" placeholder="First Addresses" value="{{user['address']}}">
+                </div>
+              </div>
+              <div class="row mb-3">
+                <div class="col" >
+                  <button class="btn btn-primary" type="submit">Save</button>
+                </div>
+              </div>
+            </form>
+            <hr>
+            <div class="row mb-3">
+              <div class="col">
+                <h5>Change Password</h5>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-lg-6">
+                <button class="btn btn-primary" data-bs-target="#changePassword" data-bs-toggle="modal">Change Password</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <form>
+    <div class="modal fade" id="changePassword" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">Change Password</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="container">
+              <div class="row">
+                <div class="mb-3">
+                  <label for="oldPassword" class="form-label">Old Password</label>
+                  <input type="password" class="form-control" id="oldPassword" required>
+                </div>
+              </div>
+              <div class="row">
+                <div class="mb-3">
+                  <label for="newPasswrd" class="form-label">New Password</label>
+                  <input type="password" class="form-control" id="newPasswrd" required>
+                </div>
+              </div>
+              <div class="row">
+                <div class="mb-3">
+                  <label for="confirmPassword" class="form-label"> Confirm Password</label>
+                  <input type="password" class="form-control" id="confirmPassword" required>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button class="btn btn-primary" type="submit">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- Page content -->
+  <div class="content">
+    <div class="top" id="index">
+      <div class="row">
+        <div class="col col-lg-11 col-md-10 col-sm-6">
+          <h1>Welcome {{user['first']}}!</h1>
+          <p>{{user['role']}}</p>
+        </div>
+        <div class=" col col-lg-1 col-md-2 col-sm-6 dropdown">
+          <div class="container text-center" style="padding: 0;">
+            <img class="image" src="{{url_for('static', filename=avatar[2])}}" alt="avatar-img" style="width: 100%;">
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endblock %}

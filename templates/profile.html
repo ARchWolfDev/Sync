@@ -1,0 +1,790 @@
+{% extends "base.html" %}
+{% block title %}Profile: {{profile['first'] + ' ' + profile['last']}}{% endblock %}
+{% block content %}
+<div class="row">
+      <div class="col-lg-9">
+        <ul class="nav nav-pills mb-3 control-button" id="pills-tab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a class="nav-link active" aria-current="page" href="{{url_for('admin', id='profiles')}}"><i class="fa-solid fa-chevron-left"></i> Back</a>
+          </li>
+        </ul>
+      </div>
+      <!-- Search -->
+      <div class="col-lg-3">
+        <form class="d-flex search" role="search">
+          <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+        </form>
+      </div>
+      <!--Profile-->
+      <div class="col-lg-9" style="margin-top: 20px;">
+        <div class="col">
+          <div class="row">
+            <div class="row">
+              <div class="col-lg-2" style="padding: inherit">
+                <img class="avatar" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=profile['id'])[0][0])}}" alt="avatar-img" style="width: 100%;">
+              </div>
+              <div class="col-lg-9">
+                <h2 style="text-align:left; margin-left: 20px;">{{profile['complete_name']}} - {{ profile['id'] }}</h2>
+                <hr>
+                <h5 style="margin-left: 20px;">{{profile['role']}}</h5>
+                <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="height: 20px; margin: 20px;">
+                  <div class="progress-bar bg-success" style="width: {{cal.timesheet_completed(profile['id'])}}%"></div>
+                </div>
+              </div>
+            </div>
+            <div class="row" style="margin-top: 20px;">
+              <div class="d-flex align-items-start">
+                <div class="col-lg-2">
+                  <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <button style="text-align: left;" class="nav-link active" id="v-pills-info-tab" data-bs-toggle="pill" data-bs-target="#v-pills-info" type="button" role="tab" aria-controls="v-pills-info" aria-selected="true"><i class="fa-solid fa-circle-info"></i> User Info</button>
+                    <button style="text-align: left;" class="nav-link" id="v-pills-timesheet-tab" data-bs-toggle="pill" data-bs-target="#v-pills-timesheet" type="button" role="tab" aria-controls="v-pills-timesheet" aria-selected="false"><i class="fa-solid fa-calendar-day"></i> Timesheet</button>
+                    <button style="text-align: left;" class="nav-link" id="v-pills-time-off-tab" data-bs-toggle="pill" data-bs-target="#v-pills-time-off" type="button" role="tab" aria-controls="v-pills-time-off" aria-selected="false"><i class="fa-solid fa-business-time"></i> Time Off</button>
+                    <button style="text-align: left;" class="nav-link" id="v-pills-requests-tab" data-bs-toggle="pill" data-bs-target="#v-pills-requests" type="button" role="tab" aria-controls="v-pills-requests" aria-selected="false"><i class="fa-sharp fa-solid fa-person"></i> Requests</button>
+                    <button style="text-align: left;" class="nav-link" id="v-pills-calendar-tab" data-bs-toggle="pill" data-bs-target="#v-pills-calendar" type="button" role="tab" aria-controls="v-pills-calendar" aria-selected="false"><i class="fa-solid fa-calendar-days"></i> Calendar</button>
+                    <button style="text-align: left;" class="nav-link" id="v-pills-doc-tab" data-bs-toggle="pill" data-bs-target="#v-pills-doc" type="button" role="tab" aria-controls="v-pills-doc" aria-selected="false"><i class="fa-solid fa-folder"></i> Documents</button>
+                  </div>
+                </div>
+                <div class="col-lg-9 tab-content" style="padding:0px;" id="v-pills-tabContent">
+                  <!-- Basic Info -->
+                  <div class="tab-pane fade show active" id="v-pills-info" role="tabpanel" aria-labelledby="v-pills-info-tab" tabindex="0">
+                    <div class="row">
+                      <div class="col">
+                        <div class="col char mb-3">
+                          <h5>Basic Info</h5>
+                          <hr style="margin: 10px 0px">
+                          <label class="form-label">First Name</label>
+                          <input class="form-control mb-3" type="text" value="{{profile['first']}}">
+                          <label class="form-label">Last Name</label>
+                          <input class="form-control mb-3" type="text" value="{{profile['last']}}">
+                        </div>
+                        <div class="col char mb-3">
+                          <h5>Contact Info</h5>
+                          <hr style="margin: 10px 0px">
+                          <label class="form-label">Email</label>
+                          <input class="form-control mb-3" type="text" value="{{profile['email']}}">
+                          <label class="form-label">Phone Number</label>
+                          <input class="form-control mb-3" type="text" value="{{profile['phone']}}">
+                          <label class="form-label">Address</label>
+                          <input class="form-control mb-3" type="text" value="{{profile['address']}}">
+                        </div>
+                      </div>
+                      <div class="col char mb-3">
+                        <h5>Job Details</h5>
+                        <hr style="margin: 10px 0px">
+                        <label class="form-label">Department</label>
+                        <input class="form-control mb-3" type="text" value="{{profile['department']}}">
+                        <label class="form-label">Role</label>
+                        <input class="form-control mb-3" type="text" value="{{profile['role']}}">
+                        <label class="form-label">Hire Date</label>
+                        <input class="form-control mb-3" type="text" value="{{profile['hire']}}">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="v-pills-timesheet" role="tabpanel" aria-labelledby="v-pills-timesheet-tab" tabindex="0">
+                    <div class="accordion" id="accordionTimeSheetRequests">
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePendingRequests" aria-expanded="true" aria-controls="collapsePendingRequests">
+                      Pending
+                    </button>
+                  </h2>
+                  <div id="collapsePendingRequests" class="accordion-collapse collapse show" data-bs-parent="#accordionTimeSheetRequests">
+                    <div class="accordion-body">
+                      <form  action="{{ url_for('requests', class='timesheet') }}" method="post">
+                        <table class="table table-hover" style="margin-top: 20px;">
+                          <thead>
+                          <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Employee</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Create date</th>
+                            <th scope="col">Project</th>
+                            <th scope="col">
+                              <div class="btn-group">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                  Send form
+                                </button>
+                              </div>
+                            </th>
+                          </tr>
+                          </thead>
+                          <tbody class="tbody">
+                          {% for timesheet in db.select_all("v_req_timesheet") %}
+                            {% if timesheet[3] == 1 and timesheet[8] == user['id'] and timesheet[3] == profile['id']%}
+                              <tr>
+                                <td scope="col">{{timesheet[0]}}</td>
+                                <td scope="col">{{timesheet[2]}}</td>
+                                <td scope="col">{{timesheet[4]}}</td>
+                                <td scope="col">{{timesheet[5]}}</td>
+                                <td scope="col">{{timesheet[7]}}</td>
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timesheet[0]}}" id="flexRadio{{timesheet[0]}}approve" value="2">
+                                    <label class="form-check-label" for="flexRadio{{timesheet[0]}}approve">
+                                      Approve
+                                    </label>
+                                  </div>
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timesheet[0]}}" id="flexRadio{{timesheet[0]}}reject" value="3">
+                                    <label class="form-check-label" for="flexRadio{{timesheet[0]}}reject">
+                                      Reject
+                                    </label>
+                                  </div>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                          </tbody>
+                        </table>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseApprovedRequests" aria-expanded="false" aria-controls="collapseApprovedRequests">
+                      Approved
+                    </button>
+                  </h2>
+                  <div id="collapseApprovedRequests" class="accordion-collapse collapse" data-bs-parent="#accordionTimeSheetRequests">
+                    <div class="accordion-body">
+                      <form  action="{{ url_for('requests', class='timesheet') }}" method="post">
+                        <table class="table table-hover" style="margin-top: 20px;">
+                          <thead>
+                          <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Employee</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Create date</th>
+                            <th scope="col">Project</th>
+                            <th scope="col">
+                              <div class="btn-group">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                  Send form
+                                </button>
+                              </div>
+                            </th>
+                          </tr>
+                          </thead>
+                          <tbody class="tbody">
+                          {% for timesheet in db.select_all("v_req_timesheet") %}
+                            {% if timesheet[3] == 2 and timesheet[8] == user['id'] and timesheet[1] == profile['id']%}
+                              <tr>
+                                <td scope="col">{{timesheet[0]}}</td>
+                                <td scope="col">{{timesheet[2]}}</td>
+                                <td scope="col">{{timesheet[4]}}</td>
+                                <td scope="col">{{timesheet[5]}}</td>
+                                <td scope="col">{{timesheet[7]}}</td>
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timesheet[0]}}" id="flexRadio{{timesheet[0]}}reject" value="3">
+                                    <label class="form-check-label" for="flexRadio{{timesheet[0]}}reject">
+                                      Reject
+                                    </label>
+                                  </div>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                          </tbody>
+                        </table>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRejectedRequests" aria-expanded="false" aria-controls="collapseRejectedRequests">
+                      Rejected
+                    </button>
+                  </h2>
+                  <div id="collapseRejectedRequests" class="accordion-collapse collapse" data-bs-parent="#accordionTimeSheetRequests">
+                    <div class="accordion-body">
+                      <form  action="{{ url_for('requests', class='timesheet') }}" method="post">
+                        <table class="table table-hover" style="margin-top: 20px;">
+                          <thead>
+                          <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Employee</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Create date</th>
+                            <th scope="col">Project</th>
+                            <th scope="col">
+                              <div class="btn-group">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                  Send form
+                                </button>
+                              </div>
+                            </th>
+                          </tr>
+                          </thead>
+                          <tbody class="tbody">
+                          {% for timesheet in db.select_all("v_req_timesheet") %}
+                            {% if timesheet[3] == 3 and timesheet[8] == user['id'] and timesheet[1] == profile['id']%}
+                              <tr>
+                                <td scope="col">{{timesheet[0]}}</td>
+                                <td scope="col">{{timesheet[2]}}</td>
+                                <td scope="col">{{timesheet[4]}}</td>
+                                <td scope="col">{{timesheet[5]}}</td>
+                                <td scope="col">{{timesheet[7]}}</td>
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timesheet[0]}}" id="flexRadio{{timesheet[0]}}approve" value="2">
+                                    <label class="form-check-label" for="flexRadio{{timesheet[0]}}approve">
+                                      Approve
+                                    </label>
+                                  </div>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                          </tbody>
+                        </table>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+                  </div>
+                  <div class="tab-pane fade" id="v-pills-time-off" role="tabpanel" aria-labelledby="v-pills-time-off-tab" tabindex="0">
+                    <div class="col" style="margin-right: 0;">
+                      <div id="carouselExampleControls" class="carousel slide" data-bs-touch="false" data-bs-interval="false">
+                        <div class="carousel-inner" style="width: 80%; left:9.5%;">
+                          <div class="carousel-item active">
+                            <div class="row" >
+                              <div class="col chart" style="margin-right: 0;">
+                                <h5 style="mb-3">Annual Leaves</h5>
+                                <hr>
+                                <h1>{{db2.Select("t_emp_time_off").where(id=profile['id'])[0][2]}}</h1>
+                                <h6>Available</h6>
+                                <button type="button" class="btn btn-outline-dark btn-sm" data-bs-toggle="modal" data-bs-target="#ANModal">Allocate</button>
+                              </div>
+                              <div class="modal fade" id="ANModal" tabindex="-1" aria-labelledby="ANModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                  <form action="{{ url_for('edit', item_type='empTimeOff') }}" method="post">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="ANModalLabel">Annual Leaves</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                        <input name="id", value="{{profile['id']}}" hidden >
+                                        <div class="mb-3">
+                                          <label for="ANcurrentValue" class="form-label">Current Value</label>
+                                          <input class="form-control" id="ANcurrentValue" value="{{db2.Select('t_emp_time_off').where(id=profile['id'])[0][2]}}" readonly>
+                                        </div>
+                                        <div class="mb-3">
+                                          <label for="ANnewValue" class="form-label">New Value</label>
+                                          <input class="form-control" id="ANnewValue" name="AN">
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                      </div>
+                                    </div>
+                                  </form>
+                                </div>
+                              </div>
+                              <div class="col chart" style="margin-right: 0;">
+                                <h5 style="mb-3">Birthday Leaves</h5>
+                                <hr>
+                                <h1>{{db2.Select("t_emp_time_off").where(id=profile['id'])[0][3]}}</h1>
+                                <h6>Available</h6>
+                                <button type="button" class="btn btn-outline-dark btn-sm"data-bs-toggle="modal" data-bs-target="#BDModal">Allocate</button>
+                              </div>
+                              <div class="modal fade" id="BDModal" tabindex="-1" aria-labelledby="BDModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                  <form action="{{ url_for('edit', item_type='empTimeOff') }}" method="post">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="BDModalLabel">Birthday Leaves</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                        <input name="id", value="{{profile['id']}}" hidden>
+                                        <div class="mb-3">
+                                          <label for="BDcurrentValue" class="form-label">Current Value</label>
+                                          <input class="form-control" id="BDcurrentValue" value="{{db2.Select('t_emp_time_off').where(id=profile['id'])[0][3]}}" readonly>
+                                        </div>
+                                        <div class="mb-3">
+                                          <label for="BDnewValue" class="form-label">New Value</label>
+                                          <input class="form-control" id="BDnewValue" name="BD">
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                      </div>
+                                    </div>
+                                  </form>
+                                </div>
+                              </div>
+                              <div class="col chart" style="margin-right: 0;">
+                                <h5 style="mb-3">Special Events</h5>
+                                <hr>
+                                <h1>{{db2.Select("t_emp_time_off").where(id=profile['id'])[0][6]}}</h1>
+                                <h6>Available</h6>
+                                <button type="button" class="btn btn-outline-dark btn-sm"data-bs-toggle="modal" data-bs-target="#SPModal">Allocate</button>
+                              </div>
+                              <div class="modal fade" id="SPModal" tabindex="-1" aria-labelledby="SPModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                  <form action="{{ url_for('edit', item_type='empTimeOff') }}" method="post">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="SPModalLabel">Special Events</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                        <input name="id", value="{{profile['id']}}" hidden>
+                                        <div class="mb-3">
+                                          <label for="SPcurrentValue" class="form-label">Current Value</label>
+                                          <input class="form-control" id="SPcurrentValue" value="{{db2.Select('t_emp_time_off').where(id=profile['id'])[0][6]}}" readonly>
+                                        </div>
+                                        <div class="mb-3">
+                                          <label for="SPnewValue" class="form-label">New Value</label>
+                                          <input class="form-control" id="SPnewValue" name="SP">
+                                        </div>
+                                      </div>
+                                      <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                      </div>
+                                    </div>
+                                  </form>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="carousel-item">
+                            <div class="row">
+                              <div class="col chart" style="margin-right: 0;">
+                              <h5 style="mb-3">Medical Leaves</h5>
+                              <hr>
+                              <h1>0</h1>
+                              <h6>Taken</h6>
+                              <button type="button" class="btn btn-outline-dark btn-sm">View</button>
+                            </div>
+                            <div class="col chart" style="margin-right: 0;">
+                              <h5 style="mb-3">Parental Leaves</h5>
+                              <hr>
+                              <h1>0</h1>
+                              <h6>Taken</h6>
+                              <button type="button" class="btn btn-outline-dark btn-sm">View</button>
+                            </div>
+                            </div>
+                          </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                          <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                          <span class="visually-hidden">Next</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="accordion" id="accordionTimeOffRequests">
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePendingOffRequests" aria-expanded="true" aria-controls="collapsePendingOffRequests">
+                      Pending
+                    </button>
+                  </h2>
+                  <div id="collapsePendingOffRequests" class="accordion-collapse collapse show" data-bs-parent="#accordionTimeOffRequests">
+                    <div class="accordion-body">
+                      <form  action="{{ url_for('requests', class='timeOff') }}" method="post">
+                        <table class="table table-hover" style="margin-top: 20px;">
+                          <thead>
+                          <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Employee</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Start Date</th>
+                            <th scope="col">End Date</th>
+                            <th scope="col">No. Days</th>
+                            <th scope="col">Note</th>
+                            <th scope="col">
+                              <div class="btn-group">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                  Send form
+                                </button>
+                              </div>
+                            </th>
+                          </tr>
+                          </thead>
+                          <tbody class="tbody">
+                          {% for timeoff in db.select_all("v_req_time_off") %}
+                            {% if timeoff[8] == 1 and timeoff[10] == user['id'] and timeoff[3] == profile['id']%}
+                              <tr>
+                                <td scope="col">{{timeoff[0]}}</td>
+                                <td scope="col">{{timeoff[4]}}</td>
+                                <td scope="col">{{timeoff[2]}}</td>
+                                <td scope="col">{{timeoff[5]}}</td>
+                                <td scope="col">{{timeoff[6]}}</td>
+                                <td scope="col">{{timeoff[7]}}</td>
+                                <td scope="col">{{timeoff[9]}}</td>
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timeoff[0]}}" id="flexRadio{{timeoff[0]}}approve" value="2">
+                                    <label class="form-check-label" for="flexRadio{{timeoff[0]}}approve">
+                                      Approve
+                                    </label>
+                                  </div>
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timeoff[0]}}" id="flexRadio{{timeoff[0]}}reject" value="3">
+                                    <label class="form-check-label" for="flexRadio{{timeoff[0]}}reject">
+                                      Reject
+                                    </label>
+                                  </div>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                          </tbody>
+                        </table>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseApprovedOffRequests" aria-expanded="false" aria-controls="collapseApprovedOffRequests">
+                      Approved
+                    </button>
+                  </h2>
+                  <div id="collapseApprovedOffRequests" class="accordion-collapse collapse" data-bs-parent="#accordionTimeOffRequests">
+                    <div class="accordion-body">
+                      <form  action="{{ url_for('requests', class='timeOff') }}" method="post">
+                        <table class="table table-hover" style="margin-top: 20px;">
+                          <thead>
+                          <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Employee</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Start Date</th>
+                            <th scope="col">End Date</th>
+                            <th scope="col">No. Days</th>
+                            <th scope="col">Note</th>
+                            <th scope="col">
+                              <div class="btn-group">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                  Send form
+                                </button>
+                              </div>
+                            </th>
+                          </tr>
+                          </thead>
+                          <tbody class="tbody">
+                          {% for timeoff in db.select_all("v_req_time_off") %}
+                            {% if timeoff[8] == 2 and timeoff[10] == user['id'] and timeoff[3] == profile['id']%}
+                              <tr>
+                                <td scope="col">{{timeoff[0]}}</td>
+                                <td scope="col">{{timeoff[4]}}</td>
+                                <td scope="col">{{timeoff[2]}}</td>
+                                <td scope="col">{{timeoff[5]}}</td>
+                                <td scope="col">{{timeoff[6]}}</td>
+                                <td scope="col">{{timeoff[7]}}</td>
+                                <td scope="col">{{timeoff[9]}}</td>
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timeoff[0]}}" id="flexRadio{{timeoff[0]}}reject" value="3">
+                                    <label class="form-check-label" for="flexRadio{{timeoff[0]}}reject">
+                                      Reject
+                                    </label>
+                                  </div>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                          </tbody>
+                        </table>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRejectedOffRequests" aria-expanded="false" aria-controls="collapseRejectedOffRequests">
+                      Rejected
+                    </button>
+                  </h2>
+                  <div id="collapseRejectedOffRequests" class="accordion-collapse collapse" data-bs-parent="#accordionTimeOffRequests">
+                    <div class="accordion-body">
+                      <form  action="{{ url_for('requests', class='timeOff') }}" method="post">
+                        <table class="table table-hover" style="margin-top: 20px;">
+                          <thead>
+                          <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Employee</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Start Date</th>
+                            <th scope="col">End Date</th>
+                            <th scope="col">No. Days</th>
+                            <th scope="col">Note</th>
+                            <th scope="col">
+                              <div class="btn-group">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                  Send form
+                                </button>
+                              </div>
+                            </th>
+                          </tr>
+                          </thead>
+                          <tbody class="tbody">
+                          {% for timeoff in db.select_all("v_req_time_off") %}
+                            {% if timeoff[8] == 3 and timeoff[10] == user['id'] and timeoff[3] == profile['id']%}
+                              <tr>
+                                <td scope="col">{{timeoff[0]}}</td>
+                                <td scope="col">{{timeoff[4]}}</td>
+                                <td scope="col">{{timeoff[2]}}</td>
+                                <td scope="col">{{timeoff[5]}}</td>
+                                <td scope="col">{{timeoff[6]}}</td>
+                                <td scope="col">{{timeoff[7]}}</td>
+                                <td scope="col">{{timeoff[9]}}</td>
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timeoff[0]}}" id="flexRadio{{timeoff[0]}}approve" value="2">
+                                    <label class="form-check-label" for="flexRadio{{timeoff[0]}}approve">
+                                      Approve
+                                    </label>
+                                  </div>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                          </tbody>
+                        </table>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+                  </div>
+                  <div class="tab-pane fade" id="v-pills-requests" role="tabpanel" aria-labelledby="v-pills-requests-tab" tabindex="0">
+                    <div class="accordion" id="accordionHrRequest">
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHrRequestPending" aria-expanded="true" aria-controls="collapseHrRequestPending">
+                      Pending
+                    </button>
+                  </h2>
+                  <div id="collapseHrRequestPending" class="accordion-collapse collapse show" data-bs-parent="#accordionHrRequest">
+                    <div class="accordion-body">
+                      <form  action="{{ url_for('requests', class='tickets') }}" method="post">
+                        <table class="table table-hover" style="margin-top: 20px;">
+                          <thead>
+                          <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Employee</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">
+                              <div class="btn-group">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                  Send form
+                                </button>
+                              </div>
+                            </th>
+                          </tr>
+                          </thead>
+                          <tbody class="tbody">
+                          {% for rq in db.select_all("v_req_tickets") %}
+                            {% if rq[7] == 1 and rq[5] == user['id'] and rq[1] == profile['id']%}
+                              <tr>
+                                <td scope="col">{{rq[0]}}</td>
+                                <td scope="col">{{rq[2]}}</td>
+                                <td scope="col">{{rq[3]}}</td>
+                                <td scope="col">{{rq[4]}}</td>
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{rq[0]}}" id="flexRadio{{rq[0]}}approve" value="2">
+                                    <label class="form-check-label" for="flexRadio{{rq[0]}}approve">
+                                      Done
+                                    </label>
+                                  </div>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                          </tbody>
+                        </table>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHrRequestResolved" aria-expanded="false" aria-controls="collapseHrRequestResolved">
+                      Done
+                    </button>
+                  </h2>
+                  <div id="collapseHrRequestResolved" class="accordion-collapse collapse" data-bs-parent="#accordionHrRequest">
+                    <div class="accordion-body">
+                      <form  action="{{ url_for('requests', class='tickets') }}" method="post">
+                        <table class="table table-hover" style="margin-top: 20px;">
+                          <thead>
+                          <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Employee</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">
+                              <div class="btn-group">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                  Send form
+                                </button>
+                              </div>
+                            </th>
+                          </tr>
+                          </thead>
+                          <tbody class="tbody">
+                          {% for rq in db.select_all("v_req_tickets") %}
+                            {% if rq[7] == 2 and rq[5] == user['id'] and rq[1] == profile['id']%}
+                              <tr>
+                                <td scope="col">{{rq[0]}}</td>
+                                <td scope="col">{{rq[2]}}</td>
+                                <td scope="col">{{rq[3]}}</td>
+                                <td scope="col">{{rq[4]}}</td>
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{rq[0]}}" id="flexRadio{{rq[0]}}approve" value="3">
+                                    <label class="form-check-label" for="flexRadio{{rq[0]}}approve">
+                                      Delete
+                                    </label>
+                                  </div>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                          </tbody>
+                        </table>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+                  </div>
+                  <div class="tab-pane fade" id="v-pills-calendar" role="tabpanel" aria-labelledby="v-pills-calendar-tab" tabindex="0">
+                    <div class="col char">
+                      <h5 class="title">{{cal.month_name}} {{cal.year}}</h5>
+                      <div class="row week">
+                        <div class="col">Sun</div>
+                        <div class="col">Mon</div>
+                        <div class="col">Thu</div>
+                        <div class="col">Wen</div>
+                        <div class="col">Thr</div>
+                        <div class="col">Fri</div>
+                        <div class="col">Sat</div>
+                      </div>
+                      {% for week in cal.current_month %}
+                      <div class="row days" style="max-height: 70px;">
+                        {% for day in week %}
+                          {% if day == 0 %}
+                            <div class="col day" style="background-color:#dddddd; max-height: 70px;"></div>
+                          {% elif day == week[0] or day == week[6] %}
+                            <div class="col day" type="button" data-bs-toggle="modal" data-bs-target="#Modal{{day}}"  style="{{ cal.day_check(day, profile['id']) }}; color: red; max-height: 70px;">{{ day }}</div>
+                          {% else %}
+                        <div class="col day" type="button" data-bs-toggle="modal" data-bs-target="#Modal{{day}}"  style="{{ cal.day_check(day, profile['id'])}}; max-height: 70px;{%if cal.timeoff_days(profile['id'], day)%} background: #cdcdcd;{% endif %}">{{ day }} {%if cal.timeoff_days(profile['id'], day)%}<h4 class="off" style="top: -10%"><i class="fa-solid fa-business-time"></i></h4>{% endif %}</div>
+                          {% endif %}
+                          <div class="modal fade" id="Modal{{day}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <form action="{{ url_for('request_type', req_type='timesheet') }}" method="post">
+                              <div class="modal-dialog modal-lg modal-dialog-centered">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel" >{{cal.date_format("yyyy-mm")}}-{{day}}</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <div class="row">
+                                      <div class="col-lg-4 date-col">
+                                        <label for="user_id" class="form-label">Employee</label>
+                                        <select class="form-select" id=user_id aria-label="Default select example" name="user_id">
+                                          <option selected value="{{profile['id']}}">{{profile['complete_name']}}</option>
+                                        </select>
+                                        <label for="date" class="form-label">Date</label>
+                                        <select class="form-select" id=date aria-label="Default select example" name="date">
+                                          <option selected>{{cal.date_format("yyyy-mm")}}-{{day}}</option>
+                                        </select>
+                                        <label for="type" class="form-label">Role</label>
+                                        <select class="form-select" id=type aria-label="Default select example" name="role_id">
+                                          <option selected value="{{profile['role_id']}}">{{profile['role']}}</option>
+                                        </select>
+                                        <label for="type" class="form-label">Department</label>
+                                        <select class="form-select" id=type aria-label="Default select example" name="department_id">
+                                          <option selected value="{{profile['department_id']}}">{{profile['department']}}</option>
+                                        </select>
+                                        <label for="project" class="form-label">Project</label>
+                                        <select class="form-select" id=project aria-label="Default select example" name="project_id" required>
+                                          <option selected disabled value="">Select..</option>
+                                          {% for project in db.select_all(table="t_projects") %}
+                                            <option value="{{project[0]}}">{{project[2]}}</option>
+                                          {% endfor %}
+                                        </select>
+                                      </div>
+                                      <div class="col-lg-8">
+                                        <div class="accordion" id="accordionExample">
+                                          {% for accordion in db.select_all(table="t_departments") %}
+                                            {% if accordion[1] == profile['department'] %}
+                                              <div class="accordion-item">
+                                                <h2 class="accordion-header h2-accordion" id="headingTwo">
+                                                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{accordion[0]}}" aria-expanded="true" aria-controls="collapseTwo">
+                                                    {{ accordion[1] }}
+                                                  </button>
+                                                </h2>
+                                                <div id="{{accordion[0]}}" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                                  <div class="accordion-body">
+                                                    <ul class="list-group">
+                                                      {% for item in db.select_all(table="t_tasks") %}
+                                                        {% if item[2] == accordion[0] %}
+                                                          <li class="list-group-item">
+                                                            <input class="form-check-input me-1" type="checkbox" value="1" name="{{item[0]}}" id="firstCheckbox">
+
+                                                            <label class="form-check-label" for="firstCheckbox" name="">{{item[1]}}</label>
+                                                          </li>
+                                                        {% endif %}
+                                                      {% endfor %}
+                                                    </ul>
+                                                  </div>
+                                                </div>
+                                              </div>
+                                            {% endif %}
+                                          {% endfor %}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary modal-btn">Save Changes</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </form>
+                          </div>
+                        {% endfor %}
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <div class="tab-pane fade" id="v-pills-doc" role="tabpanel" aria-labelledby="v-pills-doc-tab" tabindex="0">
+                    <div class="row mb-3">
+                      {%for fi in db2.Select("t_emp_doc").where(user_id=profile['id'])%}
+                      <div class="col-3 char" style="text-align: center;">
+                        <i class="fa-regular fa-file-lines" style="font-size: 100px;"></i>
+                        <div class="col" style="margin-top: 10px;"><a href="{{ url_for('download', name=fi[3]) }}" style="font-size: 90%; text-decoration: none;">{{fi[3]}}</a></div>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% include "side-admin.html" %}
+  </div>
+{% endblock %}

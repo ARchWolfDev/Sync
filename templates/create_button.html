@@ -1,0 +1,118 @@
+ {% block create_button %}
+      <!-- New Department MODAL -->
+      <div class="modal fade" id="departmentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <form action="{{ url_for('create', item_type='department') }}" method="post">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">New Department</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row g-3">
+                  <div class="col-3">
+                    <input type="text" class="form-control" placeholder="ID" aria-label="ID" name="id" value="{{db.select('cv_table_id', 'id', 'DEP-')[0][3]}}">
+                  </div>
+                  <div class="col-9">
+                    <input type="text" class="form-control" placeholder="Department Name" aria-label="Department" name="name">
+                  </div>
+                  <div class="row g-3">
+                    <div class="col" style="padding: 0;">
+                      <select class="form-select" aria-label="Default select example" name="responsible_id">
+                        <option selected disabled value="">Responsible...</option>
+                        {% for employee in db.select_all("v_employees") %}
+                        <option value="{{employee[0]}}">{{ employee[3] }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Create</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- New Role MODAL -->
+      <div class="modal fade" id="roleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <form action="{{ url_for('create', item_type='roles') }}" method="post">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">New Role</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row g-3">
+                  <div class="col-3">
+                    <input type="text" class="form-control" placeholder="ID" aria-label="First name" name="id" value="{{db.select('cv_table_id', 'id', 'ROL-')[0][3]}}" required>
+                  </div>
+                  <div class="col-9">
+                    <input type="text" class="form-control" placeholder="Role Name" aria-label="Last name" name="name" required>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col" style="padding: 0;">
+                      <select class="form-select" aria-label="Default select example" name="department_id" required>
+                        <option selected disabled value="">Part of...</option>
+                        {% for department in db.select_all("t_departments") %}
+                        <option value="{{department[0]}}">{{department[1]}}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Create</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <!-- New Project MODAL -->
+      <div class="modal fade" id="projectModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <form action="{{ url_for('create', item_type='project') }}" method="post">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">New Project</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+              <div class="modal-body">
+                <div class="row g-3">
+                  <div class="col-3">
+                    <input type="text" class="form-control" placeholder="ID" aria-label="First name" name="id"  value="{{db.select('cv_table_id', 'id', 'PROJ-')[0][3]}}">
+                  </div>
+                  <div class="col-9">
+                    <input type="text" class="form-control" placeholder="Project Name" aria-label="Last name" name="project_name">
+                  </div>
+                  <div class="row g-3">
+                    <div class="col" style="padding: 0;">
+                      <input type="text" class="form-control" placeholder="Client Name" aria-label="Last name" name="client_name">
+                    </div>
+                  </div>
+                  <div class="row g-3">
+                    <div class="col" style="padding: 0;">
+                      <select class="form-select" aria-label="Default select example" required name="responsible_id">
+                        <option selected disabled value="">Responsable...</option>
+                        {% for employee in db.select_all("v_employees") %}
+                          <option value="{{employee[0]}}">{{ employee[3] }}</option>
+                        {% endfor %}
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary">Create</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+ {% endblock %}

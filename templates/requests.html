@@ -1,0 +1,609 @@
+{% extends "base.html" %}
+{% block title %}Admin: Requests{% endblock %}
+{% block content %}
+    <div class="row">
+      <div class="col-lg-9">
+        <ul class="nav nav-pills mb-3 control-button" id="pills-tab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" href="{{url_for('admin', id='dashboard')}}">Dashboard</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" href="{{url_for('admin', id='my-team')}}">My Teams</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" href="{{url_for('admin', id='projects')}}">Projects</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link active" href="{{url_for('admin', id='requests')}}">Requests</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" href="{{url_for('admin', id='tasks')}}">Tasks</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" href="{{url_for('admin', id='profiles')}}">Profiles</a>
+          </li>
+          <li class="nav-item dropdown create-btn">
+            <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-plus"></i>
+              Create
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#departmentModal">Department</a></li>
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#roleModal">Role</a></li>
+              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectModal">Project</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+      {% include "create_button.html" %}
+      <!-- Search -->
+      <div class="col-lg-3">
+        <form class="d-flex search" role="search" action="" method="post">
+          <input class="form-control me-2" id="browser" type="search" name="browser" placeholder="Search" list="browserdata" aria-label="Search" autocomplete="off">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+          <datalist id="browserdata">
+            {% for emp in db.select_all("v_employees") %}
+              <option value="{{emp[0]}}">{{ emp[3] }}</option>
+            {% endfor %}
+          </datalist>
+        </form>
+      </div>
+      <!-- Information -->
+      <div class="col-lg-9">
+        <div class="col" style="margin:20px;">
+          <div class="row">
+            <div class="col" style="padding: 0;">
+              <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-timesheet" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Timesheet</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-timeoff" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Time off</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-hrRequests" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Requests</button>
+                </li>
+              </ul>
+            </div>
+            <div class="col" style="padding: 0;">
+              <div class="btn-group" role="group"  style="float:right;" aria-label="Basic outlined example">
+                <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#exportModal"><i class="fa-solid fa-file-export"></i></button>
+                <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#importModal"><i class="fa-solid fa-file-import"></i></button>
+              </div>
+              <!--Export Modal-->
+              <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <form action="{{url_for('export_csv')}}" method="post">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Export</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <div class="row g-3 align-items-center">
+                          <div class="col-12">
+                            Export data to <strong>.csv</strong> format file
+                          </div>
+                          <div class="col-3">
+                            <label class="col-form-label">Export for</label>
+                          </div>
+                          <div class="col-9">
+                            <select class="form-select" id="selectField" aria-label="Default select example" name="export_type" required>
+                              <option value="" disabled selected>Select...</option>
+                              <option value="timesheet">Timesheet</option>
+                              <option value="timeOff">Time Off</option>
+                              <option value="tickets">Requests</option>
+                            </select>
+                          </div>
+                          <div class="card" id="timesheet">
+                            <div class="card-body">
+                              <div class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioIndex" id="indexRadio1" value="1">
+                                <label class="form-check-label" for="indexRadio1">
+                                  ID Based
+                                </label>
+                              </div>
+                              <div class="form-check">
+                                <input class="form-check-input" type="radio" name="flexRadioIndex" id="indexRadio2" checked value="2">
+                                <label class="form-check-label" for="indexRadio2">
+                                  Complete information
+                                </label>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Export</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+              <!--Import Modal-->
+              <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <form action="{{url_for('import_csv')}}" method="post" enctype="multipart/form-data">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Import</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <div class="row g-3 align-items-center">
+                          <div class="col-12">
+                            Import data from <strong>.csv</strong> format file ( Only ID Based )
+                          </div>
+                          <div class="col-3">
+                            <label class="col-form-label">Import for</label>
+                          </div>
+                          <div class="col-9">
+                            <select class="form-select" aria-label="Default select example" name="import_type">
+                              <option value="" disabled selected>Select...</option>
+                              <option value="timesheet">Timesheet</option>
+                              <option value="timeOff">Time Off</option>
+                              <option value="tickets">Requests</option>
+                            </select>
+                          </div>
+                          <div>
+                            <input type="file" class="form-control"aria-label="Upload" name="file">
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Import</button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="tab-content" id="pills-tabContent" style="padding:0;">
+            <!-- TIMESHEET -->
+            <div class="tab-pane fade show active" id="pills-timesheet" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
+              <div class="accordion" id="accordionTimeSheetRequests">
+                {% for status in db2.Select("ct_status").all() %}
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{status[1]}}Requests" aria-expanded="true" aria-controls="collapse{{status[1]}}Requests">
+                      {{status[1]}}
+                    </button>
+                  </h2>
+                  <div id="collapse{{status[1]}}Requests" class="accordion-collapse collapse {% if status[0] == 1 %}show{% endif %}" data-bs-parent="#accordionTimeSheetRequests">
+                    <div class="accordion-body">
+                      <form  action="{{ url_for('requests', class='timesheet') }}" method="post">
+                        <input class="form-control" id="my{{status[1]}}Input" type="text" placeholder="Search.." style="width: 25%;">
+                        <table id="my{{status[1]}}-table" class="table table-hover" style="margin-top: 20px;">
+                          <thead>
+                          <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Employee</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Create date</th>
+                            <th scope="col">Project</th>
+                            <th scope="col">
+                              <div class="btn-group">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                  Send form
+                                </button>
+                              </div>
+                            </th>
+                          </tr>
+                          </thead>
+                          <tbody class="tbody" id="my{{status[1]}}Table">
+                          {% for timesheet in db2.Select("v_req_timesheet").where(status=status[0]) %}
+                            {% if timesheet[8] == user['id']%}
+                              <tr>
+                                <td scope="col" style="width: 5%">
+                                  <img class="avatar" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=timesheet[1])[0][0])}}" alt="avatar-img" style="width:100%">
+                                </td>
+                                <td scope="col" style="width: 25%;">{{timesheet[2]}} - {{timesheet[1]}}</td>
+                                <td scope="col">{{timesheet[4]}}</td>
+                                <td scope="col">{{timesheet[5]}}</td>
+                                <td scope="col">{{timesheet[7]}}</td>
+                                {% if status[0] == 1 %}
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timesheet[0]}}" id="flexRadio{{timesheet[0]}}approve" value="2">
+                                    <label class="form-check-label" for="flexRadio{{timesheet[0]}}approve">
+                                      Approve
+                                    </label>
+                                  </div>
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timesheet[0]}}" id="flexRadio{{timesheet[0]}}reject" value="3">
+                                    <label class="form-check-label" for="flexRadio{{timesheet[0]}}reject">
+                                      Reject
+                                    </label>
+                                  </div>
+                                </td>
+                                {% elif status[0] == 2 %}
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timesheet[0]}}" id="flexRadio{{timesheet[0]}}pending" value="1">
+                                    <label class="form-check-label" for="flexRadio{{timesheet[0]}}approve">
+                                      Pending
+                                    </label>
+                                  </div>
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timesheet[0]}}" id="flexRadio{{timesheet[0]}}reject" value="3">
+                                    <label class="form-check-label" for="flexRadio{{timesheet[0]}}reject">
+                                      Reject
+                                    </label>
+                                  </div>
+                                </td>
+                                {% else %}
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timesheet[0]}}" id="flexRadio{{timesheet[0]}}approve" value="2">
+                                    <label class="form-check-label" for="flexRadio{{timesheet[0]}}approve">
+                                      Approve
+                                    </label>
+                                  </div>
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timesheet[0]}}" id="flexRadio{{timesheet[0]}}pending" value="1">
+                                    <label class="form-check-label" for="flexRadio{{timesheet[0]}}reject">
+                                      Pending
+                                    </label>
+                                  </div>
+                                </td>
+                                {% endif %}
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                          </tbody>
+                        </table>
+                        <nav aria-label="Page navigation example">
+                          <ol class="pagination justify-content-end" id="{{status[1]}}numbers"></ol>
+                        </nav>
+                        <script>
+                          $(function() {
+                            const rowsPerPage = 10;
+                            const rows = $('#my{{status[1]}}-table tbody tr');
+                            const rowsCount = rows.length;
+                            const pageCount = Math.ceil(rowsCount / rowsPerPage); // avoid decimals
+                            const numbers = $('#{{status[1]}}numbers');
+
+                            // Generate the pagination.
+                            for (var i = 0; i < pageCount; i++) {
+                                numbers.append('<li class="page-item"><a class="page-link" href="#">' + (i+1) + '</a></li>');
+                            }
+
+                            // Mark the first page link as active.
+                            $('#{{status[1]}}numbers li:first-child a').addClass('active');
+
+                            // Display the first set of rows.
+                            displayRows(1);
+
+                            // On pagination click.
+                            $('#{{status[1]}}numbers li a').click(function(e) {
+                                var $this = $(this);
+
+                                e.preventDefault();
+
+                                // Remove the active class from the links.
+                                $('#{{status[1]}}numbers li a').removeClass('active');
+
+                                // Add the active class to the current link.
+                                $this.addClass('active');
+
+                                // Show the rows corresponding to the clicked page ID.
+                                displayRows($this.text());
+                            });
+
+                            // Function that displays rows for a specific page.
+                            function displayRows(index) {
+                                var start = (index - 1) * rowsPerPage;
+                                var end = start + rowsPerPage;
+
+                                // Hide all rows.
+                                rows.hide();
+
+                                // Show the proper rows for this page.
+                                rows.slice(start, end).show();
+                            }
+                        });
+                        </script>
+                        <script>
+                          $(document).ready(function(){
+                            $("#my{{status[1]}}Input").on("keyup", function() {
+                              var value = $(this).val().toLowerCase();
+                              $("#my{{status[1]}}Table tr").filter(function() {
+                                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                              });
+                            });
+                          });
+                        </script>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            <!-- TIMEOFF -->
+            <div class="tab-pane fade" id="pills-timeoff" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
+              <div class="accordion" id="accordionTimeOffRequests">
+                {% for status in db2.Select("ct_status").all() %}
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{status[1]}}OffRequests" aria-expanded="true" aria-controls="collapse{{status[1]}}OffRequests">
+                      {{status[1]}}
+                    </button>
+                  </h2>
+                  <div id="collapse{{status[1]}}OffRequests" class="accordion-collapse collapse {% if status[0] == 1 %}show{% endif %}" data-bs-parent="#accordionTimeOffRequests">
+                    <div class="accordion-body">
+                      <form  action="{{ url_for('requests', class='timeOff') }}" method="post">
+                        <input class="form-control" id="my{{status[1]}}ToffInput" type="text" placeholder="Search.." style="width: 25%;">
+                        <table id="my{{status[1]}}tOff-table" class="table table-hover" style="margin-top: 20px;">
+                          <thead>
+                          <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Employee</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Start Date</th>
+                            <th scope="col">End Date</th>
+                            <th scope="col">No. Days</th>
+                            <th scope="col">Note</th>
+                            <th scope="col">
+                              <div class="btn-group">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                  Send form
+                                </button>
+                              </div>
+                            </th>
+                          </tr>
+                          </thead>
+                          <tbody class="tbody" id="my{{status[1]}}ToffTable">
+                          {% for timeoff in db2.Select("v_req_time_off").where(status=status[0]) %}
+                            {% if timeoff[10] == user['id'] %}
+                              <tr>
+                                <td scope="col" style="width: 5%">
+                                  <img class="avatar" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=timeoff[3])[0][0])}}" alt="avatar-img" style="width:100%">
+                                </td>
+                                <td scope="col">{{timeoff[4]}} - {{timeoff[3]}} </td>
+                                <td scope="col">{{timeoff[2]}}</td>
+                                <td scope="col">{{timeoff[5]}}</td>
+                                <td scope="col">{{timeoff[6]}}</td>
+                                <td scope="col">{{timeoff[7]}}</td>
+                                <td scope="col">{{timeoff[9]}}</td>
+                                {% if status[0] == 1 %}
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timeoff[0]}}" id="flexRadio{{timeoff[0]}}approve" value="2">
+                                    <label class="form-check-label" for="flexRadio{{timeoff[0]}}approve">
+                                      Approve
+                                    </label>
+                                  </div>
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timeoff[0]}}" id="flexRadio{{timeoff[0]}}reject" value="3">
+                                    <label class="form-check-label" for="flexRadio{{timeoff[0]}}reject">
+                                      Reject
+                                    </label>
+                                  </div>
+                                </td>
+                                {% elif status[0] == 2 %}
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timeoff[0]}}" id="flexRadio{{timeoff[0]}}pending" value="1">
+                                    <label class="form-check-label" for="flexRadio{{timeoff[0]}}approve">
+                                      Pending
+                                    </label>
+                                  </div>
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timeoff[0]}}" id="flexRadio{{timeoff[0]}}reject" value="3">
+                                    <label class="form-check-label" for="flexRadio{{timeoff[0]}}reject">
+                                      Reject
+                                    </label>
+                                  </div>
+                                </td>
+                                {% else %}
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timeoff[0]}}" id="flexRadio{{timeoff[0]}}approve" value="2">
+                                    <label class="form-check-label" for="flexRadio{{timeoff[0]}}approve">
+                                      Approve
+                                    </label>
+                                  </div>
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{timeoff[0]}}" id="flexRadio{{timeoff[0]}}pending" value="1">
+                                    <label class="form-check-label" for="flexRadio{{timeoff[0]}}reject">
+                                      Pending
+                                    </label>
+                                  </div>
+                                </td>
+                                {% endif %}
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                          </tbody>
+                        </table>
+                        <nav aria-label="Page navigation example">
+                          <ol class="pagination justify-content-end" id="{{status[1]}}tOffnumbers"></ol>
+                        </nav>
+                        <script>
+                          $(function() {
+                            const rowsPerPage = 10;
+                            const rows = $('#my{{status[1]}}tOff-table tbody tr');
+                            const rowsCount = rows.length;
+                            const pageCount = Math.ceil(rowsCount / rowsPerPage); // avoid decimals
+                            const numbers = $('#{{status[1]}}tOffnumbers');
+
+                            // Generate the pagination.
+                            for (var i = 0; i < pageCount; i++) {
+                                numbers.append('<li class="page-item"><a class="page-link" href="#">' + (i+1) + '</a></li>');
+                            }
+
+                            // Mark the first page link as active.
+                            $('#{{status[1]}}tOffnumbers li:first-child a').addClass('active');
+
+                            // Display the first set of rows.
+                            displayRows(1);
+
+                            // On pagination click.
+                            $('#{{status[1]}}tOffnumbers li a').click(function(e) {
+                                var $this = $(this);
+
+                                e.preventDefault();
+
+                                // Remove the active class from the links.
+                                $('#{{status[1]}}tOffnumbers li a').removeClass('active');
+
+                                // Add the active class to the current link.
+                                $this.addClass('active');
+
+                                // Show the rows corresponding to the clicked page ID.
+                                displayRows($this.text());
+                            });
+
+                            // Function that displays rows for a specific page.
+                            function displayRows(index) {
+                                var start = (index - 1) * rowsPerPage;
+                                var end = start + rowsPerPage;
+
+                                // Hide all rows.
+                                rows.hide();
+
+                                // Show the proper rows for this page.
+                                rows.slice(start, end).show();
+                            }
+                        });
+                        </script>
+                        <script>
+                          $(document).ready(function(){
+                            $("#my{{status[1]}}ToffInput").on("keyup", function() {
+                              var value = $(this).val().toLowerCase();
+                              $("#my{{status[1]}}ToffTable tr").filter(function() {
+                                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                              });
+                            });
+                          });
+                        </script>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            <!-- REQUESTS -->
+            <div class="tab-pane fade" id="pills-hrRequests" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+              <div class="accordion" id="accordionHrRequest">
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHrRequestPending" aria-expanded="true" aria-controls="collapseHrRequestPending">
+                      Pending
+                    </button>
+                  </h2>
+                  <div id="collapseHrRequestPending" class="accordion-collapse collapse show" data-bs-parent="#accordionHrRequest">
+                    <div class="accordion-body">
+                      <form  action="{{ url_for('requests', class='tickets') }}" method="post">
+                        <table class="table table-hover" style="margin-top: 20px;">
+                          <thead>
+                          <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Employee</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">
+                              <div class="btn-group">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                  Send form
+                                </button>
+                              </div>
+                            </th>
+                          </tr>
+                          </thead>
+                          <tbody class="tbody">
+                          {% for rq in db.select_all("v_req_tickets") %}
+                            {% if rq[7] == 1 and rq[5] == user['id']%}
+                              <tr>
+                                <td scope="col" style="width: 5%">
+                                  <img class="avatar" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=rq[1])[0][0])}}" alt="avatar-img" style="width:100%">
+                                </td>
+                                <td scope="col" style="width: 25%">{{rq[2]}} - {{rq[1]}}</td>
+                                <td scope="col">{{rq[0]}}</td>
+                                <td scope="col">{{rq[3]}}</td>
+                                <td scope="col">{{rq[4]}}</td>
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{rq[0]}}" id="flexRadio{{rq[0]}}approve" value="2">
+                                    <label class="form-check-label" for="flexRadio{{rq[0]}}approve">
+                                      Done
+                                    </label>
+                                  </div>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                          </tbody>
+                        </table>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+                <div class="accordion-item">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseHrRequestResolved" aria-expanded="false" aria-controls="collapseHrRequestResolved">
+                      Done
+                    </button>
+                  </h2>
+                  <div id="collapseHrRequestResolved" class="accordion-collapse collapse" data-bs-parent="#accordionHrRequest">
+                    <div class="accordion-body">
+                      <form  action="{{ url_for('requests', class='tickets') }}" method="post">
+                        <table class="table table-hover" style="margin-top: 20px;">
+                          <thead>
+                          <tr>
+                            <th scope="col"></th>
+                            <th scope="col">Employee</th>
+                            <th scope="col">ID</th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Description</th>
+                            <th scope="col">
+                              <div class="btn-group">
+                                <button class="btn btn-primary btn-sm" type="submit">
+                                  Send form
+                                </button>
+                              </div>
+                            </th>
+                          </tr>
+                          </thead>
+                          <tbody class="tbody">
+                          {% for rq in db.select_all("v_req_tickets") %}
+                            {% if rq[7] == 2 and rq[5] == user['id']%}
+                              <tr>
+                                <td scope="col" style="width: 5%">
+                                  <img class="avatar" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=rq[1])[0][0])}}" alt="avatar-img" style="width:100%">
+                                </td>
+                                <td scope="col" style="width: 25%">{{rq[2]}} - {{rq[1]}}</td>
+                                <td scope="col">{{rq[0]}}</td>
+                                <td scope="col">{{rq[3]}}</td>
+                                <td scope="col">{{rq[4]}}</td>
+                                <td scope="col">
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="{{rq[0]}}" id="flexRadio{{rq[0]}}approve" value="3">
+                                    <label class="form-check-label" for="flexRadio{{rq[0]}}approve">
+                                      Delete
+                                    </label>
+                                  </div>
+                                </td>
+                              </tr>
+                            {% endif %}
+                          {% endfor %}
+                          </tbody>
+                        </table>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% include "side-admin.html" %}
+    </div>
+{% endblock %}
