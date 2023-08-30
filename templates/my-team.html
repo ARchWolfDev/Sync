@@ -1,39 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Admin: Your Team{% endblock %}
+{% block dash_active %}{% endblock %}
+{% block mt_active %}active{% endblock %}
+{% block proj_active %}{% endblock %}
+{% block req_active %}{% endblock %}
+{% block task_active %}{% endblock %}
+{% block profiles_active %}{% endblock %}
+
 {% block content %}
     <div class="row">
-      <div class="col-lg-9">
-        <ul class="nav nav-pills mb-3 control-button" id="pills-tab" role="tablist">
-          <li class="nav-item" role="presentation">
-            <a class="nav-link" href="{{url_for('admin', id='dashboard')}}">Dashboard</a>
-          </li>
-          <li class="nav-item" role="presentation">
-            <a class="nav-link active" href="{{url_for('admin', id='my-team')}}">My Teams</a>
-          </li>
-          <li class="nav-item" role="presentation">
-            <a class="nav-link" href="{{url_for('admin', id='projects')}}">Projects</a>
-          </li>
-          <li class="nav-item" role="presentation">
-            <a class="nav-link" href="{{url_for('admin', id='requests')}}">Requests</a>
-          </li>
-          <li class="nav-item" role="presentation">
-            <a class="nav-link" href="{{url_for('admin', id='tasks')}}">Tasks</a>
-          </li>
-          <li class="nav-item" role="presentation">
-            <a class="nav-link" href="{{url_for('admin', id='profiles')}}">Profiles</a>
-          </li>
-          <li class="nav-item dropdown create-btn">
-            <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-plus"></i>
-              Create
-            </button>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#departmentModal">Department</a></li>
-              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#roleModal">Role</a></li>
-              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectModal">Project</a></li>
-            </ul>
-          </li>
-        </ul>
-      </div>
+      {% include "admin_nav_tabs.html" %}
       {% include "create_button.html" %}
       <!-- Search -->
       <div class="col-lg-3">

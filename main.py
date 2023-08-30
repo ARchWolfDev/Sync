@@ -5,7 +5,6 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 import database_connection as database
 import notification as nt
-import send_email as email
 from database_connection import User as Auth
 from mycalendar import *
 import os
@@ -139,9 +138,8 @@ def admin(id):
     admin_user = Auth(id=current_user.id).info()
     if admin_user['admin'] == 1 or admin_user['admin'] == 2:
         filter_by = {
-            "department_id": request.form.getlist("department_id"),
-            "date": f"{request.form.get('date_ex')}-%".replace("['", "").replace("']", ""),
-            "user_id": request.form.getlist("employee")
+            "department_id": request.form.getlist("department"),
+            "date": f"{request.form.get('date')}-%".replace("['", "").replace("']", ""),
         }
         if filter_by["date"] == "None-%" or filter_by['date'] == "-%":
             del filter_by['date']
@@ -152,13 +150,11 @@ def admin(id):
         for x in filter_by:
             if len(filter_by[x]) != 0:
                 final_filter[x] = filter_by[x]
-
         doc = files.get_file()
         dashboard = dash.Dashboard(final_filter)
         avatar = db2.Select("t_emp_avatar").where(id=current_user.id)[0]
         return render_template(f'{id}.html', db=db, db2=db2, cal=cal, user=admin_user, file=doc, dash=dashboard,
-                               avatar=avatar,
-                               nt=nt.read())
+                               avatar=avatar, nt=nt.read(), active_tab=id, filter=final_filter)
     else:
         return redirect(url_for("index"))
 

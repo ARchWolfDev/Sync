@@ -47,9 +47,12 @@ class Dashboard:
             except:
                 pass
             tsc = []
+            print(self.filter_by)
             data = db.Select("v_employees").where(condition=self.filter_by)[0]
+            print(data)
             for _ in data:
                 ts_data = db.Select("v_req_timesheet").where(user_id=_[0], date=date)
+                print(ts_data, date)
                 percent = (len(ts_data) / calendar.business_days()) * 100
                 tsc.append(int(round(percent, 0)))
             if len(data) > 0:
@@ -62,14 +65,9 @@ class Dashboard:
             except:
                 self.filter_by['date'] = f"{calendar.date_format('yyyy-mm')}-%"
             data = db.Select("v_req_timesheet").where(condition=self.filter_by)[0]
-            print(data)
-            print(len(data))
-            print(self.filter_by["date"])
             completed = int(round((len(data) / calendar.business_days()) * 100, 0))
             not_completed = 100 - completed
-            print(completed)
             average_list = [completed, not_completed]
-            print(average_list)
             return average_list
 
         def projects(self):
@@ -181,6 +179,7 @@ class Dashboard:
             if off:
                 off_list.append(user[3])
         return off_list
+
 
     def role_department(self, department_id):
         data = db.Select("t_roles").where(department_id=department_id)
