@@ -5,6 +5,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 import database_connection as database
 import notification as nt
+import send_email as email
 from database_connection import User as Auth
 from mycalendar import *
 import os
@@ -21,7 +22,7 @@ AVATAR_FOLDER = 'static/'
 CSV_FOLDER = 'static/csv/'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'csv'}
 
-app.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+app.config['SECRET_KEY'] = 'Xn2r5u8x!A%D*G-K'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['AVATAR_FOLDER'] = AVATAR_FOLDER
 app.config['CSV_FOLDER'] = CSV_FOLDER

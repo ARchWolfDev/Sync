@@ -1,11 +1,10 @@
-import os
 import smtplib
 import encoder
 
-smtp_host = os.getenv("SMTP_HOST")
-smtp_port = os.getenv("SMTP_PORT")
-my_email = os.getenv("MY_EMAIL")
-my_password = os.getenv("MY_PASSWORD")
+smtp_host = "smtp-mail.outlook.com"
+smtp_port = "587"
+my_email = "go.sync@outlook.com"
+my_password = "Fuckth3systemE@"
 
 
 def send_user_email(user_id):
