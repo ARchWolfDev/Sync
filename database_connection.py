@@ -1,9 +1,17 @@
+import os
+
 import psycopg2.extras
 import numpy as np
 import send_email
 
-CONNECTION = psycopg2.connect(database="syncdb_5rdz", user="sync001", password="Yr706f7Ff36IgnnkxBXPK72t8lPrSRKn",
-                              host="dpg-cjmnqmdhe99c73876ogg-a", port="5432")
+DATABASE = os.getenv("DATABASE")
+USER = os.getenv("USER")
+PASSWORD = os.getenv("PASSWORD")
+HOST = os.getenv("HOST")
+PORT = os.getenv("PORT")
+
+CONNECTION = psycopg2.connect(database=DATABASE, user=USER, password=PASSWORD,
+                              host=HOST, port=PORT)
 CURSOR = CONNECTION.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
 
