@@ -15,17 +15,20 @@
           <a class="list-group-item list-group-item-action active" id="list-home-list" href="{{url_for('index')}}" role="tab"><i class="fa-solid fa-house"></i> Home</a>
           <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#otherRequest"><i class="fa-solid fa-business-time"></i>Time Off</a>
           <div class="request-items">
-            <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#leaveRequest"><i class="fa-sharp fa-solid fa-sun"></i>
-              Annual leave</a>
-            <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#sickRequest"><i class="fa-solid fa-kit-medical"></i> Medical
-              Leave</a>
-            <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#otherRequest"><i class="fa-solid fa-ellipsis"></i>
-              Other Leave types</a>
+            <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#pendingLeaveRequest"><i class="fa-solid fa-hourglass-end"></i> Pending
+            <span class="badge text-bg-warning" style="float: right;">{{db2.Select("v_req_time_off").where(user_id=user['id'], status=1)|length}}</span></a>
+            <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#historyLeaveRequest"><i class="fa-solid fa-clock-rotate-left"></i> History</a>
           </div>
           <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#hrRequest"><i class="fa-sharp fa-solid fa-person"></i> Request</a>
+          <div class="request-items">
+            <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#pendingRequest"><i class="fa-solid fa-hourglass-end"></i>
+              Pending<span
+              class="badge text-bg-warning" style="float: right;">{{db2.Select("v_req_tickets").where(user_id=user['id'], status=1)|length}}</span></a>
+            <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#doneRequest"><i class="fa-solid fa-check"></i> Done</a>
+          </div>
           <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#documentModal"><i class="fa-solid fa-folder"></i> Documents</a>
-          <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#newsModal"><i class="fa-solid fa-newspaper"></i> News <span
-              class="badge text-bg-danger" style="float: right;">0</span></a>
+          <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#newsModal"><i class="fa-solid fa-envelope"></i> Inbox <span
+              class="badge text-bg-danger" style="float: right;">{{db2.Select("t_log_requests").where(receiver=user['id'])|length}}</span></a>
           <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#contactModal"><i class="fa-solid fa-address-book"></i> Contact</a>
           <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#settingsModal"><i class="fa-sharp fa-solid fa-gear"></i> Settings</a>
           {% if user['admin'] == 1 or user['admin'] == 2 %}
@@ -36,108 +39,13 @@
       </div>
     </div>
   </div>
-  <!-- leave request MODAL -->
-  <form action="{{ url_for('request_type', req_type='timeOff') }}" method="post" enctype="multipart/form-data">
-    <div class="modal fade" id="leaveRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5">Annual leave</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="user" class="form-label">Employee</label>
-              <select class="form-select" aria-label="Default select example" name="user_id">
-                <option selected value="{{user['id']}}">{{user['complete_name']}}</option>
-              </select>
-            </div>
-            <div class="row mb-3">
-              <div class="col" style="padding-left: 0;">
-                <label for="fromAN" class="form-label">From:</label>
-                <input id="fromAN" type="date" class="form-control" name="start_date">
-              </div>
-              <div class="col" style="padding-right: 0;">
-                <label for="toAN" class="form-label">To:</label>
-                <input id="toAN" type="date" class="form-control" name="end_date">
-              </div>
-            </div>
-            <div class="mb-3">
-              <label for="type" class="form-label">Type</label>
-              <select class="form-select" aria-label="Default select example" name="type_id">
-                {% for timeoff in db.select_all("t_time_off_types") %}
-                <option value="{{timeoff[0]}}">{{timeoff[1]}}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="noteFormControlTextarea1" class="form-label">Note:</label>
-              <textarea class="form-control" id="noteFormControlTextarea1" rows="3" name="notes"></textarea>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="submit" class="btn btn-primary modal-btn">Submit</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </form>
-  <!-- Medical request MODAL -->
-  <form action="{{ url_for('request_type', req_type='timeOff') }}" method="post" enctype="multipart/form-data">
-    <div class="modal fade" id="sickRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5">Medical Request</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="user" class="form-label">Employee</label>
-              <select class="form-select" aria-label="Default select example" name="user_id">
-                <option selected value="{{user['id']}}">{{user['complete_name']}}</option>
-              </select>
-            </div>
-            <div class="row mb-3">
-              <div class="col" style="padding-left: 0;">
-                <label for="fromMD" class="form-label">From:</label>
-                <input id="fromMD" type="date" class="form-control" placeholder="dd/mm/yyyy" aria-label="First name" name="start_date">
-              </div>
-              <div class="col" style="padding-right: 0;">
-                <label for="toMD" class="form-label">To:</label>
-                <input id="toMD" type="date" class="form-control" placeholder="dd/mm/yyyy" aria-label="Last name" name="end_date">
-              </div>
-            </div>
-            <div class="mb-3">
-              <label for="type" class="form-label">Type</label>
-              <select class="form-select" aria-label="Default select example" name="type_id">
-                <option selected>Sick leave</option>
-                {% for timeoff in db.select_all("t_time_off_types") %}
-                <option value="{{timeoff[0]}}">{{timeoff[1]}}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div class="mb-3">
-              <label for="exampleFormControlTextarea1" class="form-label">Note:</label>
-              <textarea class="form-control" rows="3" name="notes"></textarea>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary modal-btn">Submit</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </form>
-  <!-- Other Types Request MODAL -->
+  <!-- Leave Request MODAL -->
   <form action="{{ url_for('request_type', req_type='timeOff') }}" method="post" enctype="multipart/form-data">
     <div class="modal fade" id="otherRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5">Leave</h1>
+            <h1 class="modal-title fs-5"> New Time Off</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -179,13 +87,101 @@
       </div>
     </div>
   </form>
-  <!-- Request MODAL -->
+  <!-- Pending Leave Request MODAL -->
+  <form>
+    <div class="modal fade" id="pendingLeaveRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Pending Time Off</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            {% if db2.Select("v_req_time_off").where(user_id=user['id'], status=1)|length == 0 %}
+            <h6 style="padding: 30px;">Nothing in pending</h6>
+            {% else %}
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Type</th>
+                  <th scope="col">Start Date</th>
+                  <th scope="col">End Date</th>
+                  <th scope="col">Number of Days</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for toff in db2.Select("v_req_time_off").where(user_id=user['id'], status=1) %}
+                <tr>
+                  <th scope="row">{{toff[2]}}</th>
+                  <td>{{toff[5]}}</td>
+                  <td>{{toff[6]}}</td>
+                  <td>{{toff[7]}}</td>
+                  <td>{{db2.Select("ct_status").where(id=toff[8])[0][1]}}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+            {% endif %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- History Leave Request MODAL -->
+  <form>
+    <div class="modal fade" id="historyLeaveRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">History Time Off</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Type</th>
+                  <th scope="col">Start Date</th>
+                  <th scope="col">End Date</th>
+                  <th scope="col">Number of Days</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for toff in db2.Select("v_req_time_off").where(user_id=user['id'], status="(3, 2)") %}
+              {% if toff[8] == 2 %}
+                <tr class="table-success">
+              {% elif toff[8] == 3 %}
+                <tr class="table-danger">
+              {% endif %}
+                  <th scope="row">{{toff[2]}}</th>
+                  <td>{{toff[5]}}</td>
+                  <td>{{toff[6]}}</td>
+                  <td>{{toff[7]}}</td>
+                  <td>{{db2.Select("ct_status").where(id=toff[8])[0][1]}}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- Request Tickets MODAL -->
   <form action="{{ url_for('request_type', req_type='tickets') }}" method="post" enctype="multipart/form-data">
     <div class="modal fade" id="hrRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5">Request</h1>
+            <h1 class="modal-title fs-5">New Request</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -203,18 +199,94 @@
               <label class="form-label">Note</label>
               <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="note"></textarea>
             </div>
-            <label class="form-label">Assignee</label>
+            <label class="form-label">Assignee to</label>
             <select class="form-select mb-3" aria-label="Default select example" name="assigned" required>
-              {% for adm in db.select_all('t_users') %}
-                {% if adm[3] == 1 %}
-                  <option value="{{adm[0]}}">{{adm[1]}}</option>
-                {% endif %}
-              {% endfor %}
+              <option value="{{user['manager_id']}}">{{user['manager_name']}}</option>
             </select>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             <button type="submit" class="btn btn-primary modal-btn">Submit</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- Pending Tickets MODAL-->
+  <form>
+    <div class="modal fade" id="pendingRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Pending Tickets Requests</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            {% if db2.Select("v_req_tickets").where(user_id=user['id'], status=1)|length == 0 %}
+            <h6 style="padding: 30px;">Nothing in pending</h6>
+            {% else %}
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Title</th>
+                  <th scope="col">Note</th>
+                  <th scope="col">Assigned</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for toff in db2.Select("v_req_tickets").where(user_id=user['id'], status=1) %}
+                <tr>
+                  <th scope="row">{{toff[3]}}</th>
+                  <td>{{toff[4]}}</td>
+                  <td>{{toff[6]}}</td>
+                  <td>{{db2.Select("ct_status").where(id=toff[7])[0][1]}}</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+            {% endif %}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </form>
+  <!-- Done Tickets MODAL-->
+  <form>
+    <div class="modal fade" id="doneRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5">Done Tickets Requests</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th scope="col">Title</th>
+                  <th scope="col">Note</th>
+                  <th scope="col">Assigned</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for toff in db2.Select("v_req_tickets").where(user_id=user['id'], status=2) %}
+                <tr>
+                  <th scope="row">{{toff[3]}}</th>
+                  <td>{{toff[4]}}</td>
+                  <td>{{toff[6]}}</td>
+                  <td>Done</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
           </div>
         </div>
       </div>
@@ -250,21 +322,35 @@
       </div>
     </div>
   </form>
-  <!-- News MODAL -->
-  <form>
+  <!-- Inbox MODAL -->
+  <form  action="{{ url_for('requests', class='logReq') }}" method="post">
     <div class="modal fade" id="newsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5">News</h1>
+            <h1 class="modal-title fs-5">Inbox</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            No news available
+            {% if db2.Select("t_log_requests").where(receiver=user['id'])|length == 0 %}
+            <h6 style="padding: 30px;">Inbox is empty</h6>
+            {% else %}
+            <table class="table table-hover">
+              <tbody>
+               {% for req in db2.Select("t_log_requests").where(receiver=user['id']) %}
+               <tr>
+                 <td><input class="form-check-input" type="checkbox" name="{{req[0]}}" value="3" id="flexCheckDefault"></td>
+                 <td scope="row">{{req[4]}}</td>
+                 <td>{{req[3]}}</td>
+               </tr>
+               {% endfor %}
+              </tbody>
+            </table>
+            {% endif %}
           </div>
           <div class="modal-footer">
+            <button type="submit" class="btn btn-outline-danger">Clear selected</button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save</button>
           </div>
         </div>
       </div>
@@ -280,11 +366,33 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            ...
+            <h5 class="mb-3">Your manager</h5>
+            <div class="row">
+              <div class="col-lg-1" style="padding: inherit">
+                <img class="avatar" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=user['manager_id'])[0][0])}}" alt="avatar-img">
+              </div>
+              <div class="col-lg-11" style="margin:auto; padding: 0px;">
+                <h5>{{user['manager_name']}}</h5>
+                <p style="margin:0px;"><strong>Email:</strong> {{db2.Select('v_employees').where(id=user['manager_id'])[0][4]}}</p>
+                <p><strong>Phone Number:</strong> {{db2.Select('v_employees').where(id=user['manager_id'])[0][5]}}</p>
+              </div>
+            </div>
+            <h5 class="mb-3">HR Team</h5>
+            {% for hr in db2.Select("v_employees").where(department_name="Human Resources") %}
+            <div class="row">
+              <div class="col-lg-1" style="padding: inherit">
+                <img class="avatar" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=hr[0])[0][0])}}" alt="avatar-img">
+              </div>
+              <div class="col-lg-11" style="margin:auto; padding: 0px;">
+                <h5>{{hr[3]}}</h5>
+                <p style="margin:0px;"><strong>Email:</strong> {{hr[4]}}</p>
+                <p><strong>Phone Number:</strong> {{hr[5]}}</p>
+              </div>
+            </div>
+            {% endfor %}
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary">Save</button>
           </div>
         </div>
       </div>

@@ -19,26 +19,46 @@
       <!-- Information -->
       <div class="col-lg-9">
         <div class="col" style="margin:20px;">
+          {% if db2.Select("t_tasks_list").all()|length == 0 %}
+          <h6 style="padding: 25%;">Create a new task list <br><button type="button" style="margin-top:10px;" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#tasksListModal">Create Task List</button></h6>
+          {% else %}
           <div class="accordion" id="accordionTasks">
-            {% for department in db.select_all("t_departments") %}
+            {% for list in db.select_all("t_tasks_list") %}
               <div class="accordion-item">
-                <h2 class="accordion-header" id="heading{{department[1]}}Task">
-                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{department[0]}}Task" aria-expanded="true" aria-controls="collapse{{department[0]}}Task">
-                    {{department[1]}} Task
+                <h2 class="accordion-header" id="heading{{list[1]}}Task">
+                  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{list[0]}}Task" aria-expanded="true" aria-controls="collapse{{list[0]}}Task">
+                    {{list[1]}} Tasks
                   </button>
                 </h2>
-                <div id="collapse{{department[0]}}Task" class="accordion-collapse collapse" aria-labelledby="heading{{department[1]}}Task" data-bs-parent="#accordionTasks">
+                <div id="collapse{{list[0]}}Task" class="accordion-collapse collapse show" aria-labelledby="heading{{list[1]}}Task" data-bs-parent="#accordionTasks">
                   <div class="accordion-body">
-                    <button type="button" class="btn btn-primary btn-sm"data-bs-toggle="modal" data-bs-target="#{{department[0]}}Task">Add new task</button>
-<!--                        <button type="button" class="btn btn-outline-secondary btn-sm">Edit</button>-->
-<!--                        <button type="button" class="btn btn-outline-danger btn-sm" style="float: right;">Delete</button>-->
+                    <button type="button" class="btn btn-primary btn-sm"data-bs-toggle="modal" data-bs-target="#{{list[0]}}Task">Add new task</button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#delete{{list[0]}}TaskListModal" style="float: right;">Delete</button>
+                    <!--Delete Task List Modal-->
+                    <div class="modal fade" id="delete{{list[0]}}TaskListModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="exampleModalLabel">Delete List</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            <h5 style="text-align: center;color: red;">Are you sure that you want to delete it?</h5>
+                          </div>
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <a type="button" href="{{ url_for('delete', id=list[0], item_type='tasksList') }}" class="btn btn-danger">Delete</a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                     <!--  ADD NEW TASK MODAL -->
-                    <div class="modal fade" id="{{department[0]}}Task" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal fade" id="{{list[0]}}Task" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                       <div class="modal-dialog modal-dialog-centered">
                         <form  action="{{ url_for('create', item_type='tasks') }}" method="post">
                           <div class="modal-content">
                             <div class="modal-header">
-                              <h1 class="modal-title fs-5" id="exampleModalLabel">{{department[1]}}: New Task</h1>
+                              <h1 class="modal-title fs-5" id="exampleModalLabel">{{list[1]}}: New Task</h1>
                               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
@@ -51,8 +71,8 @@
                                 </div>
                                 <div class="row g-3">
                                   <div class="col" style="padding: 0;">
-                                    <select class="form-select" aria-label="Default select example" name="department_id">
-                                      <option selected value="{{department[0]}}">{{department[1]}}</option>
+                                    <select class="form-select" aria-label="Default select example" name="task_list_id">
+                                      <option selected value="{{list[0]}}">{{list[1]}}</option>
                                     </select>
                                   </div>
                                 </div>
@@ -75,7 +95,7 @@
                         </tr>
                       </thead>
                       <tbody>
-                        {% for task in  db.select("t_tasks", "department_id", department[0])%}
+                        {% for task in  db2.Select("t_tasks").where(task_list_id=list[0])%}
                           <tr>
                             <th scope="row">{{task[0]}}</th>
                             <td>{{task[1]}}</td>
@@ -91,6 +111,7 @@
                                   </li>
                                   <li><a class="dropdown-item" href="{{ url_for('delete', id=task[0], item_type='tasks' ) }}" style="color: red;">Delete</a></li>
                                 </ul>
+                                <!-- Edit Task -->
                                 <div class="modal fade" id="edit{{task[0]}}Task" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                                   <div class="modal-dialog modal-dialog-centered">
                                     <form  action="{{ url_for('edit', item_type='tasks') }}" method="post">
@@ -110,10 +131,10 @@
                                             <div class="row g-3">
                                               <div class="col" style="padding: 0;">
                                                 <select class="form-select" aria-label="Default select example" name="department">
-                                                  <option selected disabled value="">{{task[2]}}</option>
-                                                  {% for dep in db.select_all("t_departments") %}
-                                                    {% if dep[0] != department[0] %}
-                                                      <option value="{{dep[0]}}">{{ dep[1] }}</option>
+                                                  <option selected value="">{{db2.Select("t_tasks_list").where(id=task[2])[0][1]}}</option>
+                                                  {% for other in db2.Select('t_tasks_List').all() %}
+                                                    {% if other[0] != list[0] %}
+                                                      <option value="{{other[0]}}">{{other[1]}}</option>
                                                     {% endif %}
                                                   {% endfor %}
                                                 </select>
@@ -140,6 +161,7 @@
               </div>
             {% endfor %}
           </div>
+          {% endif %}
         </div>
       </div>
       {% include "side-admin.html" %}

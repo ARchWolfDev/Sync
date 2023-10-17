@@ -439,6 +439,17 @@
                                   </select>
                                 </div>
                               </div>
+                              <hr style="margin: 20px 0!important;">
+                              <p style="margin-top: 0px;">Assign tasks</p>
+                              <div class="row" >
+                                {% for list in db2.Select("t_tasks_list").all() %}
+                                <div class="form-check form-switch">
+                                  <input class="form-check-input" type="checkbox" role="switch" name="{{list[0]}}" value="1"
+                                         {% if db2.Select("t_dep_tasklist_link").where(task_list_id=list[0], department_id=department[0]) %} checked {% endif %}>
+                                  <label class="form-check-label">{{list[1]}}</label>
+                                </div>
+                                {% endfor %}
+                              </div>
                             </div>
                           </div>
                           <div class="modal-footer">
@@ -451,22 +462,23 @@
                   </div>
                   <!-- Delete Department MODAL -->
                   <div class="modal fade" id="deleteyour{{department[0]}}DepartmentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                          <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Department</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                              </div>
-                              <div class="modal-body">
-                                <h6 >Are you sure that you want to delete it?</h6>
-                              </div>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <a type="button" href="{{ url_for('delete', id=department[0], item_type='department') }}" class="btn btn-primary">Submit</a>
-                              </div>
-                            </div>
-                          </div>
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h1 class="modal-title fs-5" id="exampleModalLabel">Delete Department</h1>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
+                        <div class="modal-body">
+                          <h5 style="text-align: center;color: red;">Are you sure that you want to delete it?</h5>
+                          <h6>Everything assigned to this department will be deleted. <br> ( Employees, Roles )</h6>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                          <a type="button" href="{{ url_for('delete', id=department[0], item_type='department') }}" class="btn btn-danger">Delete</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                   <table class="table table-hover" style="margin-top: 20px;">
                     <thead>
                     <tr>

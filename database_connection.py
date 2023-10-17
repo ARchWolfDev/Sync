@@ -1,5 +1,7 @@
 import psycopg2.extras
 import numpy as np
+
+import encoder
 import send_email
 
 CONNECTION = psycopg2.connect(database="syncdb", user="sync001", password="Fuckth3systemE@",
@@ -15,22 +17,39 @@ class Database:
 
     class Select:
 
-        def __init__(self, *args, row="*"):
+        def __init__(self, *args, row="*", order=False, order_by="id", asc=True, limit="null"):
             self.row = row
+            if order:
+                self.order_by = order_by
+                self.limit = limit
+                if asc:
+                    self.asc = "ASC"
+                else:
+                    self.asc = "DESC"
+                self.extra = f"ORDER BY {self.order_by} {self.asc} LIMIT {self.limit}"
+            else:
+                self.extra = ""
             self.description = CURSOR.description
             if not args:
                 self.current_date()
+                self.current_timestamp()
             else:
                 for arg in args:
                     self.table = arg
 
         def current_date(self):
-            CURSOR.execute('''SELECT CURRENT_DATE;''')
+            CURSOR.execute('''SELECT current_date;''')
             return CURSOR.fetchone()[0]
+
+        def current_timestamp(self):
+            CURSOR.execute('''SELECT current_timestamp;''')
+            data = CURSOR.fetchone()[0]
+            str_data = str(data).split(".")
+            return str_data[0]
 
         def all(self):
             """SELECT everything from a specific table"""
-            CURSOR.execute(f'''SELECT {self.row} FROM {self.table}''')
+            CURSOR.execute(f'''SELECT {self.row} FROM {self.table} {self.extra};''')
             return CURSOR.fetchall()
 
         def count(self, *args):
@@ -71,7 +90,7 @@ class Database:
                 for key, values in kwargs.items():
                     if type(values) == str:
                         values = f"'{values}'"
-                    CURSOR.execute(f'''SELECT {self.row} FROM {self.table} WHERE {key.upper()} {operator} {values};''')
+                    CURSOR.execute(f'''SELECT {self.row} FROM {self.table} WHERE {key.upper()} {operator} {values} {self.extra};''')
                     return CURSOR.fetchall()
 
         def multiplewhere(self, kwargs):
@@ -124,6 +143,8 @@ class Database:
                 self.tickets()
             elif req_type == "employee":
                 self.employee()
+            elif req_type == "tasksList":
+                self.tasks()
             else:
                 self.insert(self.data)
 
@@ -214,6 +235,21 @@ class Database:
             self.insert(user_avatar)
             send_email.send_user_email(self.data['id'])
 
+        def tasks(self):
+            tasks = self.data['tasks']
+            del self.data['tasks']
+            self.insert(self.data)
+
+            for task in tasks:
+                if task == "":
+                    pass
+                else:
+                    task_data = {
+                        'name': task,
+                        'task_list_id': self.data['id']
+                    }
+                    self.db.Insert(req_type="tasks", data=task_data)
+
         def update_id(self):
             next_number_id = self.db.Select("cv_table_id").where(next_id=self.id)[0][2]
             CURSOR.execute(f'''UPDATE ct_table_id SET last_number_id = '{next_number_id}' 
@@ -225,12 +261,14 @@ class Database:
         def __init__(self, req_type, data):
             self.db = Database()
             self.table = self.db.Select("ct_type_table").where(type=req_type)[0][1]
+
             if req_type == 'timesheet' or req_type == 'tickets':
                 self.requests(data)
+
             elif req_type == 'timeOff':
+                # If the request is rejected, the number of days taken will be reallocated to user.
                 if data[1] == 3 or data[1] == "3":
-                    req_info = \
-                        self.db.Select('t_req_time_off', row="number_of_days, type_id, user_id").where(id=data[0])[0]
+                    req_info = self.db.Select('t_req_time_off', row="number_of_days, type_id, user_id").where(id=data[0])[0]
                     number_of_days = req_info[0]
                     type_id = req_info[1]
                     user_id = req_info[2]
@@ -243,18 +281,57 @@ class Database:
                     self.db.Update(req_type="empTimeOff", data=update)
                 self.requests(data)
 
+            elif req_type == 'employee':
+                if "app_role" in data:
+                    app_data = {
+                        'id': data['id'],
+                        'app_role': data['app_role']
+                    }
+                    self.db.Update(req_type='users', data=app_data)
+                    del data["app_role"]
+                self.update(data)
+
+            elif req_type == 'department':
+                li = []
+                # Delete task list assigned to this department.
+                for tasks in self.db.Select("t_dep_tasklist_link").where(department_id=data['id']):
+                    self.db.Delete(req_type="depLinkTasklist", id=tasks[0])
+
+                # Identify the Tasks List assigned and add to t_dep_tasklist_link
+                for key in data:
+                    if key[:4] == 'TSKL':
+                        link_data = {
+                            'department_id': data['id'],
+                            'task_list_id': key
+                        }
+                        print(link_data)
+                        self.db.Insert(req_type="depLinkTasklist", data=link_data)
+                        li.append(key)
+
+                # Delete TSKL from Departments Data
+                for x in li:
+                    if x in data:
+                        del data[x]
+                print(data)
+
+                # Update table with edited data.
+                self.update(data)
+
             else:
-                self.row_id = data['id']
-                del data['id']
-                #
+                self.update(data)
 
-                data_list = []
-                for key, value in data.items():
-                    data_list.append(f"{key} = '{value}'")
-                    self.final_list = ", ".join(data_list)
+        def update(self, data):
+            row_id = data['id']
+            del data['id']
+            #
 
-                CURSOR.execute(f'''UPDATE {self.table} SET {self.final_list} WHERE id = '{self.row_id}';''')
-                CONNECTION.commit()
+            data_list = []
+            for key, value in data.items():
+                data_list.append(f"{key} = '{value}'")
+            final_list = ", ".join(data_list)
+
+            CURSOR.execute(f'''UPDATE {self.table} SET {final_list} WHERE id = '{row_id}';''')
+            CONNECTION.commit()
 
         def requests(self, data):
             CURSOR.execute(f'''UPDATE {self.table} SET STATUS = {data[1]} WHERE ID = '{data[0]}';''')
@@ -269,6 +346,10 @@ class Database:
 
             if req_type == "employee":
                 self.employee()
+            elif req_type == "department":
+                self.department()
+            elif req_type == "tasksList":
+                self.tasks_list()
             else:
                 self.delete()
 
@@ -285,12 +366,64 @@ class Database:
             self.table = "t_emp_avatar"
             self.delete()
 
+        def department(self):
+            self.delete()
+            for role in self.db.Select("t_roles").where(department_id=self.id):
+                for emp in self.db.Select("t_employees").where(role=role[0]):
+                    self.db.Delete(req_type="employee", id=emp[0])
+                self.db.Delete(req_type="roles", id=role[0])
+
+        def tasks_list(self):
+            self.delete()
+            for tasks in self.db.Select("t_tasks").where(task_list_id=self.id):
+                self.db.Delete(req_type="tasks", id=tasks[0])
+            for link in self.db.Select("t_dep_tasklist_link").where(task_list_id=self.id):
+                self.db.Delete(req_type="depLinkTasklist", id=link[0])
+
     def checked(self, day, user):
         date = str(self.Select().current_date())[:8] + str(day)
         if self.Select('t_req_timesheet_tasks').where(date=date, user_id=user):
             return True
         else:
             return False
+
+    def log_requests(self, user, request_type, data=None, admin=False):
+        current_date = self.Select().current_date()
+
+        db_message = {
+            'sender': user,
+            'date': current_date,
+        }
+        if admin:
+            if request_type == "timeOff":
+                req_info = self.Select('v_req_time_off').where(id=data[0])
+                db_message['receiver'] = req_info[0][3]
+                admin_name = self.Select("v_employees").where(id=user)[0][3]
+                if data[1] == str(2):
+                    db_message['message'] = f"{admin_name} approve your Time Off Request."
+                else:
+                    db_message['message'] = f"{admin_name} rejected your Time Off Request."
+            elif request_type == "tickets" and data[1] == str(2):
+                req_info = self.Select('v_req_tickets').where(id=data[0])
+                print(req_info)
+                db_message['receiver'] = req_info[0][1]
+                admin_name = self.Select("v_employees").where(id=user)[0][3]
+                db_message['message'] = f"{admin_name} resolved your ticket."
+                print(db_message)
+            db_message['date'] = self.Select().current_timestamp()
+
+        else:
+            if request_type == 'timesheet':
+                x = "Timesheet"
+            elif request_type == 'timeOff':
+                x = "Time Off"
+            else:
+                x = "Ticket"
+            db_message['message'] = f"Create a new {x} request."
+            db_message['receiver'] = "Admins"
+
+        print(db_message)
+        self.Insert("logReq", db_message)
 
 
 class User(Database):

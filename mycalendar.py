@@ -1,7 +1,7 @@
 import calendar
 import datetime as dt
 import numpy as np
-from database_connection import CURSOR, select, Database
+from database_connection import CURSOR, Database
 import pandas as pd
 
 db = Database()
@@ -54,8 +54,10 @@ class Calendar:
         next_month = self.month + 1
         if next_month > 12:
             next_month = 1
-
-        next_month = f"{self.year}-0{next_month}"
+        if len(str(next_month)) == 1:
+            next_month = f"{self.year}-0{next_month}"
+        else:
+            next_month = f"{self.year}-{next_month}"
         business_days = np.busday_count(month_now, next_month)
         return business_days
 
@@ -104,6 +106,21 @@ class Calendar:
             return True
         else:
             return False
+
+    def timeoff_days_list(self, day):
+        if len(str(day)) == 1:
+            date = f"{self.date_format('yyyy-mm')}-0{day}"
+        else:
+            date = f"{self.date_format('yyyy-mm')}-{day}"
+        db_data = db.Select("v_req_time_off").all()
+
+        for data in db_data:
+            if data[8] == 2:
+                date_range = pd.date_range(data[5], data[6])
+                data_list = []
+                if date in date_range:
+                    data_list.append(data)
+                    return data_list
 
     def day_check(self, day, user):
         db_check = db.Select("t_req_timesheet").where(date=f"{self.date_format('yyyy-mm')}-{day}", user_id=user)

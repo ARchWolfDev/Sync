@@ -16,12 +16,13 @@ import encoder
 app = Flask(__name__)
 Bootstrap(app)
 
+SECRET_KEY = 'Xn2r5u8x!A%D*G-K'
 UPLOAD_FOLDER = 'static/files/'
 AVATAR_FOLDER = 'static/'
 CSV_FOLDER = 'static/csv/'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'csv'}
 
-app.config['SECRET_KEY'] = 'Xn2r5u8x!A%D*G-K'
+app.config['SECRET_KEY'] = SECRET_KEY
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['AVATAR_FOLDER'] = AVATAR_FOLDER
 app.config['CSV_FOLDER'] = CSV_FOLDER
@@ -87,9 +88,10 @@ def register():
         pass1 = request.form.get("pass1")
         pass2 = request.form.get("pass2")
         if pass1 == pass2:
-            user = {'id': user.id,
-                    'password': generate_password_hash(pass1)
-                    }
+            user = {
+                'id': user.id,
+                'password': generate_password_hash(pass1)
+                }
             req_type = "users"
             db2.Update(req_type, user)
             flash("Register successfully!")
@@ -127,6 +129,7 @@ def request_type(req_type):
     print(req_type)
     db.Database().Insert(req_type=req_type, data=dict_req)
     nt.insert(current_user.id, req_type)
+    db2.log_requests(current_user.id, req_type)
     flash("Request submitted!")
     url = request.referrer
     return redirect(url)
@@ -175,12 +178,19 @@ def profile(id):
 @app.route("/create/<item_type>", methods=["POST"])
 @login_required
 def create(item_type):
-    form_items = request.form.items()
-    dict_items = {}
-    for key, value in form_items:
-        dict_items[key] = value
-    print(dict_items)
-    print(item_type)
+    if item_type == 'tasksList':
+        dict_items = {
+            'list_name': request.form.get('listName'),
+            'tasks': request.form.getlist('taskName')
+        }
+        print(dict_items, item_type)
+    else:
+        form_items = request.form.items()
+        dict_items = {}
+        for key, value in form_items:
+            dict_items[key] = value
+        print(dict_items)
+        print(item_type)
     db.Database().Insert(req_type=item_type, data=dict_items)
     flash("Request submitted!")
     url = request.referrer
@@ -210,7 +220,11 @@ def requests():
         url = request.referrer
         for req in request.form.items():
             class_name = request.args.get('class')
-            db.Database().Update(class_name, data=req)
+            if class_name == 'logReq':
+                db2.Delete(class_name, req[0])
+            else:
+                db.Database().Update(class_name, data=req)
+                db2.log_requests(current_user.id, class_name, data=req, admin=True)
         return redirect(url)
 
 

@@ -9,16 +9,20 @@
           <div class="tab-content notification-content" id="myTabContent">
             <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
               <div class="list-group">
-                {% for notification in nt %}
+                {% if db2.Select('t_log_requests').count() == 0 %}
+                <h6 style="padding: 50px;">No new notification</h6>
+                {% else %}
+                {% for notification in db2.Select("t_log_requests", order=True, asc=False, limit="4").where(receiver="Admins") %}
                 <a href="{{url_for('admin', id='requests')}}" class="list-group-item list-group-item-action" aria-current="true">
                   <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">{{notification["name"]}}</h5>
-                    <small>{{notification["timestamp"]}}</small>
+                    <h5 class="mb-1">{{db2.Select("v_employees", row="complete_name").where(id=notification[1])[0][0]}}</h5>
+                    <small>{{notification[3]}}</small>
                   </div>
-                  <p class="mb-1">{{notification["request"]}}</p>
+                  <p class="mb-1">{{notification[4]}}</p>
 <!--                  <small>And some small print.</small>-->
                 </a>
                 {% endfor %}
+                {% endif %}
               </div>
             </div>
           </div>

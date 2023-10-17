@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Admin: Roles{% endblock %}
+{% block content %}
+    <div class="row">
+      {% include "admin_nav_tabs.html" %}
+      {% include "create_button.html" %}
+      <!-- Search -->
+      <div class="col-lg-3">
+        <form class="d-flex search" role="search" action="" method="post">
+          <input class="form-control me-2" id="browser" type="search" name="browser" placeholder="Search" list="browserdata" aria-label="Search" autocomplete="off">
+          <button class="btn btn-outline-success" type="submit">Search</button>
+          <datalist id="browserdata">
+            {% for emp in db.select_all("v_employees") %}
+              <option value="{{emp[0]}}">{{ emp[1] + ' ' + emp[2] }}</option>
+            {% endfor %}
+          </datalist>
+        </form>
+      </div>
+      <!-- Information -->
+      <div class="col-lg-9">
+        <div class="col" style="margin:20px;">
+          <div class="accordion" id="accordionExample">
+            {% for dep in db2.Select("t_departments").all() %}
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  {{dep[1]}}
+                </button>
+              </h2>
+              <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                  <table class="table table-hover">
+                    <thead>
+                      <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Role name</th>
+                        <th scope="col">People assigned</th>
+                        <th scope="col">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    {% for role in db2.Select("t_roles").where(department_id=dep[0]) %}
+                      <tr>
+                        <th scope="row">{{role[0]}}</th>
+                        <td>{{role[1]}}</td>
+                        <td>{{db2.Select("v_employees").where(role_id=role[0])|length}}</td>
+                        <td>
+                          <div class="btn-group">
+                            <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                              Action
+                            </button>
+                            <ul class="dropdown-menu">
+                              <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit{{role[0]}}Task">Edit</a></li>
+                              <li>
+                                <hr class="dropdown-divider">
+                              </li>
+                              <li><a class="dropdown-item" href="{{ url_for('delete', id=role[0], item_type='roles' ) }}" style="color: red;">Delete</a></li>
+                            </ul>
+                            <!-- Edit Task -->
+                            <div class="modal fade" id="edit{{role[0]}}Task" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                              <div class="modal-dialog modal-dialog-centered">
+                                <form  action="{{ url_for('edit', item_type='roles') }}" method="post">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h1 class="modal-title fs-5" id="exampleModalLabel">Edit: {{role[1]}}</h1>
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                      <div class="row g-3">
+                                        <div class="col-3">
+                                          <input type="text" class="form-control" placeholder="ID" aria-label="ID" name="id" value="{{role[0]}}" readonly>
+                                        </div>
+                                        <div class="col-9">
+                                          <input type="text" class="form-control" placeholder="Task Name" aria-label="Task" name="name" value="{{role[1]}}">
+                                        </div>
+                                        <div class="row g-3">
+                                          <div class="col" style="padding: 0;">
+                                            <select class="form-select" aria-label="Default select example" name="department_id">
+                                              <option selected value="{{role[2]}}">{{db2.Select("t_departments").where(id=role[2])[0][1]}}</option>
+                                              {% for other in db2.Select('t_departments').all() %}
+                                                {% if other[0] != dep[0] %}
+                                                  <option value="{{other[0]}}">{{other[1]}}</option>
+                                                {% endif %}
+                                              {% endfor %}
+                                            </select>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                      <button type="submit" class="btn btn-primary">Save</button>
+                                    </div>
+                                  </div>
+                                </form>
+                              </div>
+                            </div>
+                            </div>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% include "side-admin.html" %}
+    </div>
+{% endblock %}

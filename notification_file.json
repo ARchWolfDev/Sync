@@ -108,5 +108,50 @@
         "name": "Andrei Rachieru",
         "request": "Created a new timesheet request",
         "timestamp": "30-08-2023"
+    },
+    "EMP-1001:timesheet:05-09-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new timesheet request",
+        "timestamp": "05-09-2023"
+    },
+    "EMP-1001:tickets:05-09-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new tickets request",
+        "timestamp": "05-09-2023"
+    },
+    "EMP-1001:tickets:08-09-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new tickets request",
+        "timestamp": "08-09-2023"
+    },
+    "EMP-1001:timeOff:11-09-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new timeOff request",
+        "timestamp": "11-09-2023"
+    },
+    "EMP-1001:tickets:11-09-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new tickets request",
+        "timestamp": "11-09-2023"
+    },
+    "EMP-1001:tickets:12-09-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new tickets request",
+        "timestamp": "12-09-2023"
+    },
+    "EMP-1001:timeOff:12-09-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new timeOff request",
+        "timestamp": "12-09-2023"
+    },
+    "EMP-1001:timeOff:15-09-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new timeOff request",
+        "timestamp": "15-09-2023"
+    },
+    "EMP-1001:tickets:15-09-2023": {
+        "name": "Andrei Rachieru",
+        "request": "Created a new tickets request",
+        "timestamp": "15-09-2023"
     }
 }

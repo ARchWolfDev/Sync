@@ -88,7 +88,7 @@
               <h5>Most Projects</h5>
               <hr style="margin: 10px 0px">
               {% if db2.Select("t_projects").all()|length == 0 %}
-              <h6>No any project yet</h6>
+              <h6 style="padding: 25%;">No projects yet</h6>
               {% else %}
               <canvas id="myPieChart" style="width:100%; height:200px"></canvas>
               <script>
@@ -223,28 +223,33 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
                           <div class="modal-body">
+                            {% if cal.timeoff_days_list(day) == None %}
+                            <h6 style="padding: 10%;">No one off</h6>
+                            {% else %}
                             <table class="table">
                               <thead>
                                 <tr>
-                                  <th scope="col">#</th>
-                                  <th scope="col">First</th>
-                                  <th scope="col">Last</th>
-                                  <th scope="col">Handle</th>
+                                  <th scope="col">Type</th>
+                                  <th scope="col">Employee</th>
+                                  <th scope="col">Start Date</th>
+                                  <th scope="col">End Date</th>
                                 </tr>
                               </thead>
                               <tbody>
+                              {% for x in cal.timeoff_days_list(day) %}
                                 <tr>
-                                  <td>off[0]</td>
-                                  <td>off[1]</td>
-                                  <td>off[2]</td>
-                                  <td>off[3]</td>
+                                  <td>{{x[2]}}</td>
+                                  <td>{{x[4]}}</td>
+                                  <td>{{x[5]}}</td>
+                                  <td>{{x[6]}}</td>
                                 </tr>
+                              {% endfor %}
                               </tbody>
                             </table>
+                            {% endif %}
                           </div>
                           <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary modal-btn">Save Changes</button>
                           </div>
                         </div>
                       </div>

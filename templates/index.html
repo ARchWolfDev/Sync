@@ -61,35 +61,38 @@
                           </select>
                         </div>
                         <div class="col-lg-8">
+                          {% if db2.Select("t_dep_tasklist_link").where(department_id=user['department_id'])|length == 0 %}
+                          <h6 style="padding: 25%;">No Task List assigned</h6>
+                          {% else %}
                           <div class="accordion" id="accordionExample">
-                            {% for accordion in db.select_all(table="t_departments") %}
-                              {% if accordion[1] == user['department'] %}
-                                <div class="accordion-item">
-                                  <h2 class="accordion-header h2-accordion" id="headingTwo">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{accordion[0]}}" aria-expanded="true" aria-controls="collapseTwo">
-                                      {{ accordion[1] }}
-                                    </button>
-                                  </h2>
-                                  <div id="{{accordion[0]}}" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
-                                    <div class="accordion-body">
-                                      <ul class="list-group">
-                                        {% for item in db.select_all(table="t_tasks") %}
-                                          {% if item[2] == accordion[0] %}
-                                            <li class="list-group-item">
-                                              <input class="form-check-input me-1" type="checkbox" value="1" name="{{item[0]}}" id="firstCheckbox"
-                                                     {%if db2.checked(day, user['id']) %} checked {%endif%}>
-
-                                              <label class="form-check-label" for="firstCheckbox" name="">{{item[1]}}</label>
-                                            </li>
-                                          {% endif %}
-                                        {% endfor %}
-                                      </ul>
-                                    </div>
+                            {% for accordion in db2.Select("t_dep_tasklist_link").where(department_id=user['department_id']) %}
+                              <div class="accordion-item">
+                                <h2 class="accordion-header h2-accordion" id="headingTwo">
+                                  {% if db2.Select("t_tasks_list").all()|length == 0 %}
+                                  <h6 style="padding: 10px;">No tasks list assigned</h6>
+                                  {% else %}
+                                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#{{accordion[0]}}" aria-expanded="true" aria-controls="collapseTwo">
+                                    {{ db2.Select("t_tasks_list").where(id=accordion[2])[0][1] }}
+                                  </button>
+                                  {% endif %}
+                                </h2>
+                                <div id="{{accordion[0]}}" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                                  <div class="accordion-body">
+                                    <ul class="list-group">
+                                      {% for item in db2.Select("t_tasks").where(task_list_id=accordion[2]) %}
+                                      <li class="list-group-item">
+                                        <input class="form-check-input me-1" type="checkbox" value="1" name="{{item[0]}}" id="firstCheckbox"
+                                               {%if db2.checked(day, user['id']) %} checked {%endif%}>
+                                        <label class="form-check-label" for="firstCheckbox" name="">{{item[1]}}</label>
+                                      </li>
+                                      {% endfor %}
+                                    </ul>
                                   </div>
                                 </div>
-                              {% endif %}
+                              </div>
                             {% endfor %}
                           </div>
+                          {% endif %}
                         </div>
                       </div>
                     </div>
@@ -105,7 +108,6 @@
         </div>
         {% endfor %}
         <!-- END Modal for set the day -->
-
       </div>
       <div class="col-lg-3 col-md-12 info-container">
         <h2 class="title" style="text-align: left; margin:20px;"><i class="fa-solid fa-circle-info"></i> About you</h2>
