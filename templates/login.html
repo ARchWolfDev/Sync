@@ -47,8 +47,31 @@
           <input type="password" class="form-control" id="password" placeholder="Password" name="password">
         </div>
         <hr>
-      <button type="submit" class="btn btn-primary" style="float:right;">Login</button>
+      <button onclick="loader()" type="submit" class="btn btn-primary" style="float:right;">Login</button>
       </form>
     </div>
+    <div class="preloader-wrapper">
+        <div class="spinner-border text-primary" role="status" style="color: #5E17EB !important;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    <script>
+        document.onreadystatechange = function () {
+            if (document.readyState !== "complete") {
+                document.querySelector(
+                    ".preloader-wrapper").style.visibility = "visible";
+            } else {
+                document.querySelector(
+                    ".preloader-wrapper").style.display = "none";
+                document.querySelector(
+                    "body").style.visibility = "visible";
+            }
+        };
+    </script>
+    <script>
+        function loader() {
+            var x = document.querySelector(".preloader-wrapper").style.display = "flex";
+        };
+    </script>
   </body>
 </html>

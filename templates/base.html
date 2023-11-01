@@ -19,18 +19,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Open+Sans:wght@800&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='images/favicon.ico')}}">
-    <script href="{{url_for('static', filename='js/scripts.js') }}"></script>
-    <script type="text/javascript">
-        const popoverTriggerList = document.querySelectorAll('[data-bs-toggle="popover"]')
-        const popoverList = [...popoverTriggerList].map(popoverTriggerEl => new bootstrap.Popover(popoverTriggerEl))
-    </script>
-    <script type="text/javascript">
-        function email() {
-            let first = document.getElementById("firstName").value;
-            let last = document.getElementById("lastName").value;
-            document.getElementById("demo").innerHTML = first.toLowerCase() + "." + last.toLowerCase()  + "@arch-dev.com";
-}
-    </script>
 </head>
 <body>
     {% for mesg in get_flashed_messages() %}
@@ -41,5 +29,28 @@
     {% include "header.html" %}
     {% block content %}{% endblock %}
     {% include "footer.html" %}
+    <div class="preloader-wrapper">
+        <div class="spinner-border text-primary" role="status" style="color: #5E17EB !important;">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    <script>
+        document.onreadystatechange = function () {
+            if (document.readyState !== "complete") {
+                document.querySelector(
+                    ".preloader-wrapper").style.visibility = "visible";
+            } else {
+                document.querySelector(
+                    ".preloader-wrapper").style.display = "none";
+                document.querySelector(
+                    "body").style.visibility = "visible";
+            }
+        };
+    </script>
+    <script>
+        function loader() {
+            var x = document.querySelector(".preloader-wrapper").style.display = "flex";
+        };
+    </script>
 </body>
 </html>

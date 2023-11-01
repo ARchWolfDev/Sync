@@ -269,14 +269,16 @@
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                       </div>
                                       <div class="modal-body">
-                                        <input name="id", value="{{profile['id']}}" hidden >
-                                        <div class="mb-3">
-                                          <label for="ANcurrentValue" class="form-label">Current Value</label>
-                                          <input class="form-control" id="ANcurrentValue" value="{{db2.Select('t_emp_time_off').where(id=profile['id'])[0][2]}}" readonly>
-                                        </div>
-                                        <div class="mb-3">
-                                          <label for="ANnewValue" class="form-label">New Value</label>
-                                          <input class="form-control" id="ANnewValue" name="AN">
+                                        <div class="row" >
+                                          <div class="col-6">
+                                            <label for="ANcurrentValue" class="form-label">Current Value</label>
+                                            <input class="form-control" id="ANcurrentValue" value="{{db2.Select('t_emp_time_off').where(id=profile['id'])[0][2]}}" readonly>
+                                          </div>
+                                          <div class="col-6">
+                                            <label for="ANnewValue" class="form-label">New Value</label>
+                                            <input class="form-control" id="ANnewValue" name="AN">
+                                          </div>
+                                          <input name="id", value="{{profile['id']}}" hidden >
                                         </div>
                                       </div>
                                       <div class="modal-footer">
@@ -304,13 +306,16 @@
                                       </div>
                                       <div class="modal-body">
                                         <input name="id", value="{{profile['id']}}" hidden>
-                                        <div class="mb-3">
-                                          <label for="BDcurrentValue" class="form-label">Current Value</label>
+                                        <div class="row" >
+                                          <div class="col-6">
+                                            <label for="BDcurrentValue" class="form-label">Current Value</label>
                                           <input class="form-control" id="BDcurrentValue" value="{{db2.Select('t_emp_time_off').where(id=profile['id'])[0][3]}}" readonly>
-                                        </div>
-                                        <div class="mb-3">
-                                          <label for="BDnewValue" class="form-label">New Value</label>
-                                          <input class="form-control" id="BDnewValue" name="BD">
+                                          </div>
+                                          <div class="col-6">
+                                            <label for="BDnewValue" class="form-label">New Value</label>
+                                            <input class="form-control" id="BDnewValue" name="BD">
+                                          </div>
+                                          <input name="id", value="{{profile['id']}}" hidden >
                                         </div>
                                       </div>
                                       <div class="modal-footer">
@@ -338,13 +343,16 @@
                                       </div>
                                       <div class="modal-body">
                                         <input name="id", value="{{profile['id']}}" hidden>
-                                        <div class="mb-3">
-                                          <label for="SPcurrentValue" class="form-label">Current Value</label>
-                                          <input class="form-control" id="SPcurrentValue" value="{{db2.Select('t_emp_time_off').where(id=profile['id'])[0][6]}}" readonly>
-                                        </div>
-                                        <div class="mb-3">
-                                          <label for="SPnewValue" class="form-label">New Value</label>
-                                          <input class="form-control" id="SPnewValue" name="SP">
+                                        <div class="row" >
+                                          <div class="col-6">
+                                            <label for="SPcurrentValue" class="form-label">Current Value</label>
+                                            <input class="form-control" id="SPcurrentValue" value="{{db2.Select('t_emp_time_off').where(id=profile['id'])[0][6]}}" readonly>
+                                          </div>
+                                          <div class="col-6">
+                                            <label for="SPnewValue" class="form-label">New Value</label>
+                                            <input class="form-control" id="SPnewValue" name="SP">
+                                          </div>
+                                          <input name="id", value="{{profile['id']}}" hidden >
                                         </div>
                                       </div>
                                       <div class="modal-footer">
