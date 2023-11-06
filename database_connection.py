@@ -79,6 +79,7 @@ class Database:
                 else:
                     result = []
                     for k in kwargs:
+                        print("Kwargs", kwargs[k])
                         CURSOR.execute(self.multiplewhere(kwargs[k]))
                         result.append(CURSOR.fetchall())
                     return result

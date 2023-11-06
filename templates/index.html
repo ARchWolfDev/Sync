@@ -5,7 +5,15 @@
     <div class="row workspace" style="margin-right: 10px;">
       <div class="col-lg-9 col-md-12"  style="padding: 20px">
         <!-- Calendar -->
-        <h2 class="title" style="text-align: left; margin:20px;"><i class="fa-solid fa-calendar-days"></i> {{cal.month_name}} {{cal.year}}</h2>
+<!--          <h2 class="title" style="text-align: left; margin:20px;"> {{cal.month_name}} {{cal.year}}</h2>-->
+          <form class="row" action="{{ url_for('index') }}" method="post">
+            <div class="col-auto" style="padding: 0px;">
+              <input type="month" class="form-control" value="{{cal.year}}-{% if cal.month|string|length == 1 %}0{{cal.month}}{%else%}{{cal.month}}{%endif%}" name="date" style="background: #ddd;">
+            </div>
+            <div class="col-auto">
+              <button onclick="loader()" type="submit" class="btn btn-light mb-3"><i class="fa-solid fa-check"></i></button>
+            </div>
+          </form>
         <div class="row week">
           <div class="col">Sun</div>
           <div class="col">Mon</div>
@@ -15,7 +23,7 @@
           <div class="col">Fri</div>
           <div class="col">Sat</div>
         </div>
-        {% for week in cal.current_month %}
+        {% for week in cal.month_selected %}
         <div class="row days">
           {% for day in week %}
             {% if day == 0 %}
@@ -36,24 +44,24 @@
                     <div class="modal-body">
                       <div class="row">
                         <div class="col-lg-4 date-col">
-                          <label for="user_id" class="form-label">Employee</label>
-                          <select class="form-select" id=user_id aria-label="Default select example" name="user_id">
+                          <label class="form-label">Employee</label>
+                          <select class="form-select" aria-label="Default select example" name="user_id">
                             <option selected value="{{user['id']}}">{{user['first'] + ' ' + user['last']}}</option>
                           </select>
-                          <label for="date" class="form-label">Date</label>
-                          <select class="form-select" id=date aria-label="Default select example" name="date">
+                          <label class="form-label">Date</label>
+                          <select class="form-select" aria-label="Default select example" name="date">
                             <option selected>{{cal.date_format("yyyy-mm")}}-{{day}}</option>
                           </select>
-                          <label for="type" class="form-label">Role</label>
-                          <select class="form-select" id=type aria-label="Default select example" name="role_id">
+                          <label class="form-label">Role</label>
+                          <select class="form-select" aria-label="Default select example" name="role_id">
                             <option selected value="{{user['role_id']}}">{{user['role']}}</option>
                           </select>
-                          <label for="type" class="form-label">Department</label>
-                          <select class="form-select" id=type aria-label="Default select example" name="department_id">
+                          <label class="form-label">Department</label>
+                          <select class="form-select"aria-label="Default select example" name="department_id">
                             <option selected value="{{user['department_id']}}">{{user['department']}}</option>
                           </select>
-                          <label for="project" class="form-label">Project</label>
-                          <select class="form-select" id=project aria-label="Default select example" name="project_id" required>
+                          <label class="form-label">Project</label>
+                          <select class="form-select" aria-label="Default select example" name="project_id" required>
                             <option selected disabled value="">Select..</option>
                             {% for project in db.select_all(table="t_projects") %}
                               <option value="{{project[0]}}">{{project[2]}}</option>

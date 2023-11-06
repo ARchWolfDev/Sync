@@ -12,6 +12,7 @@ import files
 import dashboard as dash
 import export_import
 import encoder
+import json
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -108,12 +109,15 @@ def register():
             return redirect(url_for("login"))
 
 
-@app.route("/home")
+@app.route("/home", methods=["POST", "GET"])
 @login_required
 def index():
     user = Auth(id=current_user.id).info()
     doc = files.get_file()
     avatar = db2.Select("t_emp_avatar").where(id=current_user.id)[0]
+    date = request.form.get('date')
+    cal.select_month(date)
+    print("date selected", date)
     return render_template("index.html", db=db, db2=db2, user=user, cal=cal, file=doc, avatar=avatar,
                            logged_in=current_user.is_authenticated)
 
@@ -144,15 +148,16 @@ def admin(id):
             "department_id": request.form.getlist("department"),
             "date": f"{request.form.get('date')}-%".replace("['", "").replace("']", ""),
         }
+        # print(filter_by)
         if filter_by["date"] == "None-%" or filter_by['date'] == "-%":
             del filter_by['date']
         if admin_user['admin'] == 2:
             filter_by["manager_id"] = [admin_user['id']]
-
         final_filter = {}
         for x in filter_by:
             if len(filter_by[x]) != 0:
                 final_filter[x] = filter_by[x]
+        # print("final filter: ", final_filter)
         doc = files.get_file()
         dashboard = dash.Dashboard(final_filter)
         avatar = db2.Select("t_emp_avatar").where(id=current_user.id)[0]

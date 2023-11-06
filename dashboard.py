@@ -47,12 +47,9 @@ class Dashboard:
             except:
                 pass
             tsc = []
-            print(self.filter_by)
             data = db.Select("v_employees").where(condition=self.filter_by)[0]
-            print(data)
             for _ in data:
                 ts_data = db.Select("v_req_timesheet").where(user_id=_[0], date=date)
-                print(ts_data, date)
                 percent = (len(ts_data) / calendar.business_days()) * 100
                 tsc.append(int(round(percent, 0)))
             if len(data) > 0:

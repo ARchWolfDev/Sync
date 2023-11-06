@@ -15,10 +15,27 @@ class Calendar:
         self.month = dt.datetime.now().month
         self.year = dt.datetime.now().year
         self.current_month = calendar.monthcalendar(self.year, self.month)
+        self.month_selected = None
         self.month_name = calendar.month_name[self.month]
         self.current_month_year = f'{self.month}/{self.year}'
         self.current_year_month = f"{self.year}-{self.month}"
         self.business_days()
+
+
+    def select_month(self, *args):
+        if not args[0] is None:
+            print(args[0])
+            x = args[0].split("-")
+            year = int(x[0])
+            month = int(x[1])
+            # print(year, month)
+            self.month = month
+            self.year = year
+            self.month_selected = calendar.monthcalendar(self.year, self.month)
+        else:
+            self.month = dt.datetime.now().month
+            self.year = dt.datetime.now().year
+            self.month_selected = self.current_month
 
     def date_format(self, format):
         operator = ''

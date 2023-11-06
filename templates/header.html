@@ -412,10 +412,16 @@
               <div class="row mb-3">
                 <div class="col-lg-2" style="padding: inherit">
                   <div class="container text-center" style="padding: 0;">
-                      <img class="image" src="{{url_for('static', filename=avatar[2])}}" alt="avatar-img" style="width: 100%;">
+                      <img id="output" class="image" src="{{url_for('static', filename=avatar[2])}}" alt="avatar-img" style="width: 100%; height: 100%;">
                       <div class="overlay">
                         <label for="file" class="btn btn-outline-secondary btn-sm profile-button">Upload</label>
-                        <input role="button" type="file" id="file" class="btn btn-outline-secondary btn-sm profile-button" name="file" hidden>
+                        <input onchange="loadFile(event)" role="button" type="file" id="file" class="btn btn-outline-secondary btn-sm profile-button" name="file" hidden>
+                        <script>
+                          var loadFile = function (event) {
+                            var image = document.getElementById("output");
+                            image.src = URL.createObjectURL(event.target.files[0]);
+                          };
+                        </script>
                       </div>
                   </div>
                 </div>
@@ -510,7 +516,7 @@
         </div>
         <div class=" col col-lg-1 col-md-2 col-sm-6 dropdown">
           <div class="container text-center" style="padding: 0;">
-            <img class="image" src="{{url_for('static', filename=avatar[2])}}" alt="avatar-img" style="width: 100%;">
+            <img class="image" src="{{url_for('static', filename=avatar[2])}}" alt="avatar-img" style="width: 100%; height: 100%;">
           </div>
         </div>
       </div>

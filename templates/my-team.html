@@ -38,6 +38,7 @@
                 <div class="accordion-body">
                   <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#your{{department[0]}}Modal">Add new</button>
                   <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#edityour{{department[0]}}DepartmentModal">Edit</button>
+                  <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Members count: {{db2.Select("v_employees").where(department_id=department[0])|length}}</button>
                   <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteyour{{department[0]}}DepartmentModal" style="float: right;">Delete</button>
                   <!-- Add New MODAL -->
                   <div class="modal fade" id="your{{department[0]}}Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">

@@ -21,98 +21,98 @@
       <div class="col-lg-9">
         <div class="col" style="margin:20px;">
           <div class="accordion" id="accordionExample">
-                <div class="accordion-item">
-                  <h2 class="accordion-header" id="headingOne">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                      Projects
-                    </button>
-                  </h2>
-                  <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                    <div class="accordion-body">
-                      <table class="table table-hover" style="margin-top: 20px;">
-                        <thead>
-                          <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Client Name</th>
-                            <th scope="col">Project Name</th>
-                            <th scope="col">Responsable</th>
-                            <th scope="col">Action</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {% for project in db.select_all("t_projects") %}
-                            <tr>
-                              <th scope="row">{{project[0]}}</th>
-                              <td>{{project[1]}}</td>
-                              <td>{{project[2]}}</td>
-                              <td>{{db2.Select("v_employees").where(id=project[3])[0][3]}}</td>
-                              <td>
-                                <div class="btn-group">
-                                  <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                          Action
-                                  </button>
-                                  <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit{{project[0]}}Modal">Edit</a></li>
-                                    <li>
-                                      <hr class="dropdown-divider">
-                                    </li>
-                                    <li><a class="dropdown-item" href="{{ url_for('delete', id=project[0], item_type='project' ) }}" style="color: red;">Delete</a></li>
-                                  </ul>
-                                  <!-- EDIT PROJECT -->
-                                  <div class="modal fade" id="edit{{project[0]}}Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                      <form action="{{ url_for('edit', item_type='project') }}" method="post">
-                                        <div class="modal-content">
-                                          <div class="modal-header">
-                                            <h1 class="modal-title fs-5" id="exampleModalLabel">New Project</h1>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                  Projects
+                </button>
+              </h2>
+              <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                  <table class="table table-hover" style="margin-top: 20px;">
+                    <thead>
+                      <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Client Name</th>
+                        <th scope="col">Project Name</th>
+                        <th scope="col">Responsable</th>
+                        <th scope="col">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for project in db.select_all("t_projects") %}
+                        <tr>
+                          <th scope="row">{{project[0]}}</th>
+                          <td>{{project[1]}}</td>
+                          <td>{{project[2]}}</td>
+                          <td>{{db2.Select("v_employees").where(id=project[3])[0][3]}}</td>
+                          <td>
+                            <div class="btn-group">
+                              <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                      Action
+                              </button>
+                              <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#edit{{project[0]}}Modal">Edit</a></li>
+                                <li>
+                                  <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item" href="{{ url_for('delete', id=project[0], item_type='project' ) }}" style="color: red;">Delete</a></li>
+                              </ul>
+                              <!-- EDIT PROJECT -->
+                              <div class="modal fade" id="edit{{project[0]}}Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                  <form action="{{ url_for('edit', item_type='project') }}" method="post">
+                                    <div class="modal-content">
+                                      <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">New Project</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                      </div>
+                                      <div class="modal-body">
+                                        <div class="row g-3">
+                                          <div class="col-3">
+                                            <input type="text" class="form-control" placeholder="ID" value="{{project[0]}}" name="id" readonly>
                                           </div>
-                                          <div class="modal-body">
-                                            <div class="row g-3">
-                                              <div class="col-3">
-                                                <input type="text" class="form-control" placeholder="ID" value="{{project[0]}}" name="id" readonly>
-                                              </div>
-                                              <div class="col-9">
-                                                <input type="text" class="form-control" placeholder="Project Name" value="{{project[2]}}" name="project_name">
-                                              </div>
-                                              <div class="row g-3">
-                                                <div class="col" style="padding: 0;">
-                                                  <input type="text" class="form-control" placeholder="Client Name" value="{{project[1]}}" name="client_name">
-                                                </div>
-                                              </div>
-                                              <div class="row g-3">
-                                                <div class="col" style="padding: 0;">
-                                                  <select class="form-select" aria-label="Default select example" required name="responsible_id">
-                                                    {% for employee in db.select_all("v_employees") %}
-                                                      {% if employee[0] == project[3] %}
-                                                      <option selected disabled value="">{{ employee[3] }}</option>
-                                                      {% else %}
-                                                      <option value="{{employee[0]}}">{{ employee[3] }}</option>
-                                                      {% endif %}
-                                                    {% endfor %}}
-                                                  </select>
-                                                </div>
-                                              </div>
+                                          <div class="col-9">
+                                            <input type="text" class="form-control" placeholder="Project Name" value="{{project[2]}}" name="project_name">
+                                          </div>
+                                          <div class="row g-3">
+                                            <div class="col" style="padding: 0;">
+                                              <input type="text" class="form-control" placeholder="Client Name" value="{{project[1]}}" name="client_name">
                                             </div>
                                           </div>
-                                          <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-primary">Save</button>
+                                          <div class="row g-3">
+                                            <div class="col" style="padding: 0;">
+                                              <select class="form-select" aria-label="Default select example" required name="responsible_id">
+                                                {% for employee in db.select_all("v_employees") %}
+                                                  {% if employee[0] == project[3] %}
+                                                  <option selected disabled value="">{{ employee[3] }}</option>
+                                                  {% else %}
+                                                  <option value="{{employee[0]}}">{{ employee[3] }}</option>
+                                                  {% endif %}
+                                                {% endfor %}}
+                                              </select>
+                                            </div>
                                           </div>
                                         </div>
-                                      </form>
+                                      </div>
+                                      <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        <button type="submit" class="btn btn-primary">Save</button>
+                                      </div>
                                     </div>
-                                  </div>
+                                  </form>
                                 </div>
-                              </td>
-                            </tr>
-                          {% endfor %}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
                 </div>
               </div>
+            </div>
+          </div>
         </div>
       </div>
       {% include "side-admin.html" %}

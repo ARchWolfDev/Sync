@@ -26,7 +26,7 @@
                       <img class="image" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=employee[0])[0][0])}}" alt="avatar-img" style="width: 100%;">
                       <div class="overlay">
                         <h5 class="profile-name">{{employee[1]}} {{employee[2]}}</h5>
-                        <a role="button" href="{{url_for('profile', id=employee[0])}}" class="btn btn-outline-secondary btn-sm profile-button">View</a>
+                        <a onclick="loader()" role="button" href="{{url_for('profile', id=employee[0])}}" class="btn btn-outline-secondary btn-sm profile-button">View</a>
                       </div>
                     </div>
                   </div>

@@ -2,25 +2,25 @@
 <div class="col-lg-9">
     <ul class="nav nav-pills mb-3 control-button" id="pills-tab" role="tablist">
       <li class="nav-item" role="presentation">
-        <a class="nav-link {% if active_tab == 'dashboard' %}active{% endif %}" href="{{url_for('admin', id='dashboard')}}">Dashboard</a>
+        <a onclick="loader()" class="nav-link {% if active_tab == 'dashboard' %}active{% endif %}" href="{{url_for('admin', id='dashboard')}}">Dashboard</a>
       </li>
       <li class="nav-item" role="presentation">
-        <a class="nav-link {% if active_tab == 'my-team' %}active{% endif %}" href="{{url_for('admin', id='my-team')}}">My Team</a>
+        <a onclick="loader()" class="nav-link {% if active_tab == 'my-team' %}active{% endif %}" href="{{url_for('admin', id='my-team')}}">My Team</a>
       </li>
       <li class="nav-item" role="presentation">
-        <a class="nav-link {% if active_tab == 'projects' %}active{% endif %}" href="{{url_for('admin', id='projects')}}">Projects</a>
+        <a onclick="loader()" class="nav-link {% if active_tab == 'projects' %}active{% endif %}" href="{{url_for('admin', id='projects')}}">Projects</a>
       </li>
       <li class="nav-item" role="presentation">
-        <a class="nav-link {% if active_tab == 'requests' %}active{% endif %}" href="{{url_for('admin', id='requests')}}">Requests</a>
+        <a onclick="loader()" class="nav-link {% if active_tab == 'requests' %}active{% endif %}" href="{{url_for('admin', id='requests')}}">Requests</a>
       </li>
       <li class="nav-item" role="presentation">
-        <a class="nav-link {% if active_tab == 'tasks' %}active{% endif %}" href="{{url_for('admin', id='tasks')}}">Tasks</a>
+        <a onclick="loader()" class="nav-link {% if active_tab == 'tasks' %}active{% endif %}" href="{{url_for('admin', id='tasks')}}">Tasks</a>
       </li>
       <li class="nav-item" role="presentation">
-        <a class="nav-link {% if active_tab == 'roles' %}active{% endif %}" href="{{url_for('admin', id='roles')}}">Roles</a>
+        <a onclick="loader()" class="nav-link {% if active_tab == 'roles' %}active{% endif %}" href="{{url_for('admin', id='roles')}}">Roles</a>
       </li>
       <li class="nav-item" role="presentation">
-        <a class="nav-link {% if active_tab == 'profiles' %}active{% endif %}" href="{{url_for('admin', id='profiles')}}">Profiles</a>
+        <a onclick="loader()" class="nav-link {% if active_tab == 'profiles' %}active{% endif %}" href="{{url_for('admin', id='profiles')}}">Profiles</a>
       </li>
       <li class="nav-item dropdown create-btn">
         <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="fa-solid fa-plus"></i>
