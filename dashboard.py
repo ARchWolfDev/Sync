@@ -1,161 +1,91 @@
 from database_connection import Database
-import json
 from mycalendar import Calendar
+import json
 import pandas as pd
-
-db = Database()
-calendar = Calendar()
+import calendar
 
 
-class Dashboard:
+class Dashboard(Calendar, Database):
 
-    def __init__(self, filter_by=0):
-        self.filter = filter_by
-        self.list = self.List(self.filter)
-        self.count = self.Count(self.filter)
+    def __init__(self, filter_by):
+        super().__init__()
+        self.select_month(filter_by)
+        self.date = f"{self.year}-{self.month}"
+        self.month_name = calendar.month_name[self.month]
 
-    class List:
+    def all_employees_count(self):
+        """All employees count until a specified date"""
+        employees_number = self.Select("v_employees").where(operator="<=", hire_date=f"{self.date}%")
+        employees_count = len(employees_number)
+        return employees_count
 
-        def __init__(self, filter_by):
-            self.filter_by = filter_by
-            if type(self.filter_by) == dict:
-                self.filter_on = True
-                for key, value in self.filter_by.items():
-                    new_value = f"{value}"
-                    self.filter_by[key] = new_value.replace("[", "(").replace("]", ")")
+    def hired_on_selected_month(self):
+        """All employees that has been hired on selected month"""
+        employees_number = self.Select("v_employees").where(operator="like", hire_date=f"{self.date}%")
+        employees_count = len(employees_number)
+        return employees_count
 
-        def employee(self):
-            date = ""
-            try:
-                date = self.filter_by['date']
-                del self.filter_by['date']
-            except:
-                pass
-            data = db.Select("v_employees").where(condition=self.filter_by)[0]
-            data_list = [x[3] for x in data]
-            data_list2 = json.dumps(data_list)
-            if len(data) > 0:
-                self.filter_by['date'] = date
-            return data_list2
+    def percent_by_department(self, department_id):
+        all_employees_count = self.Select("v_employees").count()
+        employees_from_department = len(self.Select("v_employees").where(department_id=department_id))
+        percent = (employees_from_department/all_employees_count) * 100
+        return round(percent)
 
-        def timesheet(self):
-            """ Return a list from timesheet table for Timesheet CHART"""
-            date = ""
-            try:
-                date = self.filter_by['date']
-                del self.filter_by['date']
-            except:
-                pass
-            tsc = []
-            data = db.Select("v_employees").where(condition=self.filter_by)[0]
-            for _ in data:
-                ts_data = db.Select("v_req_timesheet").where(user_id=_[0], date=date)
-                percent = (len(ts_data) / calendar.business_days()) * 100
-                tsc.append(int(round(percent, 0)))
-            if len(data) > 0:
-                self.filter_by['date'] = date
-            return tsc
+    def month_in_progres(self):
+        percent = (self.day / self.business_days()) * 100
+        return round(percent)
 
-        def average_timesheet(self):
-            try:
-                print(self.filter_by["date"])
-            except:
-                self.filter_by['date'] = f"{calendar.date_format('yyyy-mm')}-%"
-            data = db.Select("v_req_timesheet").where(condition=self.filter_by)[0]
-            completed = int(round((len(data) / calendar.business_days()) * 100, 0))
-            not_completed = 100 - completed
-            average_list = [completed, not_completed]
-            return average_list
+    def employee_list(self):
+        """ Return a list of all employees in json type for Timesheet CHART"""
+        all_employees = self.Select("v_employees").where(operator="<=", hire_date=f"{self.date}%")
+        data_list = [x[3] for x in all_employees]
+        return json.dumps(data_list)
 
-        def projects(self):
-            name_project_list = []
-            projects = db.Select("t_projects").all()
+    def timesheet_completed_list(self):
+        """ Return a list from timesheet for all employees table for Timesheet CHART """
+        tsc = []
+        employees = self.Select("v_employees").where(operator="<=", hire_date=f"{self.date}%")
+        for _ in employees:
+            ts_data = self.Select("v_req_timesheet").where(user_id=_[0], date=f"{self.date}%")
+            percent = (len(ts_data) / self.business_days()) * 100
+            tsc.append(round(percent))
+        return tsc
 
-            for name in projects:
-                name_project_list.append(name[2])
-            return json.dumps(name_project_list)
+    def departments_list(self):
+        all_departments = self.Select("t_departments").all()
+        departments_list = [dep[1] for dep in all_departments]
+        return json.dumps(departments_list)
 
-    class Count:
+    def percent_by_department_chart(self):
+        percent_list = []
+        all_departments = self.Select("t_departments").all()
+        for x in all_departments:
+            percent = self.percent_by_department(x[0])
+            percent_list.append(percent)
+        return percent_list
 
-        def __init__(self, filter_by):
+    def timesheet_count(self, status):
+        date = f"{self.date}%"
+        data = self.Select("v_req_timesheet").where(date=date, status=status)
+        return len(data)
 
-            self.filter_by = filter_by
-            if type(self.filter_by) == dict:
-                self.filter_on = True
-                for key, value in self.filter_by.items():
-                    new_value = f"{value}"
-                    self.filter_by[key] = new_value.replace("[", "(").replace("]", ")")
+    def average_timesheet(self):
+        all_requests = self.Select("v_req_timesheet").where(operator="like", date=f"{self.date}%")
+        per_employees = len(all_requests) / self.Select("v_employees").count()
+        completed = round((per_employees / self.business_days()) * 100)
+        not_completed = 100 - completed
+        average_list = [completed, not_completed]
+        return average_list
 
-        def projects(self):
-            project_filter = self.filter_by
-            projects = db.Select("t_projects").all()
-            percent_project_list = []
-
-            for project in projects:
-                project_filter['project_id'] = project[0]
-                data = db.Select("v_req_timesheet").where(condition=project_filter)[0]
-                project_count = len(data)
-                all_inputs = db.Select("v_req_timesheet").count()
-                if all_inputs == 0:
-                    percent = (project_count / 1) * 100
-                else:
-                    percent = (project_count / all_inputs) * 100
-                percent_project_list.append(round(percent))
-            del project_filter['project_id']
-            return percent_project_list
-
-        def timesheet(self, status):
-            timesheet_filter = self.filter_by
-            timesheet_filter['status'] = status
-            try:
-                print(timesheet_filter["date"])
-            except:
-                timesheet_filter['date'] = f"{calendar.date_format('yyyy-mm')}-%"
-            data = db.Select("v_req_timesheet").where(condition=timesheet_filter)[0]
-            del timesheet_filter['status']
-            return len(data)
-
-        def timeoff(self, status, id):
-            time_off_filter = self.filter_by
-            time_off_filter['status'] = status
-            try:
-                time_off_filter['start_date'] = time_off_filter["date"]
-                del time_off_filter["date"]
-            except:
-                time_off_filter['start_date'] = f"{calendar.date_format('yyyy-mm')}-%"
-
-            if id == "other":
-                time_off_filter['type_id'] = "n('AN', 'MD')"
-                data = db.Select("v_req_time_off").where(condition=time_off_filter)[0]
-            elif id == "all":
-                data = db.Select("v_req_time_off").where(condition=time_off_filter)[0]
-            else:
-                time_off_filter['type_id'] = id
-                data = db.Select("v_req_time_off").where(condition=time_off_filter)[0]
-            try:
-                del time_off_filter['type_id']
-            except KeyError:
-                pass
-            del time_off_filter['status']
-            time_off_filter['date'] = time_off_filter['start_date']
-            del time_off_filter['start_date']
-
-            return len(data)
-
-        def requests(self, status):
-            data = db.Select("v_req_tickets").where(status=status)
-            return len(data)
-
-
-    def calendar(self, day):
+    def people_off_in_calendar(self, day):
         date_list = []
-        date_y_m = calendar.date_format("yyyy-mm")
+        date_y_m = self.date
         if len(str(day)) == 1:
             day = f"0{day}"
         else:
             day = day
         complete_current_date = f"{date_y_m}-{day}"
-        db_dates = db.Select("v_req_time_off").all()
+        db_dates = self.Select("v_req_time_off").all()
         for db_dt in db_dates:
             if db_dt[8] == 2:
                 date_range = pd.date_range(db_dt[5], db_dt[6])
@@ -166,19 +96,3 @@ class Dashboard:
             return True
         else:
             return False
-
-    def off_today(self):
-        off_list = []
-        users = db.Select("v_employees").all()
-
-        for user in users:
-            off = calendar.timeoff_days(user[0], calendar.day)
-            if off:
-                off_list.append(user[3])
-        return off_list
-
-
-    def role_department(self, department_id):
-        data = db.Select("t_roles").where(department_id=department_id)
-        name = [x[1] for x in data]
-        return name

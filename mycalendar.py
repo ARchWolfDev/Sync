@@ -3,6 +3,7 @@ import datetime as dt
 import numpy as np
 from database_connection import CURSOR, Database
 import pandas as pd
+from pytz import timezone
 
 db = Database()
 
@@ -11,6 +12,7 @@ class Calendar:
 
     def __init__(self):
         calendar.setfirstweekday(calendar.SUNDAY)
+        dt.datetime.now(timezone('CET'))
         self.day = dt.datetime.now().day
         self.month = dt.datetime.now().month
         self.year = dt.datetime.now().year
@@ -151,6 +153,16 @@ class Calendar:
                 return 'background-color: #ccffcc;'
             elif status == 3:
                 return 'background-color: #ffcccc;'
+
+    def off_today(self):
+        off_list = []
+        users = db.Select("v_employees").all()
+
+        for user in users:
+            off = self.timeoff_days(user[0], self.day)
+            if off:
+                off_list.append(user[3])
+        return off_list
 
 
 def select_month(year, month):

@@ -21,110 +21,136 @@
       <!-- Information -->
       <div class="col-lg-9">
         <div class="container">
+          <div class="row mb-3 ">
+            {% if db2.Select("v_req_tickets").where(status=1, assigned_id=user['id']) %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin: 0px">
+              <strong>Ticket assigned to you!</strong> You have a new ticket assigned to you. Please check the Requests Tab.
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endif %}
+          </div>
           <!--filter start-->
-          <form action="{{ url_for('admin', id='dashboard') }}" method="post" >
-            <div class="row mb-3">
-              <div class="col char" style="padding: 15px;">
-                <!--Departments-->
-                <div class="btn-group">
-                  <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Department
-                  </button>
-                  <ul class="dropdown-menu" style="padding: 10px;">
-                    {% for dep in db.select_all("t_departments") %}
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="{{dep[0]}}" name="department" id="DepartmentCheck" {% if dep[0] in filter['department_id'] %} checked {% endif %}>
-                      <label class="form-check-label" for="DepartmentCheck">
-                        {{dep[1]}}
-                      </label>
-                    </div>
-                    {% endfor %}
-                  </ul>
-                </div>
-                <!--Date-->
-                <div class="btn-group">
-                  <button class="btn btn-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Month
-                  </button>
-                  <ul class="dropdown-menu" style="padding: 10px;">
-                    <input type="month" placeholder="Month" name="date" value="{{cal.year}}-{{cal.day}}">
-                  </ul>
-                </div>
-                <div style="float:right;">
-                  <button type="submit" class="btn btn-primary btn-sm"><i class="fa-solid fa-filter"></i>Apply Filter</button>
-                </div>
-              </div>
+          <form class="row mb-3" action="{{ url_for('admin', id='dashboard') }}" method="post">
+            <div class="col-md-2 offset-md-9" style="padding:0;">
+              <input type="month" class="form-control" value="{{dash.year}}-{% if dash.month|string|length == 1 %}0{{dash.month}}{%else%}{{dash.month}}{%endif%}" name="date" style="background: #ddd;">
+            </div>
+            <div class="col-1" style="text-align: center;">
+              <button onclick="loader()" type="submit" class="btn btn-light"><i class="fa-solid fa-check"></i></button>
             </div>
           </form>
+          <!-- Employees count/info -->
           <div class="row mb-3">
-            <div class="col char" style="background-color:#ffeb99">
-              <h5><i class="fa-solid fa-hourglass-end"></i> Pending</h5>
-              <hr style="margin: 10px 0px">
-              <p class="dash-p">Timesheet <strong style="float:right;">{{dash.count.timesheet(1)}}</strong></p>
-              <p class="dash-p">Time off <strong style="float:right;">{{dash.count.timeoff(1, 'all')}}</strong></p>
-              <p class="dash-p">&bull; Annual <strong style="float:right;">{{dash.count.timeoff(1, 'AN')}}</strong></p>
-              <p class="dash-p">&bull; Medical <strong style="float:right;">{{dash.count.timeoff(1, 'MD')}}</strong></p>
-              <p class="dash-p">&bull; Other <strong style="float:right;">{{dash.count.timeoff(1, 'other')}}</strong></p>
+            <div class="col-3">
+              <div class="col char" style="margin: 0px 0px 10px 0px;">
+              <h5><i class="fa-solid fa-users"></i> All employees</h5>
+                <h1>
+                  {{dash.all_employees_count()}}
+                </h1><p>employees until {{dash.month_name}} {{dash.year}}</p>
+              </div>
+              <div class="col char" style="margin: 10px 0px 0px 0px;">
+              <h5><i class="fa-solid fa-user-plus"></i> Hired this month</h5>
+                <h1>
+                  {{ dash.hired_on_selected_month() }}
+                </h1><p>employees hired in {{dash.month_name}} {{dash.year}}</p>
+              </div>
             </div>
-            <div class="col char" style="background-color:#99ff99">
-              <h5><i class="fa-solid fa-check"></i> Approved</h5>
-              <hr style="margin: 10px 0px">
-              <p class="dash-p">Timesheet <strong style="float:right;">{{dash.count.timesheet(2)}}</strong></p>
-              <p class="dash-p">Time off <strong style="float:right;">{{dash.count.timeoff(2, 'all')}}</strong></p>
-              <p class="dash-p">&bull; Annual <strong style="float:right;">{{dash.count.timeoff(2, 'AN')}}</strong></p>
-              <p class="dash-p">&bull; Medical <strong style="float:right;">{{dash.count.timeoff(2, 'MD')}}</strong></p>
-              <p class="dash-p">&bull; Other <strong style="float:right;">{{dash.count.timeoff(2, 'other')}}</strong></p>
+            <div class="col char">
+              <h5>Open Departments</h5>
+                <ul class="list-group">
+                  {% for department in db2.Select("t_departments").all() %}
+                  <li class="list-group-item">{{department[1]}} <p style="margin: 0px; float: right;">{{db2.Select("v_employees").where(department_id=department[0])|length}} <i class="fa-solid fa-users"></i></p>
+                    <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="{{dash.percent_by_department(department[0])}}" aria-valuemin="0" aria-valuemax="100">
+                      <div class="progress-bar" style="width: {{dash.percent_by_department(department[0])}}%"></div>
+                    </div>
+                  </li>
+                  {% endfor %}
+                </ul>
             </div>
-            <div class="col char" style="background-color:#ff9999">
-              <h5><i class="fa-solid fa-x"></i> Rejected</h5>
+            <div class="col-3 char">
+              <h5>
+                Average departments
+              </h5>
               <hr style="margin: 10px 0px">
-              <p class="dash-p">Timesheet <strong style="float:right;">{{dash.count.timesheet(3)}}</strong></p>
-              <p class="dash-p">Time off <strong style="float:right;">{{dash.count.timeoff(3, 'all')}}</strong></p>
-              <p class="dash-p">&bull; Annual <strong style="float:right;">{{dash.count.timeoff(3, 'AN')}}</strong></p>
-              <p class="dash-p">&bull; Medical <strong style="float:right;">{{dash.count.timeoff(3, 'MD')}}</strong></p>
-              <p class="dash-p">&bull; Other <strong style="float:right;">{{dash.count.timeoff(3, 'other')}}</strong></p>
-            </div>
-            <div class="col-lg-3 char">
-              <h5>Most Projects</h5>
-              <hr style="margin: 10px 0px">
-              {% if db2.Select("t_projects").all()|length == 0 %}
-              <h6 style="padding: 25%;">No projects yet</h6>
-              {% else %}
-              <canvas id="myPieChart" style="width:100%; height:200px"></canvas>
+              <canvas id="polar-chart" width="100%" height="100%"></canvas>
               <script>
-                var xValues = {{dash.list.projects()|safe}};
-                var yValues = {{dash.count.projects()}};
-                var barColors = [
-                  "#58508d",
-                  "#bc5090",
-                  "#ff6361",
-                  "#ffa600",
-                  "#251749"
-                ];
-
-                new Chart("myPieChart", {
-                  type: "pie",
-                  data: {
-                    labels: xValues,
-                    datasets: [{
-                      backgroundColor: barColors,
-                      data: yValues
-                    }]
-                  },
-                  options: {
-                    legend: {display: false},
-                  }
+                new Chart(document.getElementById("polar-chart"), {
+                    type: 'polarArea',
+                    data: {
+                      labels: {{dash.departments_list()|safe}},
+                      datasets: [
+                        {
+                          label: "Population (millions)",
+                          backgroundColor: ["#3e95cd", "#8e5ea2","#3cba9f","#e8c3b9","#c45850"],
+                          data: {{dash.percent_by_department_chart()}}
+                        }
+                      ]
+                    },
+                    options: {
+                      title: {
+                        display: false,
+                        text: 'Predicted world population (millions) in 2050'
+                      },
+                      legend: {
+                        display: false
+                      }
+                    }
                 });
-                </script>
-                {% endif %}
+              </script>
+            </div>
+          </div>
+<!--          <div class="row mb-3">-->
+<!--            <div class="col char">-->
+<!--              <canvas id="EmployeeChart" style="width: 100%; max-height: 300px;"></canvas>-->
+<!--              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
+<!--              <script>-->
+<!--                const ctx = document.getElementById('EmployeeChart');-->
+
+<!--                new Chart(ctx, {-->
+<!--                  type: 'bar',-->
+<!--                  data: {-->
+<!--                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'Spetember', 'October', 'November', 'December'],-->
+<!--                    datasets: [{-->
+<!--                      label: 'Number of Employees by Month',-->
+<!--                      data: [12, 19, 3, 5, 2, 3],-->
+<!--                      borderWidth: 1-->
+<!--                    }]-->
+<!--                  },-->
+<!--                  options: {-->
+<!--                    scales: {-->
+<!--                      y: {-->
+<!--                        beginAtZero: true-->
+<!--                      }-->
+<!--                    }-->
+<!--                  }-->
+<!--                });-->
+<!--              </script>-->
+<!--            </div>-->
+<!--          </div>-->
+          <!-- Timesheet info -->
+          <div class="row mb-3 char">
+            <h5 style="padding:0px;" >{{dash.month_name}} in progress</h5>
+            <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="{{dash.month_in_progres()}}" aria-valuemin="0" aria-valuemax="100" style="padding:0px">
+              <div class="progress-bar" style="width: {{dash.month_in_progres()}}%"></div>
+            </div>
+          </div>
+          <div class="row mb-3 char">
+            <h5 style="padding: 0px">Timesheet</h5>
+            <div class="col char" style="background-color: #ffeb99;">
+              <h5><i class="fa-solid fa-hourglass-end"></i> Pending requests <strong style="float:right;">{{dash.timesheet_count(1)}}</strong></h5>
+            </div>
+            <div class="col char" style="background-color: #99ff99;">
+              <h5><i class="fa-solid fa-check"></i> Approved requests <strong style="float:right;">{{dash.timesheet_count(2)}}</strong></h5>
+            </div>
+            <div class="col char" style="background-color: #ff9999;">
+              <h5><i class="fa-solid fa-x"></i> Rejected requests <strong style="float:right;">{{dash.timesheet_count(3)}}</strong></h5>
             </div>
           </div>
           <div class="row mb-3">
             <div class="col char" style="width: 50%">
               <canvas id="myChart" style="width:100%; max-height: 300px;"></canvas>
               <script type="text/javascript">
-                var xValues = {{dash.list.employee()|safe}};
-                var yValues = {{dash.list.timesheet()}};
+                var xValues = {{dash.employee_list()|safe}};
+                var yValues = {{dash.timesheet_completed_list()}};
                 var barColors = "#58508d";
 
                 new Chart("myChart", {
@@ -132,16 +158,18 @@
                   data: {
                     labels: xValues,
                     datasets: [{
+                      label: 'Timesheet completed for {{dash.month_name}} {{dash.year}}',
                       backgroundColor: barColors,
                       data: yValues
                     }]
                   },
                   options: {
-                    legend: {display: false},
+                    legend: {display: true},
                     scales: {
                       yAxes: [{
                         ticks: {
-                          beginAtZero: true
+                          beginAtZero: true,
+                          max: 100
                         }
                       }],
                     }
@@ -155,7 +183,7 @@
               <canvas id="myAverageChart" style="width:100%; height:200px"></canvas>
               <script>
                 var xValues = ["Completed", "Not Completed"];
-                var yValues = {{dash.list.average_timesheet()}};
+                var yValues = {{dash.average_timesheet()}};
                 var barColors = [
                   "green",
                   "#ffeb99",
@@ -174,23 +202,28 @@
                     }]
                   },
                   options: {
-                    legend: {display: false},
+                    legend: {display: true},
                   }
                 });
                 </script>
             </div>
           </div>
+          <!-- Time Off information.  -->
           <div class="row mb-3">
-            <div class="col char" style="border:solid; border-color: #ff9933;;">
-              <h5 style="margin:0">Pending requests <strong style="float:right">{{dash.count.requests(1)}}</strong></h5>
+            <div class="col-4 char" >
+              <h5>New Time off requests</h5>
+              {% if db2.Select("v_req_time_off").where(status=1)|length == 0 %}
+              <h6 style="padding: 25%;">No new Time Off requests</h6>
+              {% else %}
+              <ul class="list-group">
+                {% for off in db2.Select("v_req_time_off").where(status=1) %}
+                  <li class="list-group-item" style="background-color: #ffeb99;">{{off[4]}} create a new {{off[2]}} request</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
             </div>
-            <div class="col char" style="border:solid; border-color: green;">
-              <h5 style="margin:0">Done requests <strong style="float:right">{{dash.count.requests(2)}}</strong></h5>
-            </div>
-          </div>
-          <div class="row mb-3">
             <div class="col char">
-              <h5 class="title">Time off {{cal.month_name}} {{cal.year}}</h5>
+              <h5 class="title">Time off {{dash.month_name}} {{dash.year}}</h5>
               <div class="row week">
                 <div class="col">Sun</div>
                 <div class="col">Mon</div>
@@ -200,7 +233,7 @@
                 <div class="col">Fri</div>
                 <div class="col">Sat</div>
               </div>
-              {% for week in cal.current_month %}
+              {% for week in dash.month_selected %}
               <div  style="max-height: 50px;" class="row days">
                 {% for day in week %}
                   {% if day == 0 %}
@@ -210,7 +243,7 @@
                   {% else %}
                     <div class="col day" type="button" data-bs-toggle="modal" data-bs-target="#Modal{{day}}" style="max-height: 50px;">{{ day }}
                       <div>
-                        <h6 style="font-size:.8rem; text-align: left;">{% if dash.calendar(day) %}People off {% endif %}</h6>
+                        <h6 style="font-size:.8rem; text-align: left;">{% if dash.people_off_in_calendar(day) %}People off {% endif %}</h6>
                       </div>
                     </div>
                   {% endif %}
@@ -219,7 +252,7 @@
                       <div class="modal-dialog modal-lg modal-dialog-centered">
                         <div class="modal-content">
                           <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel" >{{day}}/{{cal.month}}/{{cal.year}}</h1>
+                            <h1 class="modal-title fs-5" id="exampleModalLabel" >{{day}}/{{dash.month}}/{{dash.year}}</h1>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
                           <div class="modal-body">
@@ -257,14 +290,6 @@
                   </div>
                 {% endfor %}
               </div>
-              {% endfor %}
-            </div>
-            <div class="col-lg-3" style="padding:0;">
-              {% for off in dash.off_today() %}
-                <div class="char mb-3" style="background-color:#ff9933">
-                  <h5>{{off}}</h5>
-                  <p style="margin:0;">Off Today</p>
-                </div>
               {% endfor %}
             </div>
           </div>

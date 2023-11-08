@@ -54,6 +54,12 @@
               </div>
             </div>
           </div>
+          {% for off in cal.off_today() %}
+            <div class="char" style="background-color:#9ec5fe; margin: 20px 0px;">
+              <h5>{{off}}</h5>
+              <p style="margin:0;"><i class="fa-solid fa-business-time"></i> Off Today</p>
+            </div>
+          {% endfor %}
         </div>
       </div>
 {% endblock %}

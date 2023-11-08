@@ -13,6 +13,7 @@ import dashboard as dash
 import export_import
 import encoder
 import json
+from TEST_dashboard import Dashboard
 
 app = Flask(__name__)
 Bootstrap(app)
@@ -117,7 +118,7 @@ def index():
     avatar = db2.Select("t_emp_avatar").where(id=current_user.id)[0]
     date = request.form.get('date')
     cal.select_month(date)
-    print("date selected", date)
+    # print("date selected", date)
     return render_template("index.html", db=db, db2=db2, user=user, cal=cal, file=doc, avatar=avatar,
                            logged_in=current_user.is_authenticated)
 
@@ -129,8 +130,8 @@ def request_type(req_type):
     dict_req = {}
     for key, value in form_req:
         dict_req[key] = value
-    print(dict_req)
-    print(req_type)
+    # print(dict_req)
+    # print(req_type)
     db.Database().Insert(req_type=req_type, data=dict_req)
     nt.insert(current_user.id, req_type)
     db2.log_requests(current_user.id, req_type)
@@ -144,6 +145,8 @@ def request_type(req_type):
 def admin(id):
     admin_user = Auth(id=current_user.id).info()
     if admin_user['admin'] == 1 or admin_user['admin'] == 2:
+        month = request.form.get('date')
+        print("month selected", month)
         filter_by = {
             "department_id": request.form.getlist("department"),
             "date": f"{request.form.get('date')}-%".replace("['", "").replace("']", ""),
@@ -159,7 +162,9 @@ def admin(id):
                 final_filter[x] = filter_by[x]
         # print("final filter: ", final_filter)
         doc = files.get_file()
-        dashboard = dash.Dashboard(final_filter)
+        dashboard = dash.Dashboard(month)
+        # dash2 = Dashboard(month)
+        # print(dash2.date)
         avatar = db2.Select("t_emp_avatar").where(id=current_user.id)[0]
         return render_template(f'{id}.html', db=db, db2=db2, cal=cal, user=admin_user, file=doc, dash=dashboard,
                                avatar=avatar, nt=nt.read(), active_tab=id, filter=final_filter)
@@ -196,7 +201,7 @@ def create(item_type):
             dict_items[key] = value
         print(dict_items)
         print(item_type)
-    db.Database().Insert(req_type=item_type, data=dict_items)
+    db2.Insert(req_type=item_type, data=dict_items)
     flash("Request submitted!")
     url = request.referrer
     return redirect(url)

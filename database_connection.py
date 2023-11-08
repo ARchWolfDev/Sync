@@ -79,7 +79,7 @@ class Database:
                 else:
                     result = []
                     for k in kwargs:
-                        print("Kwargs", kwargs[k])
+                        # print("Kwargs", kwargs[k])
                         CURSOR.execute(self.multiplewhere(kwargs[k]))
                         result.append(CURSOR.fetchall())
                     return result
@@ -234,6 +234,7 @@ class Database:
                 "file_name": "images/avatar.png"
             }
             self.insert(user_avatar)
+            self.table = "t_employees"
             send_email.send_user_email(self.data['id'])
 
         def tasks(self):
@@ -253,9 +254,10 @@ class Database:
 
         def update_id(self):
             next_number_id = self.db.Select("cv_table_id").where(next_id=self.id)[0][2]
-            CURSOR.execute(f'''UPDATE ct_table_id SET last_number_id = '{next_number_id}' 
+            CURSOR.execute(f'''UPDATE ct_table_id SET last_number_id = {next_number_id}
                                                         WHERE table_name = '{self.table}'; ''')
             CONNECTION.commit()
+            print("ID updated!")
 
     class Update:
 
@@ -305,7 +307,7 @@ class Database:
                             'department_id': data['id'],
                             'task_list_id': key
                         }
-                        print(link_data)
+                        # print(link_data)
                         self.db.Insert(req_type="depLinkTasklist", data=link_data)
                         li.append(key)
 
@@ -313,7 +315,7 @@ class Database:
                 for x in li:
                     if x in data:
                         del data[x]
-                print(data)
+                # print(data)
 
                 # Update table with edited data.
                 self.update(data)
@@ -406,11 +408,11 @@ class Database:
                     db_message['message'] = f"{admin_name} rejected your Time Off Request."
             elif request_type == "tickets" and data[1] == str(2):
                 req_info = self.Select('v_req_tickets').where(id=data[0])
-                print(req_info)
+                # print(req_info)
                 db_message['receiver'] = req_info[0][1]
                 admin_name = self.Select("v_employees").where(id=user)[0][3]
                 db_message['message'] = f"{admin_name} resolved your ticket."
-                print(db_message)
+                # print(db_message)
             db_message['date'] = self.Select().current_timestamp()
 
         else:
@@ -423,7 +425,7 @@ class Database:
             db_message['message'] = f"Create a new {x} request."
             db_message['receiver'] = "Admins"
 
-        print(db_message)
+        # print(db_message)
         self.Insert("logReq", db_message)
 
 
