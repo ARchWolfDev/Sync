@@ -120,7 +120,7 @@ def index():
     cal.select_month(date)
     # print("date selected", date)
     return render_template("index.html", db=db, db2=db2, user=user, cal=cal, file=doc, avatar=avatar,
-                           logged_in=current_user.is_authenticated)
+                           logged_in=current_user.is_authenticated, active_meniu='index')
 
 
 @app.route("/request/<req_type>", methods=["POST"])
@@ -145,29 +145,12 @@ def request_type(req_type):
 def admin(id):
     admin_user = Auth(id=current_user.id).info()
     if admin_user['admin'] == 1 or admin_user['admin'] == 2:
-        month = request.form.get('date')
-        print("month selected", month)
-        filter_by = {
-            "department_id": request.form.getlist("department"),
-            "date": f"{request.form.get('date')}-%".replace("['", "").replace("']", ""),
-        }
-        # print(filter_by)
-        if filter_by["date"] == "None-%" or filter_by['date'] == "-%":
-            del filter_by['date']
-        if admin_user['admin'] == 2:
-            filter_by["manager_id"] = [admin_user['id']]
-        final_filter = {}
-        for x in filter_by:
-            if len(filter_by[x]) != 0:
-                final_filter[x] = filter_by[x]
-        # print("final filter: ", final_filter)
+        date = request.form.get('date')
         doc = files.get_file()
-        dashboard = dash.Dashboard(month)
-        # dash2 = Dashboard(month)
-        # print(dash2.date)
+        dashboard = dash.Dashboard(date)
         avatar = db2.Select("t_emp_avatar").where(id=current_user.id)[0]
         return render_template(f'{id}.html', db=db, db2=db2, cal=cal, user=admin_user, file=doc, dash=dashboard,
-                               avatar=avatar, nt=nt.read(), active_tab=id, filter=final_filter)
+                               avatar=avatar, nt=nt.read(), active_tab=id, active_meniu='admin')
     else:
         return redirect(url_for("index"))
 
@@ -184,6 +167,18 @@ def profile(id):
                            avatar=avatar,
                            nt=nt.read())
 
+@app.route("/search", methods=["GET", "POST"])
+@login_required
+def search():
+    name = request.args.get('name')
+    profile_id = db2.Select("v_employees").where(complete_name=name)[0][0]
+    user_profile = Auth(id=profile_id).info()
+    logged_user = Auth(id=current_user.id).info()
+    doc = files.get_file()
+    avatar = db2.Select("t_emp_avatar").where(id=current_user.id)[0]
+    return render_template('profile.html', db=db, db2=db2, user=logged_user, cal=cal, profile=user_profile, files=doc,
+                           avatar=avatar,
+                           nt=nt.read())
 
 @app.route("/create/<item_type>", methods=["POST"])
 @login_required

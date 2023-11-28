@@ -5,18 +5,6 @@
     <div class="row">
       {% include "admin_nav_tabs.html" %}
       {% include "create_button.html" %}
-      <!-- Search -->
-      <div class="col-lg-3">
-        <form class="d-flex search" role="search" action="" method="post">
-          <input class="form-control me-2" id="browser" type="search" name="browser" placeholder="Search" list="browserdata" aria-label="Search" autocomplete="off">
-          <button class="btn btn-outline-success" type="submit">Search</button>
-          <datalist id="browserdata">
-            {% for emp in db.select_all("v_employees") %}
-              <option value="{{emp[0]}}">{{ emp[3] }}</option>
-            {% endfor %}
-          </datalist>
-        </form>
-      </div>
       <!-- Information -->
       <div class="col-lg-9">
         <div class="col" style="margin:20px;">

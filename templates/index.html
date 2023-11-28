@@ -2,11 +2,10 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 <!-- Workspace -->
-    <div class="row workspace" style="margin-right: 10px;">
-      <div class="col-lg-9 col-md-12"  style="padding: 20px">
+    <div class="row mb-3" style="margin-top:20px;">
+      <div class="col-lg-9 col-sm-12">
         <!-- Calendar -->
-<!--          <h2 class="title" style="text-align: left; margin:20px;"> {{cal.month_name}} {{cal.year}}</h2>-->
-          <form class="row" action="{{ url_for('index') }}" method="post">
+        <form class="row" action="{{ url_for('index') }}" method="post">
             <div class="col-auto" style="padding: 0px;">
               <input type="month" class="form-control" value="{{cal.year}}-{% if cal.month|string|length == 1 %}0{{cal.month}}{%else%}{{cal.month}}{%endif%}" name="date" style="background: #ddd;">
             </div>
@@ -115,9 +114,9 @@
           {% endfor %}
         </div>
         {% endfor %}
-        <!-- END Modal for set the day -->
       </div>
-      <div class="col-lg-3 col-md-12 info-container">
+      <!-- END Calendar -->
+      <div id="aboutYou" class="col char">
         <h2 class="title" style="text-align: left; margin:20px;"><i class="fa-solid fa-circle-info"></i> About you</h2>
         <hr>
         <div class="table-responsive">
@@ -163,11 +162,10 @@
           </table>
         </div>
       </div>
-      <div class="col graph-chart" style="padding-right: 0;">
-        <div class="row row-chart">
-          <!-- Time Off -->
-          <div class="col" style="margin-right: 0;">
-            <div class="col chart">
+    </div>
+    <div class="row">
+        <div class="col-lg-9 col-sm-12">
+            <div class="col char" style="margin: 0;">
               <h5 style="text-align: left; margin: 10px 20px 0;"><i class="fa-solid fa-business-time"></i> Time off</h5>
               <hr style="margin-bottom: 0;">
             </div>
@@ -222,14 +220,12 @@
               </button>
             </div>
           </div>
-          <div class="col-lg-3 chart" style="margin-right: 0px;">
+        <div class="col char" style="text-align: center;">
             <h5  style="text-align: left; margin: 10px 20px 0;"><i class="fa-solid fa-calendar-day"></i> Timesheet completed</h5>
             <hr>
             <div class="pie animate no-round" style="--p:{{cal.timesheet_completed(user['id'])}};--c:green;"> {{cal.timesheet_completed(user['id'])}}%</div>
             <p>{{cal.month_name}} business days: {{cal.business_days()}}</p>
           </div>
-        </div>
       </div>
-    </div>
 {% endblock %}
 

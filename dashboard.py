@@ -1,3 +1,5 @@
+import datetime
+
 from database_connection import Database
 from mycalendar import Calendar
 import json
@@ -11,17 +13,18 @@ class Dashboard(Calendar, Database):
         super().__init__()
         self.select_month(filter_by)
         self.date = f"{self.year}-{self.month}"
+        self.date_yyyy_mm = self.date_format("yyyy-mm")
         self.month_name = calendar.month_name[self.month]
 
     def all_employees_count(self):
         """All employees count until a specified date"""
-        employees_number = self.Select("v_employees").where(operator="<=", hire_date=f"{self.date}%")
+        employees_number = self.Select("v_employees").where(operator="<=", hire_date=f"{self.date_yyyy_mm}%")
         employees_count = len(employees_number)
         return employees_count
 
     def hired_on_selected_month(self):
         """All employees that has been hired on selected month"""
-        employees_number = self.Select("v_employees").where(operator="like", hire_date=f"{self.date}%")
+        employees_number = self.Select("v_employees").where(operator="like", hire_date=f"{self.date_yyyy_mm}%")
         employees_count = len(employees_number)
         return employees_count
 
@@ -32,8 +35,22 @@ class Dashboard(Calendar, Database):
         return round(percent)
 
     def month_in_progres(self):
-        percent = (self.day / self.business_days()) * 100
-        return round(percent)
+        currtent = f"{datetime.datetime.now().year}-{datetime.datetime.now().month}"
+        if self.date == currtent:
+            percent = (self.day / self.business_days()) * 100
+            return round(percent)
+        elif self.date < currtent:
+            return 100
+        else:
+            return 0
+
+    def month_status(self):
+        if self.month_in_progres() == 100:
+            return '<span class="badge text-bg-success" style="float:right;">Completed</span>'
+        elif self.month_in_progres() < 100:
+            return '<span class="badge text-bg-secondary" style="float:right;">In progress</span>'
+        else:
+            return '<span class="badge text-bg-light" style="float:right;">Not started yer</span>'
 
     def employee_list(self):
         """ Return a list of all employees in json type for Timesheet CHART"""
@@ -44,9 +61,9 @@ class Dashboard(Calendar, Database):
     def timesheet_completed_list(self):
         """ Return a list from timesheet for all employees table for Timesheet CHART """
         tsc = []
-        employees = self.Select("v_employees").where(operator="<=", hire_date=f"{self.date}%")
+        employees = self.Select("v_employees").where(operator="<=", hire_date=f"{self.date}-%")
         for _ in employees:
-            ts_data = self.Select("v_req_timesheet").where(user_id=_[0], date=f"{self.date}%")
+            ts_data = self.Select("v_req_timesheet").where(user_id=_[0], date=f"{self.date}-%")
             percent = (len(ts_data) / self.business_days()) * 100
             tsc.append(round(percent))
         return tsc
@@ -70,7 +87,7 @@ class Dashboard(Calendar, Database):
         return len(data)
 
     def average_timesheet(self):
-        all_requests = self.Select("v_req_timesheet").where(operator="like", date=f"{self.date}%")
+        all_requests = self.Select("v_req_timesheet").where(operator="like", date=f"{self.date}-%")
         per_employees = len(all_requests) / self.Select("v_employees").count()
         completed = round((per_employees / self.business_days()) * 100)
         not_completed = 100 - completed
@@ -79,7 +96,7 @@ class Dashboard(Calendar, Database):
 
     def people_off_in_calendar(self, day):
         date_list = []
-        date_y_m = self.date
+        date_y_m = self.date_format("yyyy-mm")
         if len(str(day)) == 1:
             day = f"0{day}"
         else:

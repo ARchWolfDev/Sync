@@ -58,13 +58,20 @@ Body {
 }
 .card {
     margin: auto;
-    
+}
+.basic:hover {
+    box-shadow: 0 4px 90px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 .basic {
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    transition: .3s;
 }
 .custome {
-    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset, 0px 0px 3px 3px rgba(94, 23, 235, 0.4);
+    box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.075) inset, 0px 6px 20px 3px rgba(94, 23, 235, 0.4);
+    transition: .3s;
+}
+.custome:hover {
+    box-shadow: 0px 4px 90px rgba(0, 0, 0, 0.075) inset, 0px 6px 90px 3px rgba(94, 23, 235, 0.4);
 }
 
 .brand {

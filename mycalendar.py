@@ -30,7 +30,7 @@ class Calendar:
             x = args[0].split("-")
             year = int(x[0])
             month = int(x[1])
-            # print(year, month)
+            print(year, month)
             self.month = month
             self.year = year
             self.month_selected = calendar.monthcalendar(self.year, self.month)

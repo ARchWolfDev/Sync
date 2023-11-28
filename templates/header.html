@@ -8,11 +8,15 @@
   <div class="sidebar ">
     <div class="logo">
       <h1>Sync.</h1>
+      <button type="button" class="btn btn-sm-menu">Menu</button>
     </div>
     <div class="row sidebar-items">
       <div class="col sidebar-col">
         <div class="list-group sidebar-list" id="list-tab" role="tablist">
-          <a onclick="loader()" class="list-group-item list-group-item-action active" id="list-home-list" href="{{url_for('index')}}" role="tab"><i class="fa-solid fa-house"></i> Home</a>
+          <a onclick="loader()" class="list-group-item list-group-item-action {% if active_meniu == 'index' %}active{% endif %}" id="list-home-list" href="{{url_for('index')}}" role="tab"><i class="fa-solid fa-house"></i> Home</a>
+          {% if user['admin'] == 1 or user['admin'] == 2 %}
+            <a onclick="loader()" href="{{url_for('admin', id='dashboard')}}" class="admin {% if active_meniu == 'admin' %}active{% endif %}"><i class="fa-solid fa-star"></i> Admin</a>
+          {% endif %}
           <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#otherRequest"><i class="fa-solid fa-business-time"></i>Time Off</a>
           <div class="request-items">
             <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#pendingLeaveRequest"><i class="fa-solid fa-hourglass-end"></i> Pending
@@ -31,9 +35,6 @@
               class="badge text-bg-danger" style="float: right;">{{db2.Select("t_log_requests").where(receiver=user['id'])|length}}</span></a>
           <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#contactModal"><i class="fa-solid fa-address-book"></i> Contact</a>
           <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#settingsModal"><i class="fa-sharp fa-solid fa-gear"></i> Settings</a>
-          {% if user['admin'] == 1 or user['admin'] == 2 %}
-            <a onclick="loader()" href="{{url_for('admin', id='dashboard')}}" class="admin"><i class="fa-solid fa-star"></i> Admin</a>
-          {% endif %}
           <a onclick="loader()" class="list-group-item list-group-item-action" href="{{ url_for('logout') }}" role="tab"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a>
         </div>
       </div>
