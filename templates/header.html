@@ -5,7 +5,7 @@
     </div>
   {% endfor %}
   <!-- The sidebar -->
-  <div class="sidebar ">
+  <div class="sidebar">
     <div class="logo">
       <h1>Sync.</h1>
       <button type="button" class="btn btn-sm-menu">Menu</button>
@@ -25,14 +25,13 @@
           </div>
           <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#hrRequest"><i class="fa-sharp fa-solid fa-person"></i> Request</a>
           <div class="request-items">
-            <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#pendingRequest"><i class="fa-solid fa-hourglass-end"></i>
-              Pending<span
+            <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#pendingRequest"><i class="fa-solid fa-clock-rotate-left"></i>
+              History<span
               class="badge text-bg-warning" style="float: right;">{{db2.Select("v_req_tickets").where(user_id=user['id'], status=1)|length}}</span></a>
-            <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#doneRequest"><i class="fa-solid fa-check"></i> Done</a>
           </div>
           <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#documentModal"><i class="fa-solid fa-folder"></i> Documents</a>
-          <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#newsModal"><i class="fa-solid fa-envelope"></i> Inbox <span
-              class="badge text-bg-danger" style="float: right;">{{db2.Select("t_log_requests").where(receiver=user['id'])|length}}</span></a>
+          <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#newsModal"><i class="fa-solid fa-envelope"></i> Inbox
+            <span class="badge text-bg-danger" style="float: right;">{{db2.Select("t_log_requests").where(receiver=user['id'])|length}}</span></a>
           <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#contactModal"><i class="fa-solid fa-address-book"></i> Contact</a>
           <a class="list-group-item list-group-item-action" data-bs-toggle="modal" role="tab" data-bs-target="#settingsModal"><i class="fa-sharp fa-solid fa-gear"></i> Settings</a>
           <a onclick="loader()" class="list-group-item list-group-item-action" href="{{ url_for('logout') }}" role="tab"><i class="fa-solid fa-right-from-bracket"></i> Log Out</a>
@@ -59,11 +58,15 @@
             <div class="row mb-3">
               <div class="col" style="padding-left: 0;">
                 <label for="from" class="form-label">From:</label>
-                <input id="from" type="date" class="form-control" placeholder="dd/mm/yyyy" aria-label="First name" name="start_date">
+                <input id="from" type="date" class="form-control" placeholder="dd/mm/yyyy" name="start_date">
               </div>
-              <div class="col" style="padding-right: 0;">
+              <div class="col">
                 <label for="to" class="form-label">To:</label>
                 <input id="to" type="date" class="form-control" placeholder="dd/mm/yyyy" aria-label="Last name" name="end_date">
+              </div>
+              <div class="col-2" style="padding-right: 0;">
+                <label for="days" class="form-label">Days</label>
+                <input id="days" type="text" class="form-control" value="0" readonly>
               </div>
             </div>
             <div class="mb-3">
@@ -154,11 +157,7 @@
               </thead>
               <tbody>
               {% for toff in db2.Select("v_req_time_off").where(user_id=user['id'], status="(3, 2)") %}
-              {% if toff[8] == 2 %}
-                <tr class="table-success">
-              {% elif toff[8] == 3 %}
-                <tr class="table-danger">
-              {% endif %}
+                <tr class="table">
                   <th scope="row">{{toff[2]}}</th>
                   <td>{{toff[5]}}</td>
                   <td>{{toff[6]}}</td>
@@ -213,20 +212,28 @@
       </div>
     </div>
   </form>
-  <!-- Pending Tickets MODAL-->
+  <!-- History Tickets MODAL-->
   <form>
     <div class="modal fade" id="pendingRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-dialog modal-dialog-centered modal-xl">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5">Pending Tickets Requests</h1>
+            <h1 class="modal-title fs-5">History Tickets Requests</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            {% if db2.Select("v_req_tickets").where(user_id=user['id'], status=1)|length == 0 %}
-            <h6 style="padding: 30px;">Nothing in pending</h6>
+            <div class="col-3">
+              <select class="form-select" id="requestsFilter">
+                <option selected disabled>Filter by Status</option>
+                <option value="0">All</option>
+                <option value="1">Pending</option>
+                <option value="6">Done</option>
+              </select>
+            </div>
+            {% if db2.Select("v_req_tickets").where(user_id=user['id'])|length == 0 %}
+            <h6 style="padding: 30px;">No tickets requests</h6>
             {% else %}
-            <table class="table table-hover">
+            <table class="table" id="requestsTable">
               <thead>
                 <tr>
                   <th scope="col">Title</th>
@@ -235,56 +242,18 @@
                   <th scope="col">Status</th>
                 </tr>
               </thead>
-              <tbody>
-              {% for toff in db2.Select("v_req_tickets").where(user_id=user['id'], status=1) %}
+              <tbody id="requestTable">
+              {% for toff in db2.Select("v_req_tickets", order=True, asc=False).where(user_id=user['id'])%}
                 <tr>
                   <th scope="row">{{toff[3]}}</th>
                   <td>{{toff[4]}}</td>
                   <td>{{toff[6]}}</td>
-                  <td>{{db2.Select("ct_status").where(id=toff[7])[0][1]}}</td>
+                  <td id="status"><span class="badge">{{toff[7]}}</span></td>
                 </tr>
               {% endfor %}
               </tbody>
             </table>
             {% endif %}
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </form>
-  <!-- Done Tickets MODAL-->
-  <form>
-    <div class="modal fade" id="doneRequest" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5">Done Tickets Requests</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <table class="table table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">Title</th>
-                  <th scope="col">Note</th>
-                  <th scope="col">Assigned</th>
-                  <th scope="col">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-              {% for toff in db2.Select("v_req_tickets").where(user_id=user['id'], status=2) %}
-                <tr>
-                  <th scope="row">{{toff[3]}}</th>
-                  <td>{{toff[4]}}</td>
-                  <td>{{toff[6]}}</td>
-                  <td>Done</td>
-                </tr>
-              {% endfor %}
-              </tbody>
-            </table>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -306,8 +275,9 @@
             <div class="row mb-3">
               {%for fi in db2.Select("t_emp_doc").where(user_id=user['id'])%}
               <div class="col-3 chart" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);">
+                <div class="row"><button type="button" class="btn-close" aria-label="Close" style="margin: 0 0 0 85%;" data-bs-toggle="modal" data-bs-target="#{{fi[0]}}Modal"></button></div>
                 <i class="fa-regular fa-file-lines" style="font-size: 100px;"></i>
-                <div class="col" style="margin-top: 10px;"><a href="{{ url_for('download', name=fi[3]) }}" style="font-size: 90%; text-decoration: none;">{{fi[3]}}</a></div>
+                <div class="col overflow-text" style="margin-top: 10px;"><a href="{{ url_for('download', name=fi[3]) }}" style="font-size: 90%; text-decoration: none;">{{fi[3]}}</a></div>
               </div>
               {% endfor %}
             </div>
@@ -370,7 +340,7 @@
             <h5 class="mb-3">Your manager</h5>
             <div class="row">
               <div class="col-lg-1" style="padding: inherit">
-                <img class="avatar" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=user['manager_id'])[0][0])}}" alt="avatar-img">
+                <img class="avatar wh-50" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=user['manager_id'])[0][0])}}" alt="avatar-img">
               </div>
               <div class="col-lg-11" style="margin:auto; padding: 0px;">
                 <h5>{{user['manager_name']}}</h5>
@@ -382,7 +352,7 @@
             {% for hr in db2.Select("v_employees").where(department_name="Human Resources") %}
             <div class="row">
               <div class="col-lg-1" style="padding: inherit">
-                <img class="avatar" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=hr[0])[0][0])}}" alt="avatar-img">
+                <img class="avatar wh-50" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=hr[0])[0][0])}}" alt="avatar-img">
               </div>
               <div class="col-lg-11" style="margin:auto; padding: 0px;">
                 <h5>{{hr[3]}}</h5>
@@ -408,105 +378,60 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <div class="container">
-            <form action="{{ url_for('upload_file', type='avatar') }}" method="post" enctype="multipart/form-data">
-              <div class="row mb-3">
-                <div class="col-lg-2" style="padding: inherit">
-                  <div class="container text-center" style="padding: 0;">
-                      <img id="output" class="image" src="{{url_for('static', filename=avatar[2])}}" alt="avatar-img" style="width: 100%; height: 100%;">
-                      <div class="overlay">
-                        <label for="file" class="btn btn-outline-secondary btn-sm profile-button">Upload</label>
-                        <input onchange="loadFile(event)" role="button" type="file" id="file" class="btn btn-outline-secondary btn-sm profile-button" name="file" hidden>
-                        <script>
-                          var loadFile = function (event) {
-                            var image = document.getElementById("output");
-                            image.src = URL.createObjectURL(event.target.files[0]);
-                          };
-                        </script>
-                      </div>
+          <div class="d-flex align-items-start">
+            <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+              <button class="nav-link active" style="text-align: left;" id="v-pills-information-tab" data-bs-toggle="pill" data-bs-target="#v-pills-information" type="button" role="tab" aria-controls="v-pills-information" aria-selected="true"><i class="fa-solid fa-circle-info"></i> Information</button>
+              <button class="nav-link" style="text-align: left;" id="v-pills-password-tab" data-bs-toggle="pill" data-bs-target="#v-pills-password" type="button" role="tab" aria-controls="v-pills-password" aria-selected="false"><i class="fa-solid fa-key"></i> Change Password</button>
+            </div>
+            <div class="tab-content" id="v-pills-tabContent">
+              <div class="tab-pane fade show active" id="v-pills-information" role="tabpanel" aria-labelledby="v-pills-information-tab" tabindex="0">
+                <div class="container">
+                  <div class="row mb-3">
+                    <div class="col">
+                      <label class="form-label">Phone Number</label>
+                      <input type="text" class="form-control" placeholder="Phone number" value="{{user['phone']}}">
+                    </div>
+                  </div>
+                  <div class="row mb-3">
+                    <div class="col">
+                      <label class="form-label">Addresses</label>
+                      <input type="text" class="form-control" placeholder="First Addresses" value="{{user['address']}}">
+                    </div>
                   </div>
                 </div>
-                <div class="col-lg-9">
-                  <h2 style="text-align:left; margin-left: 20px;">{{user['first'] + ' ' + user['last']}}</h2>
-                  <hr>
-                  <h4 style="margin-left: 20px;">{{user['role']}}</h4>
+              </div>
+              <div class="tab-pane fade" id="v-pills-password" role="tabpanel" aria-labelledby="v-pills-password-tab" tabindex="0">
+                <div class="container">
+                  <div class="row">
+                    <div class="mb-3">
+                      <label for="oldPassword" class="form-label">Old Password</label>
+                      <input type="password" class="form-control" id="oldPassword" required>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="mb-3">
+                      <label for="newPasswrd" class="form-label">New Password</label>
+                      <input type="password" class="form-control" id="newPasswrd" required>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="mb-3">
+                      <label for="confirmPassword" class="form-label"> Confirm Password</label>
+                      <input type="password" class="form-control" id="confirmPassword" required>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div class="row mb-3">
-                <div class="col-lg-6">
-                  <label class="form-label">Phone Number</label>
-                  <input type="text" class="form-control" placeholder="Phone number" value="{{user['phone']}}">
-                </div>
-              </div>
-              <div class="row mb-3">
-                <div class="col-lg-12">
-                  <label class="form-label">Addresses</label>
-                  <input type="text" class="form-control" placeholder="First Addresses" value="{{user['address']}}">
-                </div>
-              </div>
-              <div class="row mb-3">
-                <div class="col" >
-                  <button class="btn btn-primary" type="submit">Save</button>
-                </div>
-              </div>
-            </form>
-            <hr>
-            <div class="row mb-3">
-              <div class="col">
-                <h5>Change Password</h5>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col-lg-6">
-                <button class="btn btn-primary" data-bs-target="#changePassword" data-bs-toggle="modal">Change Password</button>
               </div>
             </div>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
         </div>
       </div>
     </div>
   </div>
-  <form>
-    <div class="modal fade" id="changePassword" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">Change Password</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div class="container">
-              <div class="row">
-                <div class="mb-3">
-                  <label for="oldPassword" class="form-label">Old Password</label>
-                  <input type="password" class="form-control" id="oldPassword" required>
-                </div>
-              </div>
-              <div class="row">
-                <div class="mb-3">
-                  <label for="newPasswrd" class="form-label">New Password</label>
-                  <input type="password" class="form-control" id="newPasswrd" required>
-                </div>
-              </div>
-              <div class="row">
-                <div class="mb-3">
-                  <label for="confirmPassword" class="form-label"> Confirm Password</label>
-                  <input type="password" class="form-control" id="confirmPassword" required>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button class="btn btn-primary" type="submit">Save Changes</button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </form>
   <!-- Page content -->
   <div class="content">
     <div class="top" id="index">
@@ -515,9 +440,33 @@
           <h1>Welcome {{user['first']}}!</h1>
           <p>{{user['role']}}</p>
         </div>
-        <div class=" col col-lg-1 col-md-2 col-sm-6 dropdown">
-          <div class="container text-center" style="padding: 0;">
-            <img class="image" src="{{url_for('static', filename=avatar[2])}}" alt="avatar-img" style="width: 100%; height: 100%;">
+        <!-- Avatar -->
+        <div class=" col col-lg-1 col-md-2 col-sm-6">
+          <div class="main-avatar container text-center" style="padding: 0;">
+            <img class="avatar wh-100" src="{{url_for('static', filename=avatar[2])}}" alt="avatar-img" style="float:right;">
+              <span class="position-absolute bottom-0 start-100 translate-middle badge rounded-pill bg-dark edit-icon">
+                <i id="editIcon" class="fa-solid fa-wand-magic-sparkles"></i>
+                <button id="changeAvatarModal" style="display:none;" type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#avatarChangeModal">Launch demo modal</button>
+                <span class="visually-hidden">unread messages</span>
+              </span>
+            <!-- Change Avatar Modal -->
+            <div class="modal fade" id="avatarChangeModal" tabindex="-1" aria-labelledby="avatarChangeModalLabel" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="avatarChangeModalLabel">Modal title</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    ...
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

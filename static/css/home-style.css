@@ -32,10 +32,10 @@ Body {
   }
 
 .container {
-    min-width: 100%;
+    min-width: 100% !important;
     background-color: white;
-    padding: 5%;
-    position: static;
+    padding: 5% !important;
+    position: static !important;
 }
 
 .no-bg {

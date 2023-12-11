@@ -88,9 +88,9 @@
                                     <ul class="list-group">
                                       {% for item in db2.Select("t_tasks").where(task_list_id=accordion[2]) %}
                                       <li class="list-group-item">
-                                        <input class="form-check-input me-1" type="checkbox" value="1" name="{{item[0]}}" id="firstCheckbox"
-                                               {%if db2.checked(day, user['id']) %} checked {%endif%}>
-                                        <label class="form-check-label" for="firstCheckbox" name="">{{item[1]}}</label>
+                                        <input class="form-check-input me-1" type="checkbox" value="1" name="{{item[0]}}" id="first{{item[0]}}Checkbox"
+                                               {%if db2.checked(day, user['id'], item[0]) %} checked {%endif%}>
+                                        <label class="form-check-label" for="first{{item[0]}}Checkbox" name="">{{item[1]}}</label>
                                       </li>
                                       {% endfor %}
                                     </ul>
@@ -116,7 +116,7 @@
         {% endfor %}
       </div>
       <!-- END Calendar -->
-      <div id="aboutYou" class="col char">
+      <div id="aboutYou" class="col box">
         <h2 class="title" style="text-align: left; margin:20px;"><i class="fa-solid fa-circle-info"></i> About you</h2>
         <hr>
         <div class="table-responsive">
@@ -165,7 +165,7 @@
     </div>
     <div class="row">
         <div class="col-lg-9 col-sm-12">
-            <div class="col char" style="margin: 0;">
+            <div class="col box" style="margin: 0;">
               <h5 style="text-align: left; margin: 10px 20px 0;"><i class="fa-solid fa-business-time"></i> Time off</h5>
               <hr style="margin-bottom: 0;">
             </div>
@@ -220,7 +220,7 @@
               </button>
             </div>
           </div>
-        <div class="col char" style="text-align: center;">
+        <div class="col box" style="text-align: center;">
             <h5  style="text-align: left; margin: 10px 20px 0;"><i class="fa-solid fa-calendar-day"></i> Timesheet completed</h5>
             <hr>
             <div class="pie animate no-round" style="--p:{{cal.timesheet_completed(user['id'])}};--c:green;"> {{cal.timesheet_completed(user['id'])}}%</div>

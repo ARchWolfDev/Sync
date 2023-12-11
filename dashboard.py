@@ -37,20 +37,12 @@ class Dashboard(Calendar, Database):
     def month_in_progres(self):
         currtent = f"{datetime.datetime.now().year}-{datetime.datetime.now().month}"
         if self.date == currtent:
-            percent = (self.day / self.business_days()) * 100
+            percent = (self.day / self.month_days_count) * 100
             return round(percent)
         elif self.date < currtent:
             return 100
         else:
             return 0
-
-    def month_status(self):
-        if self.month_in_progres() == 100:
-            return '<span class="badge text-bg-success" style="float:right;">Completed</span>'
-        elif self.month_in_progres() < 100:
-            return '<span class="badge text-bg-secondary" style="float:right;">In progress</span>'
-        else:
-            return '<span class="badge text-bg-light" style="float:right;">Not started yer</span>'
 
     def employee_list(self):
         """ Return a list of all employees in json type for Timesheet CHART"""
@@ -64,7 +56,11 @@ class Dashboard(Calendar, Database):
         employees = self.Select("v_employees").where(operator="<=", hire_date=f"{self.date}-%")
         for _ in employees:
             ts_data = self.Select("v_req_timesheet").where(user_id=_[0], date=f"{self.date}-%")
+            print(ts_data)
             percent = (len(ts_data) / self.business_days()) * 100
+            print(len(ts_data))
+            print(self.business_days())
+            print(percent)
             tsc.append(round(percent))
         return tsc
 

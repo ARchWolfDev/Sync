@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-
 {% block title %}Admin: Dashboard{% endblock %}
 {% block content %}
     <div class="row">
@@ -10,14 +9,14 @@
       <!-- Information -->
       <div class="col-lg-9">
         <div class="container">
+          {% if db2.Select("v_req_tickets").where(status=1, assigned_id=user['id']) %}
           <div class="row mb-3 ">
-            {% if db2.Select("v_req_tickets").where(status=1, assigned_id=user['id']) %}
             <div class="alert alert-warning alert-dismissible fade show" role="alert" style="margin: 0px">
               <strong>Ticket assigned to you!</strong> You have a new ticket assigned to you. Please check the Requests Tab.
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-            {% endif %}
           </div>
+          {% endif %}
           <!--filter start-->
           <form class="row mb-3" action="{{ url_for('admin', id='dashboard') }}" method="post">
             <div class="col-md-2 offset-md-9" style="padding:0;">
@@ -30,20 +29,20 @@
           <!-- Employees count/info -->
           <div class="row mb-3">
             <div class="col-3">
-              <div class="col char" style="margin: 0px 0px 10px 0px;">
+              <div class="col box" style="margin: 0px 0px 10px 0px;">
               <h5><i class="fa-solid fa-users"></i> All employees</h5>
                 <h1>
                   {{dash.all_employees_count()}}
                 </h1><p>employees until {{dash.month_name}} {{dash.year}}</p>
               </div>
-              <div class="col char" style="margin: 10px 0px 0px 0px;">
+              <div class="col box" style="margin: 10px 0px 0px 0px;">
               <h5><i class="fa-solid fa-user-plus"></i> Hired this month</h5>
                 <h1>
                   {{ dash.hired_on_selected_month() }}
                 </h1><p>employees hired in {{dash.month_name}} {{dash.year}}</p>
               </div>
             </div>
-            <div class="col char">
+            <div class="col box">
               <h5>Open Departments</h5>
                 <ul class="list-group">
                   {% for department in db2.Select("t_departments").all() %}
@@ -55,7 +54,7 @@
                   {% endfor %}
                 </ul>
             </div>
-            <div class="col-3 char">
+            <div class="col-3 box">
               <h5>
                 Average departments
               </h5>
@@ -87,58 +86,27 @@
               </script>
             </div>
           </div>
-<!--          <div class="row mb-3">-->
-<!--            <div class="col char">-->
-<!--              <canvas id="EmployeeChart" style="width: 100%; max-height: 300px;"></canvas>-->
-<!--              <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
-<!--              <script>-->
-<!--                const ctx = document.getElementById('EmployeeChart');-->
-
-<!--                new Chart(ctx, {-->
-<!--                  type: 'bar',-->
-<!--                  data: {-->
-<!--                    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'Spetember', 'October', 'November', 'December'],-->
-<!--                    datasets: [{-->
-<!--                      label: 'Number of Employees by Month',-->
-<!--                      data: [12, 19, 3, 5, 2, 3],-->
-<!--                      borderWidth: 1-->
-<!--                    }]-->
-<!--                  },-->
-<!--                  options: {-->
-<!--                    scales: {-->
-<!--                      y: {-->
-<!--                        beginAtZero: true-->
-<!--                      }-->
-<!--                    }-->
-<!--                  }-->
-<!--                });-->
-<!--              </script>-->
-<!--            </div>-->
-<!--          </div>-->
           <!-- Timesheet info -->
-          <div class="row mb-3 char">
+          <div class="row mb-3 box" id="monthProgress">
             <h5 style="padding:0px;" >{{dash.month_name}} status</h5>
             <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="{{dash.month_in_progres()}}" aria-valuemin="0" aria-valuemax="100" style="padding:0px">
               <div class="progress-bar" style="width: {{dash.month_in_progres()}}%">{{dash.month_in_progres()}}%</div>
             </div>
-            <script>
-
-            </script>
           </div>
-          <div class="row mb-3 char">
+          <div class="row mb-3 box">
             <h5 style="padding: 0px">Timesheet</h5>
-            <div class="col char" style="background-color: #ffeb99;">
+            <div class="col box" style="background-color: #ffeb99; margin-left:0px;">
               <h5><i class="fa-solid fa-hourglass-end"></i> Pending requests <strong style="float:right;">{{dash.timesheet_count(1)}}</strong></h5>
             </div>
-            <div class="col char" style="background-color: #99ff99;">
+            <div class="col box" style="background-color: #99ff99;">
               <h5><i class="fa-solid fa-check"></i> Approved requests <strong style="float:right;">{{dash.timesheet_count(2)}}</strong></h5>
             </div>
-            <div class="col char" style="background-color: #ff9999;">
+            <div class="col box" style="background-color: #ff9999; margin-right:0px;">
               <h5><i class="fa-solid fa-x"></i> Rejected requests <strong style="float:right;">{{dash.timesheet_count(3)}}</strong></h5>
             </div>
           </div>
           <div class="row mb-3">
-            <div class="col char" style="width: 50%">
+            <div class="col box" style="width: 50%">
               <canvas id="myChart" style="width:100%; max-height: 300px;"></canvas>
               <script type="text/javascript">
                 var xValues = {{dash.employee_list()|safe}};
@@ -169,7 +137,7 @@
                 });
             </script>
             </div>
-            <div class="col-lg-3 char">
+            <div class="col-lg-3 box">
               <h5>Average</h5>
               <hr style="margin: 10px 0px">
               <canvas id="myAverageChart" style="width:100%; height:200px"></canvas>
@@ -202,7 +170,7 @@
           </div>
           <!-- Time Off information.  -->
           <div class="row mb-3">
-            <div class="col-4 char" >
+            <div class="col-4 box" >
               <h5>New Time off requests</h5>
               {% if db2.Select("v_req_time_off").where(status=1)|length == 0 %}
               <h6 style="padding: 25%;">No new Time Off requests</h6>
@@ -214,7 +182,7 @@
               </ul>
               {% endif %}
             </div>
-            <div class="col char">
+            <div class="col box">
               <h5 class="title">Time off {{dash.month_name}} {{dash.year}}</h5>
               <div class="row week">
                 <div class="col">Sun</div>

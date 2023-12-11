@@ -39,7 +39,7 @@
                     <a href="{{url_for('profile', id=employee[0])}}" class="list-group-item list-group-item-action" aria-current="true">
                       <div class="row">
                         <div class="col-lg-3" style="padding: inherit">
-                          <img class="avatar" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=employee[0])[0][0])}}" alt="avatar-img">
+                          <img class="avatar wh-65" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=employee[0])[0][0])}}" alt="avatar-img">
                         </div>
                         <div class="col-lg-9">
                           <h5>{{employee[1] + ' ' + employee[2]}}</h5>
@@ -55,7 +55,7 @@
             </div>
           </div>
           {% for off in cal.off_today() %}
-            <div class="char" style="background-color:#9ec5fe; margin: 20px 0px;">
+            <div class="box" style="background-color:#9ec5fe; margin: 20px 0px;">
               <h5>{{off}}</h5>
               <p style="margin:0;"><i class="fa-solid fa-business-time"></i> Off Today</p>
             </div>

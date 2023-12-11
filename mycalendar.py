@@ -4,6 +4,7 @@ import numpy as np
 from database_connection import CURSOR, Database
 import pandas as pd
 from pytz import timezone
+from dateutil.relativedelta import *
 
 db = Database()
 
@@ -13,15 +14,18 @@ class Calendar:
     def __init__(self):
         calendar.setfirstweekday(calendar.SUNDAY)
         dt.datetime.now(timezone('CET'))
+        self.current_complete_date = dt.datetime.now().date()
         self.day = dt.datetime.now().day
         self.month = dt.datetime.now().month
         self.year = dt.datetime.now().year
         self.current_month = calendar.monthcalendar(self.year, self.month)
         self.month_selected = None
         self.month_name = calendar.month_name[self.month]
+        print(self.month_name)
         self.current_month_year = f'{self.month}/{self.year}'
         self.current_year_month = f"{self.year}-{self.month}"
         self.business_days()
+        self.month_days_count = calendar.monthrange(self.year, self.month)[1]
 
 
     def select_month(self, *args):
@@ -70,13 +74,11 @@ class Calendar:
 
     def business_days(self):
         month_now = self.date_format("yyyy-mm")
-        next_month = self.month + 1
-        if next_month > 12:
-            next_month = 1
-        if len(str(next_month)) == 1:
-            next_month = f"{self.year}-0{next_month}"
+        next_month = self.current_complete_date + relativedelta(months=+1)
+        if len(str(next_month.month)) == 1:
+            next_month = f"{next_month.year}-0{next_month.month}"
         else:
-            next_month = f"{self.year}-{next_month}"
+            next_month = f"{next_month.year}-{next_month.month}"
         business_days = np.busday_count(month_now, next_month)
         return business_days
 

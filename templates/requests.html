@@ -12,15 +12,15 @@
               <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                 <li class="nav-item" role="presentation">
                   <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-timesheet" type="button" role="tab" aria-controls="pills-home" aria-selected="true">
-                    Timesheet <span class="badge text-bg-warning">{{db2.Select("v_req_timesheet").where(status=1)|length}}</span></button>
+                    Timesheet {% if db2.Select("v_req_timesheet").where(status=1)|length != 0 %}<span class="badge text-bg-warning">{{db2.Select("v_req_timesheet").where(status=1)|length}}</span>{%endif%}</button>
                 </li>
                 <li class="nav-item" role="presentation">
                   <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-timeoff" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">
-                    Time off <span class="badge text-bg-warning">{{db2.Select("v_req_time_off").where(status=1)|length}}</span></button>
+                    Time off {% if db2.Select("v_req_time_off").where(status=1)|length != 0 %}<span class="badge text-bg-warning">{{db2.Select("v_req_time_off").where(status=1)|length}}</span>{%endif%}</button>
                 </li>
                 <li class="nav-item" role="presentation">
                   <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-hrRequests" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">
-                    Requests <span class="badge text-bg-warning">{{db2.Select("v_req_tickets").where(status=1)|length}}</span></button>
+                    Requests {% if db2.Select("v_req_tickets").where(status=1)|length != 0 %}<span class="badge text-bg-warning">{{db2.Select("v_req_tickets").where(status=1)|length}}</span>{%endif%}</button>
                 </li>
               </ul>
             </div>
@@ -120,12 +120,12 @@
               </div>
             </div>
           </div>
-
           <div class="tab-content" id="pills-tabContent" style="padding:0;">
             <!-- TIMESHEET -->
             <div class="tab-pane fade show active" id="pills-timesheet" role="tabpanel" aria-labelledby="pills-home-tab" tabindex="0">
               <div class="accordion" id="accordionTimeSheetRequests">
                 {% for status in db2.Select("ct_status").all() %}
+                {% if status[0] != 6 and status[0] != 5 %}
                 <div class="accordion-item">
                   <h2 class="accordion-header">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{status[1]}}Requests" aria-expanded="true" aria-controls="collapse{{status[1]}}Requests">
@@ -136,7 +136,7 @@
                     <div class="accordion-body">
                       <form  action="{{ url_for('requests', class='timesheet') }}" method="post">
                         <input class="form-control" id="my{{status[1]}}Input" type="text" placeholder="Search.." style="width: 25%;">
-                        <table id="my{{status[1]}}-table" class="table table-hover" style="margin-top: 20px;">
+                        <table id="my{{status[1]}}-table" class="table table-hover align-middle" style="margin-top: 20px;">
                           <thead>
                           <tr>
                             <th scope="col"></th>
@@ -158,7 +158,7 @@
                             {% if timesheet[8] == user['id']%}
                               <tr>
                                 <td scope="col" style="width: 5%">
-                                  <img class="avatar" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=timesheet[1])[0][0])}}" alt="avatar-img" style="width:100%">
+                                  <img class="avatar wh-50" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=timesheet[1])[0][0])}}" alt="avatar-img">
                                 </td>
                                 <td scope="col" style="width: 25%;">{{timesheet[2]}} - {{timesheet[1]}}</td>
                                 <td scope="col">{{timesheet[4]}}</td>
@@ -280,6 +280,7 @@
                     </div>
                   </div>
                 </div>
+                {% endif %}
                 {% endfor %}
               </div>
             </div>
@@ -287,6 +288,7 @@
             <div class="tab-pane fade" id="pills-timeoff" role="tabpanel" aria-labelledby="pills-profile-tab" tabindex="0">
               <div class="accordion" id="accordionTimeOffRequests">
                 {% for status in db2.Select("ct_status").all() %}
+                {% if status[0] != 6 and status[0] != 5 %}
                 <div class="accordion-item">
                   <h2 class="accordion-header">
                     <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{status[1]}}OffRequests" aria-expanded="true" aria-controls="collapse{{status[1]}}OffRequests">
@@ -297,7 +299,7 @@
                     <div class="accordion-body">
                       <form  action="{{ url_for('requests', class='timeOff') }}" method="post">
                         <input class="form-control" id="my{{status[1]}}ToffInput" type="text" placeholder="Search.." style="width: 25%;">
-                        <table id="my{{status[1]}}tOff-table" class="table table-hover" style="margin-top: 20px;">
+                        <table id="my{{status[1]}}tOff-table" class="table table-hover align-middle" style="margin-top: 20px;">
                           <thead>
                           <tr>
                             <th scope="col"></th>
@@ -445,6 +447,7 @@
                     </div>
                   </div>
                 </div>
+                {% endif %}
                 {% endfor %}
               </div>
             </div>
@@ -460,7 +463,7 @@
                   <div id="collapseHrRequestPending" class="accordion-collapse collapse show" data-bs-parent="#accordionHrRequest">
                     <div class="accordion-body">
                       <form  action="{{ url_for('requests', class='tickets') }}" method="post">
-                        <table class="table table-hover" style="margin-top: 20px;">
+                        <table class="table table-hover align-middle" style="margin-top: 20px;">
                           <thead>
                           <tr>
                             <th scope="col"></th>
@@ -514,7 +517,7 @@
                   <div id="collapseHrRequestResolved" class="accordion-collapse collapse" data-bs-parent="#accordionHrRequest">
                     <div class="accordion-body">
                       <form  action="{{ url_for('requests', class='tickets') }}" method="post">
-                        <table class="table table-hover" style="margin-top: 20px;">
+                        <table class="table table-hover align-middle" style="margin-top: 20px;">
                           <thead>
                           <tr>
                             <th scope="col"></th>

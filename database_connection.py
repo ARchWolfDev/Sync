@@ -1,5 +1,6 @@
 import psycopg2.extras
 import numpy as np
+import os
 
 import encoder
 import send_email
@@ -353,6 +354,8 @@ class Database:
                 self.department()
             elif req_type == "tasksList":
                 self.tasks_list()
+            elif req_type == "doc":
+                self.document()
             else:
                 self.delete()
 
@@ -383,9 +386,17 @@ class Database:
             for link in self.db.Select("t_dep_tasklist_link").where(task_list_id=self.id):
                 self.db.Delete(req_type="depLinkTasklist", id=link[0])
 
-    def checked(self, day, user):
+        def document(self):
+            db_data = self.db.Select(self.table).where(id=self.id)[0]
+            path = db_data[2]
+            file_name = db_data[3]
+            file_to_delete = os.path.join(path, file_name)
+            os.remove(file_to_delete)
+            self.delete()
+
+    def checked(self, day, user, task_id):
         date = str(self.Select().current_date())[:8] + str(day)
-        if self.Select('t_req_timesheet_tasks').where(date=date, user_id=user):
+        if self.Select('t_req_timesheet_tasks').where(date=date, user_id=user, task_id=task_id):
             return True
         else:
             return False
