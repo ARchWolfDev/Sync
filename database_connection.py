@@ -232,7 +232,7 @@ class Database:
             user_avatar = {
                 "id": self.data['id'],
                 "location": "static",
-                "file_name": "images/avatar.png"
+                "file_name": "images/avatar/avatar.png"
             }
             self.insert(user_avatar)
             self.table = "t_employees"

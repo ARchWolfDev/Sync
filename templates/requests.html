@@ -26,8 +26,8 @@
             </div>
             <div class="col" style="padding: 0;">
               <div class="btn-group" role="group"  style="float:right;" aria-label="Basic outlined example">
-                <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#exportModal"><i class="fa-solid fa-file-export"></i></button>
-                <button type="button" class="btn btn-light" data-bs-toggle="modal" data-bs-target="#importModal"><i class="fa-solid fa-file-import"></i></button>
+                <button type="button" class="btn btn-light data-tooltips" data-bs-toggle="modal" data-bs-target="#exportModal" data-bs-placement="top" data-bs-title="Export"><i class="fa-solid fa-file-export"></i></button>
+                <button type="button" class="btn btn-light data-tooltips" data-bs-toggle="modal" data-bs-target="#importModal"  data-bs-placement="top" data-bs-title="Import"><i class="fa-solid fa-file-import"></i></button>
               </div>
               <!--Export Modal-->
               <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -453,6 +453,14 @@
             </div>
             <!-- REQUESTS -->
             <div class="tab-pane fade" id="pills-hrRequests" role="tabpanel" aria-labelledby="pills-contact-tab" tabindex="0">
+              <div class="row">
+                <div class="col-6">
+
+                </div>
+                <div class="col-6">
+
+                </div>
+              </div>
               <div class="accordion" id="accordionHrRequest">
                 <div class="accordion-item">
                   <h2 class="accordion-header">
@@ -493,7 +501,7 @@
                                 <td scope="col">{{rq[4]}}</td>
                                 <td scope="col">
                                   <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="{{rq[0]}}" id="flexRadio{{rq[0]}}approve" value="2">
+                                    <input class="form-check-input" type="radio" name="{{rq[0]}}" id="flexRadio{{rq[0]}}approve" value="6">
                                     <label class="form-check-label" for="flexRadio{{rq[0]}}approve">
                                       Done
                                     </label>
@@ -536,7 +544,7 @@
                           </thead>
                           <tbody class="tbody">
                           {% for rq in db.select_all("v_req_tickets") %}
-                            {% if rq[7] == 2 and rq[5] == user['id']%}
+                            {% if rq[7] == 6 and rq[5] == user['id']%}
                               <tr>
                                 <td scope="col" style="width: 5%">
                                   <img class="avatar" src="{{url_for('static', filename=db2.Select('t_emp_avatar', row='file_name').where(id=rq[1])[0][0])}}" alt="avatar-img" style="width:100%">
@@ -547,7 +555,7 @@
                                 <td scope="col">{{rq[4]}}</td>
                                 <td scope="col">
                                   <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="{{rq[0]}}" id="flexRadio{{rq[0]}}approve" value="3">
+                                    <input class="form-check-input" type="radio" name="{{rq[0]}}" id="flexRadio{{rq[0]}}approve" value="5">
                                     <label class="form-check-label" for="flexRadio{{rq[0]}}approve">
                                       Delete
                                     </label>

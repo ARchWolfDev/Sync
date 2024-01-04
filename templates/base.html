@@ -18,8 +18,8 @@
 <body>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     {% for mesg in get_flashed_messages() %}
-      <div class="message" style="background-color:#ffcc00; z-index: 1;">
-        <p class="mesg" style="color:black;"><i class="fa-solid fa-triangle-exclamation"></i> {{ mesg }}</p>
+      <div class="message">
+        <p class="mesg"><i class="fa-solid fa-triangle-exclamation"></i> {{ mesg }}</p>
       </div>
     {% endfor %}
     {% include "header.html" %}

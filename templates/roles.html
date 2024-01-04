@@ -44,7 +44,7 @@
                               </li>
                               <li><a class="dropdown-item" href="{{ url_for('delete', id=role[0], item_type='roles' ) }}" style="color: red;">Delete</a></li>
                             </ul>
-                            <!-- Edit Task -->
+                            <!-- Edit Roles -->
                             <div class="modal fade" id="edit{{role[0]}}Task" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                               <div class="modal-dialog modal-dialog-centered">
                                 <form  action="{{ url_for('edit', item_type='roles') }}" method="post">
@@ -56,13 +56,16 @@
                                     <div class="modal-body">
                                       <div class="row g-3">
                                         <div class="col-3">
+                                          <label class="form-label">Role ID</label>
                                           <input type="text" class="form-control" placeholder="ID" aria-label="ID" name="id" value="{{role[0]}}" readonly>
                                         </div>
                                         <div class="col-9">
+                                          <label class="form-label">Role Name</label>
                                           <input type="text" class="form-control" placeholder="Task Name" aria-label="Task" name="name" value="{{role[1]}}">
                                         </div>
                                         <div class="row g-3">
                                           <div class="col" style="padding: 0;">
+                                            <label class="form-label">Department Name</label>
                                             <select class="form-select" aria-label="Default select example" name="department_id">
                                               <option selected value="{{role[2]}}">{{db2.Select("t_departments").where(id=role[2])[0][1]}}</option>
                                               {% for other in db2.Select('t_departments').all() %}

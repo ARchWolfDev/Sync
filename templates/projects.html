@@ -58,18 +58,22 @@
                                       <div class="modal-body">
                                         <div class="row g-3">
                                           <div class="col-3">
+                                            <label class="form-label">Project ID</label>
                                             <input type="text" class="form-control" placeholder="ID" value="{{project[0]}}" name="id" readonly>
                                           </div>
                                           <div class="col-9">
+                                            <label class="form-label">Project Name</label>
                                             <input type="text" class="form-control" placeholder="Project Name" value="{{project[2]}}" name="project_name">
                                           </div>
                                           <div class="row g-3">
                                             <div class="col" style="padding: 0;">
+                                              <label class="form-label">Client Name</label>
                                               <input type="text" class="form-control" placeholder="Client Name" value="{{project[1]}}" name="client_name">
                                             </div>
                                           </div>
                                           <div class="row g-3">
                                             <div class="col" style="padding: 0;">
+                                              <label class="form-label">Responsible Person</label>
                                               <select class="form-select" aria-label="Default select example" required name="responsible_id">
                                                 {% for employee in db.select_all("v_employees") %}
                                                   {% if employee[0] == project[3] %}

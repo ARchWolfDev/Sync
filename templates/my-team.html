@@ -14,6 +14,247 @@
       <!-- Information -->
       <div class="col-lg-9">
         <div class="col" style="margin:20px;">
+          <!-- Add New MODAL -->
+          <form  action="{{ url_for('create', item_type='employee') }}" method="post">
+            <div class="modal fade" id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalToggleLabel">Personal information</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="row g-3">
+                      <div class="col-2">
+                        <input type="text" class="form-control" placeholder="ID" aria-label="First name" name="id" value="{{db2.Select('cv_table_id').where(id='EMP-')[0][3]}}">
+                      </div>
+                      <div class="col-5">
+                        <input type="text" class="form-control" placeholder="First name" aria-label="First name" id="first" oninput="generateEmail()" name="first_name">
+                      </div>
+                      <div class="col-5">
+                        <input type="text" class="form-control" placeholder="Last name" aria-label="Last name" id="last" oninput="generateEmail()" name="last_name">
+                      </div>
+                      <div class="col-12">
+                        <label for="email1" class="form-label">Email</label>
+                        <input id="email1" type="email" class="form-control" placeholder="first.last@arch-dev.com" name="email">
+                      </div>
+                      <script>
+                          function generateEmail() {
+                            let first = document.getElementById("first").value;
+                            let last = document.getElementById("last").value;
+                            document.getElementById("email1").value = first.toLowerCase() + "." + last.toLowerCase()  + "@arch-dev.com";
+                          }
+                      </script>
+                      <div class="col-12">
+                        <label class="form-label">Address</label>
+                        <input type="text" class="form-control" name="address">
+                      </div>
+                      <div class="col">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" class="form-control" placeholder="1234567890" name="phone_number">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-primary" data-bs-target="#exampleModalToggle2" type="button" data-bs-toggle="modal">Next</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">Job information</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="row g-3">
+                      <div class="col-12">
+                        <label for="hireDate" class="form-label">Hire Date</label>
+                        <input type="date" class="form-control" id="hireDate" name="hire_date">
+                      </div>
+                      <div class="col-6">
+                        <label  class="form-label">Department</label>
+                        <select class="form-select" id="department">
+                          {% for dep in db2.Select("t_departments").all() %}
+                          <option value="{{dep[0]}}">{{dep[1]}}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                      <div class="col-6">
+                        <label class="form-label">Role</label>
+                        <select class="form-select" id="role" name="role">
+                        </select>
+                      </div>
+                      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+                      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+                      <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
+                      <script>
+                        $(document).ready(function () {
+
+                            function load_data(type, category_id) {
+                              $.ajax({
+                                  url: "/select_role",
+                                  method: "POST",
+                                  data: { type: type, category_id: category_id },
+                                  dataType: "json",
+                                  success: function (data) { //alert(category_id)
+                                      var html = "";
+                                      for (var count = 0; count < data.length; count++) {
+                                          html += '<option value="' + data[count].id + '">' + data[count].name + "</option>";
+                                      }
+                                      if (type == "empData") {
+                                          $("#department").html(html);
+                                          $("#department").selectmenu("refresh");
+                                      } else {
+                                          $("#role").html(html);
+                                          $("#role").selectmenu("refresh");
+                                      }
+                                  },
+                              });
+                            }
+
+                            $(document).on("change", "#department", function() {
+                              var category_id = $("#department").val();
+                              load_data("empRoledata", category_id);
+                            });
+                        });
+                      </script>
+                      <div class="col-6">
+                        <label class="form-label">Manager</label>
+                        <select class="form-select" aria-label="Default select example" name="manager_id">
+                          {% for manager in db.select_all("v_employees") %}
+                              <option value="{{manager[0]}}">{{ manager[3] }}</option>
+                          {% endfor %}
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-target="#exampleModalToggle" type="button" data-bs-toggle="modal">Back</button>
+                    <button class="btn btn-primary" data-bs-target="#exampleModalToggle3" type="button" data-bs-toggle="modal">Next</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal fade" id="exampleModalToggle3" aria-hidden="true" aria-labelledby="exampleModalToggleLabel3" tabindex="-1">
+              <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalToggleLabel3">Application information</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="row g-3">
+                      <div class="col">
+                        <label class="form-label">Select <strong style="color:#5E17EB;">Sync</strong> application role</label>
+                        <select class="form-select" name="app_role">
+                          <option selected disabled>Select..</option>
+                          <option value="1">Admin</option>
+                          <option value="2">Department Coordinator</option>
+                          <option value="3">Employee</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-target="#exampleModalToggle2" type="button" data-bs-toggle="modal">Back</button>
+                    <button class="btn btn-primary" type="submit" data-bs-toggle="modal">Submit</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+          <button class="btn btn-primary mb-3" data-bs-target="#exampleModalToggle" data-bs-toggle="modal">Add new employee</button>
+          <div class="btn-group" role="group"  style="float:right;" aria-label="Basic outlined example">
+            <button type="button" class="btn btn-light data-tooltips" data-bs-toggle="modal" data-bs-target="#exportModal" data-bs-placement="top" data-bs-title="Export"><i class="fa-solid fa-file-export"></i></button>
+            <button type="button" class="btn btn-light data-tooltips" data-bs-toggle="modal" data-bs-target="#importModal"  data-bs-placement="top" data-bs-title="Import"><i class="fa-solid fa-file-import"></i></button>
+          </div>
+          <!--Export Modal-->
+          <div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <form action="{{url_for('export_csv')}}" method="post">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Export</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="row g-3 align-items-center">
+                      <div class="col-12">
+                        Export data to <strong>.csv</strong> format file
+                      </div>
+                      <div class="col-3">
+                        <label class="col-form-label">Filter by</label>
+                      </div>
+                      <div class="col-9">
+                        <select class="form-select" id="selectField" aria-label="Default select example" name="export_type" required>
+                          <option value="" disabled selected>Select...</option>
+                          <option value="employee">All</option>
+                        </select>
+                      </div>
+                      <div class="card" id="timesheet">
+                        <div class="card-body">
+                          <div class="form-check">
+                            <input class="form-check-input" type="radio" name="flexRadioIndex" id="indexRadio1" value="1">
+                            <label class="form-check-label" for="indexRadio1">
+                              ID Based
+                            </label>
+                          </div>
+                          <div class="form-check">
+                            <input class="form-check-input" type="radio" name="flexRadioIndex" id="indexRadio2" checked value="2">
+                            <label class="form-check-label" for="indexRadio2">
+                              Complete information
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Export</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <!--Import Modal-->
+          <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+              <form action="{{url_for('import_csv')}}" method="post" enctype="multipart/form-data">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Import</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                  <div class="modal-body">
+                    <div class="row g-3 align-items-center">
+                      <div class="col-12">
+                        Import data from <strong>.csv</strong> format file ( Only ID Based )
+                      </div>
+                      <div class="col-3">
+                        <label class="col-form-label">Import for</label>
+                      </div>
+                      <div class="col-9">
+                        <select class="form-select" aria-label="Default select example" name="import_type">
+                          <option value="employee" disabled selected>Employees</option>
+                        </select>
+                      </div>
+                      <div>
+                        <input type="file" class="form-control" aria-label="Upload" name="file">
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Import</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
           <div class="accordion" id="accordionExample">
             {% for department in db.select_all("t_departments") %}
             <div class="accordion-item">
@@ -24,90 +265,8 @@
               </h2>
               <div id="your{{department[0]}}Team" class="accordion-collapse collapse show" aria-labelledby="headingYour{{department[0]}}" data-bs-parent="#accordionExample">
                 <div class="accordion-body">
-                  <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#your{{department[0]}}Modal">Add new</button>
                   <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#edityour{{department[0]}}DepartmentModal">Edit</button>
-                  <button type="button" class="btn btn-outline-secondary btn-sm" disabled>Members count: {{db2.Select("v_employees").where(department_id=department[0])|length}}</button>
                   <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteyour{{department[0]}}DepartmentModal" style="float: right;">Delete</button>
-                  <!-- Add New MODAL -->
-                  <div class="modal fade" id="your{{department[0]}}Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                      <form  action="{{ url_for('create', item_type='employee') }}" method="post">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="exampleModalLabel">Add new to {{department[1]}} Team</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                          </div>
-                          <div class="modal-body">
-                            <div class="row g-3">
-                              <div class="col-2">
-                                <input type="text" class="form-control" placeholder="ID" aria-label="First name" name="id" value="{{db2.Select('cv_table_id').where(id='EMP-')[0][3]}}">
-                              </div>
-                              <div class="col-5">
-                                <input type="text" class="form-control" placeholder="First name" aria-label="First name" id="first" oninput="generateEmail()" name="first_name">
-                              </div>
-                              <div class="col-5">
-                                <input type="text" class="form-control" placeholder="Last name" aria-label="Last name" id="last" oninput="generateEmail()" name="last_name">
-                              </div>
-                              <div class="col-12">
-                                <label for="email1" class="form-label">Email</label>
-                                <input id="email1" type="email" class="form-control" placeholder="first.last@arch-dev.com" name="email">
-                              </div>
-                              <script>
-                                  function generateEmail() {
-                                    let first = document.getElementById("first").value;
-                                    let last = document.getElementById("last").value;
-                                    document.getElementById("email1").value = first.toLowerCase() + "." + last.toLowerCase()  + "@arch-dev.com";
-                                  }
-                              </script>
-                              <div class="col-6">
-                                <label for="inputAddress" class="form-label">Role</label>
-                                <select class="form-select" aria-label="Default select example" name="role" required>
-                                  <option selected disabled value="">Role..</option>
-                                  {% for role in db.select("t_roles", "department_id", department[0]) %}
-                                  <option value="{{role[0]}}">{{role[1]}}</option>
-                                  {% endfor %}
-                                </select>
-                              </div>
-                              <div class="col-6">
-                                <label for="inputAddress" class="form-label">Manager</label>
-                                <select class="form-select" aria-label="Default select example" name="manager_id">
-                                  <option selected>Manager..</option>
-                                  {% for manager in db.select_all("v_employees") %}
-                                  <option value="{{manager[0]}}">{{ manager[3] }}</option>
-                                  {% endfor %}
-                                </select>
-                              </div>
-                              <div class="col-6">
-                                <label for="hireDate" class="form-label">Hire Date</label>
-                                <input type="date" class="form-control" id="hireDate" name="hire_date">
-                              </div>
-                              <div class="col-12">
-                                <label for="inputAddress" class="form-label">Address</label>
-                                <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St" name="address">
-                              </div>
-                              <div class="col-12">
-                                <label for="inputNumber" class="form-label">Phone Number</label>
-                                <input type="text" class="form-control" id="inputNumber" placeholder="123456789" name="phone_number">
-                              </div>
-                              <div class="col-6">
-                                <label for="applicationRole" class="form-label"><strong style="color:#5E17EB;">Sync</strong> role</label>
-                                <select class="form-select" id="applicationRole" name="app_role">
-                                  <option selected disabled></option>
-                                  <option value="1">Admin</option>
-                                  <option value="2">Department Coordinator</option>
-                                  <option value="3">Employee</option>
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                          <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button onclick="loader()" type="submit" class="btn btn-primary">Save changes</button>
-                          </div>
-                        </div>
-                      </form>
-                    </div>
-                  </div>
                   <!-- Edit Department Modal -->
                   <div class="modal fade" id="edityour{{department[0]}}DepartmentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div class="modal-dialog modal-dialog-centered">

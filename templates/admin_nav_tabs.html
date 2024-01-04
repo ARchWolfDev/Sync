@@ -8,10 +8,10 @@
         <a onclick="loader()" class="nav-link {% if active_tab == 'my-team' %}active{% endif %}" href="{{url_for('admin', id='my-team')}}">My Team</a>
       </li>
       <li class="nav-item" role="presentation">
-        <a onclick="loader()" class="nav-link {% if active_tab == 'projects' %}active{% endif %}" href="{{url_for('admin', id='projects')}}">Projects</a>
+        <a onclick="loader()" class="nav-link {% if active_tab == 'requests' %}active{% endif %}" href="{{url_for('admin', id='requests')}}">Requests</a>
       </li>
       <li class="nav-item" role="presentation">
-        <a onclick="loader()" class="nav-link {% if active_tab == 'requests' %}active{% endif %}" href="{{url_for('admin', id='requests')}}">Requests</a>
+        <a onclick="loader()" class="nav-link {% if active_tab == 'projects' %}active{% endif %}" href="{{url_for('admin', id='projects')}}">Projects</a>
       </li>
       <li class="nav-item" role="presentation">
         <a onclick="loader()" class="nav-link {% if active_tab == 'tasks' %}active{% endif %}" href="{{url_for('admin', id='tasks')}}">Tasks</a>

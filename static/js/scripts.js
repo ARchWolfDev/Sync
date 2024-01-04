@@ -76,4 +76,48 @@ $("#editIcon").click(function(){
     $("#changeAvatarModal").click();
 })
 
+$("#v-pills-tabContent input").on("keyup", function(){
+    $("#btnSetting").removeAttr('disabled');
+})
 
+$("#btnSetting").click(function(){
+    if ($("#v-pills-information").hasClass("active")) {
+        $("#infoSave").click();
+    } else if ($("#v-pills-password").hasClass("active")){
+        $("#passSave").click();
+    }
+})
+
+$("#passAlert").hide()
+$("#newPasswrd, #confirmPassword").on("keyup", function(){
+    var pass1 = $("#newPasswrd").val()
+    var pass2 = $("#confirmPassword").val()
+    console.log(pass1);
+    console.log(pass2);
+    if (pass1 !== pass2) {
+        $("#passAlert").show()
+        $("#btnSetting").attr('disabled', 'disabled');
+    } else {
+        $("#passAlert").hide()
+    }
+})
+$(document).ready(function(){
+    $(".trash-btn").on("click", function(){
+        var element = $(this).data("id");
+        $.ajax({
+            type: "POST",
+            url: "/delete/doc?id=" + element,
+            success: function(response){
+                if (response.status === "success"){
+                    var elementID = $("#" + element + "Box").remove();
+                }
+                else {
+                    alert("Error to delete the file. Please try again")
+                }
+            }
+        })
+    })
+})
+
+const tooltipTriggerList = document.querySelectorAll('.data-tooltips')
+const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))

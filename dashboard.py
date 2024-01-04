@@ -55,6 +55,9 @@ class Dashboard(Calendar, Database):
         tsc = []
         employees = self.Select("v_employees").where(operator="<=", hire_date=f"{self.date}-%")
         for _ in employees:
+            print(self.date)
+            if len(self.date) == 6:
+                self.date = f"{self.year}-0{self.month}"
             ts_data = self.Select("v_req_timesheet").where(user_id=_[0], date=f"{self.date}-%")
             print(ts_data)
             percent = (len(ts_data) / self.business_days()) * 100

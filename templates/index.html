@@ -88,9 +88,9 @@
                                     <ul class="list-group">
                                       {% for item in db2.Select("t_tasks").where(task_list_id=accordion[2]) %}
                                       <li class="list-group-item">
-                                        <input class="form-check-input me-1" type="checkbox" value="1" name="{{item[0]}}" id="first{{item[0]}}Checkbox"
+                                        <input class="form-check-input me-1" type="checkbox" value="1" name="{{item[0]}}"
                                                {%if db2.checked(day, user['id'], item[0]) %} checked {%endif%}>
-                                        <label class="form-check-label" for="first{{item[0]}}Checkbox" name="">{{item[1]}}</label>
+                                        <label class="form-check-label" name="">{{item[1]}}</label>
                                       </li>
                                       {% endfor %}
                                     </ul>

@@ -12,15 +12,13 @@ import files
 import dashboard as dash
 import export_import
 import encoder
-import json
-from TEST_dashboard import Dashboard
 
 app = Flask(__name__)
 Bootstrap(app)
 
 SECRET_KEY = 'Xn2r5u8x!A%D*G-K'
-UPLOAD_FOLDER = 'static/files/'
-AVATAR_FOLDER = 'static/'
+UPLOAD_FOLDER = 'static/files/userfiles/'
+AVATAR_FOLDER = 'static'
 CSV_FOLDER = 'static/csv/'
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'csv'}
 
@@ -93,7 +91,7 @@ def register():
             user = {
                 'id': user.id,
                 'password': generate_password_hash(pass1)
-                }
+            }
             req_type = "users"
             db2.Update(req_type, user)
             flash("Register successfully!")
@@ -167,6 +165,7 @@ def profile(id):
                            avatar=avatar,
                            nt=nt.read())
 
+
 @app.route("/search", methods=["GET", "POST"])
 @login_required
 def search():
@@ -179,6 +178,7 @@ def search():
     return render_template('profile.html', db=db, db2=db2, user=logged_user, cal=cal, profile=user_profile, files=doc,
                            avatar=avatar,
                            nt=nt.read())
+
 
 @app.route("/create/<item_type>", methods=["POST"])
 @login_required
@@ -211,8 +211,21 @@ def edit(item_type):
         dict_items[key] = value
     print(dict_items)
     print(item_type)
-    db.Database().Update(req_type=item_type, data=dict_items)
-    flash("Request submitted!")
+    flash_message = "Request submitted!"
+    if item_type == "users":
+        new_password = dict_items['new_password1']
+        db_password = db2.Select("t_users").where(id=current_user.id)[0][2]
+        if check_password_hash(db_password, dict_items['old_password']):
+            dict_items = {
+                "id": dict_items['id'],
+                'password': generate_password_hash(new_password)
+            }
+            db.Database().Update(req_type=item_type, data=dict_items)
+        else:
+            flash_message = "The current password is not correct!"
+    else:
+        db.Database().Update(req_type=item_type, data=dict_items)
+    flash(flash_message)
     url = request.referrer
     return redirect(url)
 
@@ -240,6 +253,8 @@ def delete(item_type):
     print(item_type)
     print(id)
     db.Database().Delete(req_type=item_type, id=id)
+    if item_type == "doc":
+        return jsonify({"status": "success"})
     flash("Request submitted!")
     url = request.referrer
     return redirect(url)
@@ -280,7 +295,7 @@ def upload_file(type):
             return redirect(url_for("index"))
         if file and allowed_file(file.filename):
             if type == "avatar":
-                filename = f"images/{file.filename}"
+                filename = f"images/avatar/{file.filename}"
 
                 data = {
                     'id': current_user.id,
@@ -293,11 +308,14 @@ def upload_file(type):
                 print(filename, current_user.id)
                 db_upload_data = {
                     "user_id": current_user.id,
-                    "file_path": app.config['UPLOAD_FOLDER'],
+                    "file_path": app.config['UPLOAD_FOLDER'] + current_user.id + "/",
                     "file_name": filename
                 }
+                user_path = app.config['UPLOAD_FOLDER'] + current_user.id
+                if not os.path.exists(user_path):
+                    os.makedirs(user_path)
                 db2.Insert(req_type=type, data=db_upload_data)
-                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                file.save(os.path.join(user_path, filename))
 
             flash('File uploaded successfully!')
             return redirect(url_for("index"))
@@ -309,8 +327,9 @@ def upload_file(type):
 @app.route('/download/', methods=['GET', 'POST'])
 @login_required
 def download():
-    filename = request.args.get('name')
-    return send_from_directory(UPLOAD_FOLDER, filename)
+    fileid = request.args.get('id')
+    doc_info = db2.Select("t_emp_doc").where(id=fileid)[0]
+    return send_from_directory(doc_info["file_path"], doc_info["file_name"])
 
 
 @app.route('/export', methods=['GET', 'POST'])
@@ -343,6 +362,12 @@ def import_csv():
 def logout():
     logout_user()
     return redirect(url_for('home'))
+
+
+@app.errorhandler(401)
+def unauthorized_error(error):
+    flash("You are not logged in! Please login!")
+    return render_template("login.html")
 
 
 if __name__ == "__main__":
